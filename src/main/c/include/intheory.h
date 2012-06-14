@@ -32,6 +32,17 @@ typedef struct {
   long value;
 } message;
 
+typedef struct {
+  int state; 
+  enum message_t type;
+  int depth; 
+  int node_num;
+  int nodes_left;
+  long ticket;
+  long slot;
+  long value;
+} state;
+
 void intheory_sm(enum role_t role);
 
 #endif

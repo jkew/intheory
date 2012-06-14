@@ -120,8 +120,8 @@ void test_proposer() {
   send = send2;
   sendidx = recvidx = 0;
   intheory_sm(LEADER);
-  //recv = recv3;
-  //send = send3;
-  //sendidx = recvidx = 0;
-  //sm(LEADER);
+  recv = recv3;
+  send = send3;
+  sendidx = recvidx = 0;
+  intheory_sm(LEADER);
 } 
