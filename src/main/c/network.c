@@ -3,14 +3,14 @@
 char ** nodes = 0; 
 int num_nodes = -1;
 
-message * (*recv_from)(int, long, int) = 0;
-int (*send_to)(int, long, enum message_t, long, long) = 0;
+message * (*recv_from)(int, long, unsigned int) = 0;
+int (*send_to)(int, long, int, long, long) = 0;
 
-message * recv_from_network(int from_node, long slot, enum message_t expected) {
+message * recv_from_network(int from_node, long slot, unsigned int mask) {
   return 0;
 }
 
-int send_to_network(int node, long ticket, enum message_t type, long slot, long value) {
+int send_to_network(int node, long ticket, int type, long slot, long value) {
   return -1;  
 }
 
