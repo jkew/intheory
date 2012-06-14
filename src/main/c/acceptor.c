@@ -36,6 +36,14 @@ state sm_acceptor_accepted(state s) {
   assert(s.nodes_left == -1 && s.node_num >= 0 && s.ticket >= 0 
 	 && s.type == ACCEPTED_PROPOSAL && s.slot >= 0);
   message *mesg = recv_from(-1, s.slot, PROPOSAL & SET);
+  if (mesg == 0) {
+    // unable to receive message from proposer, or any other
+    // system
+    error("No response from proposer");
+    s.state = S_AVAILABLE;
+    s.type = s.node_num = s.nodes_left = s.slot = s.ticket = s.value = -1;
+    return sm_acceptor(s);
+  }
   // New proposal received after acceptance
   if (mesg->type == PROPOSAL) {
     // ticket greater, accept again
@@ -54,8 +62,16 @@ state sm_acceptor_accepted(state s) {
       discard(mesg);
       return sm_acceptor(s);
     }
-  } 
+  }
+
   if (mesg->type == SET) {
+    if (mesg->ticket < s.ticket || s.node_num != mesg->from) {
+      // this is an old ticket, ignore
+      // or this is from a proposer we have relinquished our promise to
+      // should we send a reject message here?
+      discard(mesg);
+      return sm_acceptor(s);
+    }
     s.state = S_SET;
     s.nodes_left = num_nodes;
     s.node_num = 0;
