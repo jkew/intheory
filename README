@@ -1,4 +1,9 @@
 intheory
 ========
 
-Implementation of paxos, in theory.
+Implementation of paxos in c, in theory.
+
+./configure
+make
+make check
+

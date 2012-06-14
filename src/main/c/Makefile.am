@@ -1,4 +1,5 @@
 lib_LTLIBRARIES = libintheory-1.0.la
-libintheory_1_0_la_SOURCES = intheory.c network.c
+libintheory_1_0_la_SOURCES = intheory.c network.c proposer.c logger.c
 library_includedir=$(includedir)/intheory-1.0/intheory
-library_include_HEADERS = include/intheory.h include/network.h
+library_include_HEADERS = include/intheory.h include/network.h include/proposer.h include/logger.h
+

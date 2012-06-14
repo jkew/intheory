@@ -115,13 +115,13 @@ void test_proposer() {
   send = send1;
   recv_from = &recv_from_scenario; 
   send_to = &send_to_scenario; 
-  intheory_sm(LEADER);
+  intheory_sm(PROPOSER);
   recv = recv2;
   send = send2;
   sendidx = recvidx = 0;
-  intheory_sm(LEADER);
+  intheory_sm(PROPOSER);
   recv = recv3;
   send = send3;
   sendidx = recvidx = 0;
-  intheory_sm(LEADER);
+  intheory_sm(PROPOSER);
 } 

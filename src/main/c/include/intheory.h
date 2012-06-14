@@ -2,7 +2,7 @@
 #define INTHEORYH
 
 enum role_t {
-  LEADER,
+  PROPOSER,
   ACCEPTOR,
   CLIENT,
   LEARNER
@@ -44,5 +44,6 @@ typedef struct {
 } state;
 
 void intheory_sm(enum role_t role);
+void discard(void *thing);
 
 #endif
