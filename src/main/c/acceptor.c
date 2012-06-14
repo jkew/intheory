@@ -35,7 +35,7 @@ state sm_acceptor_accept(state s) {
 state sm_acceptor_accepted(state s) {
   assert(s.nodes_left == -1 && s.node_num >= 0 && s.ticket >= 0 
 	 && s.type == ACCEPTED_PROPOSAL && s.slot >= 0);
-  message *mesg = recv_from(-1, s.slot, PROPOSAL & SET);
+  message *mesg = recv_from(-1, s.slot, PROPOSAL & ACCEPTOR_SET);
   if (mesg == 0) {
     // unable to receive message from proposer, or any other
     // system
@@ -64,7 +64,7 @@ state sm_acceptor_accepted(state s) {
     }
   }
 
-  if (mesg->type == SET) {
+  if (mesg->type == ACCEPTOR_SET) {
     if (mesg->ticket < s.ticket || s.node_num != mesg->from) {
       // this is an old ticket, ignore
       // or this is from a proposer we have relinquished our promise to

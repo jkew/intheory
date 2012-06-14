@@ -18,7 +18,7 @@ int main(int argc, char **args) {
  **/
 long acceptor_basic_recv[][5] = { 
   { 1, PROPOSAL, 1, 0, 999},
-  { 1, SET, 1, 0, 999}
+  { 1, ACCEPTOR_SET, 1, 0, 999}
 };
 
 long acceptor_basic_send[][5] = {
@@ -35,8 +35,8 @@ long acceptor_basic_send[][5] = {
 long acceptor_high_recv[][5] = { 
   { 1, PROPOSAL, 1, 0, 999},
   { 2, PROPOSAL, 5, 0, 888},
-  { 1, SET, 1, 0, 999},
-  { 2, SET, 5, 0, 999}
+  { 1, ACCEPTOR_SET, 1, 0, 999},
+  { 2, ACCEPTOR_SET, 5, 0, 999}
 };
 
 long acceptor_high_send[][5] = {
@@ -73,7 +73,7 @@ long acceptor_pfail_send[][5] = {
 long acceptor_lower_recv[][5] = { 
   { 1, PROPOSAL, 5, 0, 999},
   { 2, PROPOSAL, 3, 0, 666},
-  { 1, SET, 5, 0, 999}
+  { 1, ACCEPTOR_SET, 5, 0, 999}
 };
 
 long acceptor_lower_send[][5] = {

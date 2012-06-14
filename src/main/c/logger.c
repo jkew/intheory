@@ -22,6 +22,7 @@ const char* getStateName(int i) {
   case S_ACCEPTED_WAIT: return "S_ACCEPTED_WAIT";
   case S_ACCEPTED_PROPOSAL: return "S_ACCEPTED_PROPOSAL";
   case S_SET: return "S_SET";
+  case S_GET: return "S_GET";
   default: return "UNKNOWN";
   }
 }

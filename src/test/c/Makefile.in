@@ -49,8 +49,10 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-check_PROGRAMS = test_proposer$(EXEEXT) test_acceptor$(EXEEXT)
-TESTS = test_proposer$(EXEEXT) test_acceptor$(EXEEXT)
+check_PROGRAMS = test_proposer$(EXEEXT) test_acceptor$(EXEEXT) \
+	test_learner$(EXEEXT)
+TESTS = test_proposer$(EXEEXT) test_acceptor$(EXEEXT) \
+	test_learner$(EXEEXT)
 subdir = src/test/c
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(top_srcdir)/depcomp
@@ -65,6 +67,9 @@ am_test_acceptor_OBJECTS = test_acceptor.$(OBJEXT) \
 	test_common.$(OBJEXT)
 test_acceptor_OBJECTS = $(am_test_acceptor_OBJECTS)
 test_acceptor_DEPENDENCIES = ../../main/c/libintheory-1.0.la
+am_test_learner_OBJECTS = test_learner.$(OBJEXT) test_common.$(OBJEXT)
+test_learner_OBJECTS = $(am_test_learner_OBJECTS)
+test_learner_DEPENDENCIES = ../../main/c/libintheory-1.0.la
 am_test_proposer_OBJECTS = test_proposer.$(OBJEXT) \
 	test_common.$(OBJEXT)
 test_proposer_OBJECTS = $(am_test_proposer_OBJECTS)
@@ -82,8 +87,10 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(test_acceptor_SOURCES) $(test_proposer_SOURCES)
-DIST_SOURCES = $(test_acceptor_SOURCES) $(test_proposer_SOURCES)
+SOURCES = $(test_acceptor_SOURCES) $(test_learner_SOURCES) \
+	$(test_proposer_SOURCES)
+DIST_SOURCES = $(test_acceptor_SOURCES) $(test_learner_SOURCES) \
+	$(test_proposer_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -208,10 +215,12 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-test_proposer_SOURCES = test_proposer.c test_common.c 
+test_proposer_SOURCES = test_proposer.c test_common.c
 test_proposer_LDADD = ../../main/c/libintheory-1.0.la
 test_acceptor_SOURCES = test_acceptor.c test_common.c 
 test_acceptor_LDADD = ../../main/c/libintheory-1.0.la
+test_learner_SOURCES = test_learner.c test_common.c 
+test_learner_LDADD = ../../main/c/libintheory-1.0.la
 all: all-am
 
 .SUFFIXES:
@@ -258,6 +267,9 @@ clean-checkPROGRAMS:
 test_acceptor$(EXEEXT): $(test_acceptor_OBJECTS) $(test_acceptor_DEPENDENCIES) $(EXTRA_test_acceptor_DEPENDENCIES) 
 	@rm -f test_acceptor$(EXEEXT)
 	$(LINK) $(test_acceptor_OBJECTS) $(test_acceptor_LDADD) $(LIBS)
+test_learner$(EXEEXT): $(test_learner_OBJECTS) $(test_learner_DEPENDENCIES) $(EXTRA_test_learner_DEPENDENCIES) 
+	@rm -f test_learner$(EXEEXT)
+	$(LINK) $(test_learner_OBJECTS) $(test_learner_LDADD) $(LIBS)
 test_proposer$(EXEEXT): $(test_proposer_OBJECTS) $(test_proposer_DEPENDENCIES) $(EXTRA_test_proposer_DEPENDENCIES) 
 	@rm -f test_proposer$(EXEEXT)
 	$(LINK) $(test_proposer_OBJECTS) $(test_proposer_LDADD) $(LIBS)
@@ -270,6 +282,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_acceptor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_learner.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_proposer.Po@am__quote@
 
 .c.o:

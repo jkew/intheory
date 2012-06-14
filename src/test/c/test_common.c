@@ -36,6 +36,8 @@ message * recv_from_scenario(int from_node, long slot, unsigned int mask) {
 int send_to_scenario(int node, long ticket, unsigned int type, long slot, long value) {
   printf("> Send - %d - node %d ticket %ld type %d slot %ld value %ld\n", 
 	 sendidx, node, ticket, type, slot, value);
+    printf("= Send - %d - node %d ticket %ld type %d slot %ld value %ld\n", 
+	 sendidx, send[sendidx][0], send[sendidx][2], send[sendidx][1], send[sendidx][3], send[sendidx][04]);
   if (send[sendidx][0] != -1)
     assert(node == send[sendidx][0]);
   assert(type == send[sendidx][1]);

@@ -16,6 +16,11 @@ state sm_proposer_available(state s) {
   s.value = mesg->value;
   s.state = S_PREPARE;
   latest_state = sm_proposer(s);
+  if (latest_state.state == S_ACCEPTED_PROPOSAL && latest_state.value == s.value) {
+    send_to(mesg->from, latest_state.ticket, WRITE_SUCCESS, s.slot, latest_state.value);
+  } else {
+    send_to(mesg->from, latest_state.ticket, WRITE_FAILED, s.slot, latest_state.value);
+  }
   discard(mesg);
   return latest_state;
 }
@@ -24,13 +29,15 @@ state sm_proposer_prepare(state s) {
   assert(s.nodes_left = -1 && s.node_num == -1 && s.ticket >= 0 
 	 && s.type == CLIENT_VALUE && s.slot >= 0);
   // send to a quorom of acceptors
-  int num_acceptors = ((int) num_nodes / 2) + 1;
+  int quorom_size = ((int) num_nodes / 2) + 1;
+  // send a few more proposals up-to the number required for acceptor faults
+  int failsafe_acceptors = ((int)quorom_size / 3);
   int start_node = random() % num_nodes;
   s.type = PROPOSAL;
   s.state = S_SEND_PROPOSAL_TO_ACCEPTOR;
   s.ticket = s.ticket + 1;
   s.node_num = start_node;
-  s.nodes_left = num_acceptors;
+  s.nodes_left = quorom_size + failsafe_acceptors;
   return sm_proposer(s);
 }
 
@@ -88,7 +95,7 @@ state sm_proposer_collect(state s) {
      discard(response);
      return sm_proposer(s);
    } else {
-     // yay. all acceptors accepted
+     // yay. all required acceptors accepted     
      s.state = S_ACCEPTED_PROPOSAL;
      s.nodes_left = -1;
      discard(response);     
@@ -116,13 +123,13 @@ state sm_proposer(state s) {
   case S_ACCEPTED_PROPOSAL:
     ;
     // send value to all nodes
-    send_to(s.node_num % num_nodes, s.ticket, SET, s.slot, s.value);
+    send_to(s.node_num % num_nodes, s.ticket, ACCEPTOR_SET, s.slot, s.value);
     break;
   default:
     assert(0);
     break;
   }
-  log_state(s, PROPOSER);
+  log_state(latest_state, PROPOSER);
   s.depth--;
   return latest_state;
 }
