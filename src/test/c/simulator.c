@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 void test_proposer();
 
 int main(int argc, char **args) {
