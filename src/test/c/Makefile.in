@@ -49,8 +49,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-check_PROGRAMS = simulator$(EXEEXT)
-TESTS = simulator$(EXEEXT)
+check_PROGRAMS = test_proposer$(EXEEXT) test_acceptor$(EXEEXT)
+TESTS = test_proposer$(EXEEXT) test_acceptor$(EXEEXT)
 subdir = src/test/c
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(top_srcdir)/depcomp
@@ -61,9 +61,14 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am_simulator_OBJECTS = simulator.$(OBJEXT)
-simulator_OBJECTS = $(am_simulator_OBJECTS)
-simulator_DEPENDENCIES = ../../main/c/libintheory-1.0.la
+am_test_acceptor_OBJECTS = test_acceptor.$(OBJEXT) \
+	test_common.$(OBJEXT)
+test_acceptor_OBJECTS = $(am_test_acceptor_OBJECTS)
+test_acceptor_DEPENDENCIES = ../../main/c/libintheory-1.0.la
+am_test_proposer_OBJECTS = test_proposer.$(OBJEXT) \
+	test_common.$(OBJEXT)
+test_proposer_OBJECTS = $(am_test_proposer_OBJECTS)
+test_proposer_DEPENDENCIES = ../../main/c/libintheory-1.0.la
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -77,8 +82,8 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(simulator_SOURCES)
-DIST_SOURCES = $(simulator_SOURCES)
+SOURCES = $(test_acceptor_SOURCES) $(test_proposer_SOURCES)
+DIST_SOURCES = $(test_acceptor_SOURCES) $(test_proposer_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -203,8 +208,10 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-simulator_SOURCES = simulator.c 
-simulator_LDADD = ../../main/c/libintheory-1.0.la
+test_proposer_SOURCES = test_proposer.c test_common.c 
+test_proposer_LDADD = ../../main/c/libintheory-1.0.la
+test_acceptor_SOURCES = test_acceptor.c test_common.c 
+test_acceptor_LDADD = ../../main/c/libintheory-1.0.la
 all: all-am
 
 .SUFFIXES:
@@ -248,9 +255,12 @@ clean-checkPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
-simulator$(EXEEXT): $(simulator_OBJECTS) $(simulator_DEPENDENCIES) $(EXTRA_simulator_DEPENDENCIES) 
-	@rm -f simulator$(EXEEXT)
-	$(LINK) $(simulator_OBJECTS) $(simulator_LDADD) $(LIBS)
+test_acceptor$(EXEEXT): $(test_acceptor_OBJECTS) $(test_acceptor_DEPENDENCIES) $(EXTRA_test_acceptor_DEPENDENCIES) 
+	@rm -f test_acceptor$(EXEEXT)
+	$(LINK) $(test_acceptor_OBJECTS) $(test_acceptor_LDADD) $(LIBS)
+test_proposer$(EXEEXT): $(test_proposer_OBJECTS) $(test_proposer_DEPENDENCIES) $(EXTRA_test_proposer_DEPENDENCIES) 
+	@rm -f test_proposer$(EXEEXT)
+	$(LINK) $(test_proposer_OBJECTS) $(test_proposer_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -258,7 +268,9 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/simulator.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_acceptor.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_proposer.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
