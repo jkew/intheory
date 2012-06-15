@@ -10,7 +10,7 @@ state sm_proposer_available(state s) {
   state latest_state = s;
   assert(s.nodes_left = -1 && s.node_num == -1 && s.ticket >= 0 
 	 && s.type == -1 && s.slot == -1);
-  message* mesg = recv_from(-1, -1, CLIENT_VALUE);
+  message* mesg = recv_from(PROPOSER,-1, -1, CLIENT_VALUE);
   s.type = CLIENT_VALUE;
   s.slot = mesg->slot;
   s.value = mesg->value;
@@ -57,7 +57,7 @@ state sm_proposer_collect(state s) {
    assert(s.nodes_left > 0 && s.node_num >= 0 && s.ticket >= 0 
 	  && s.type == PROPOSAL && s.slot >= 0);
    // really want to filter by ACCEPTED_PROPOSAL or REJECTED HERE
-   message* response = recv_from(s.node_num, s.slot, ACCEPTED_PROPOSAL & REJECTED_PROPOSAL); 
+   message* response = recv_from(PROPOSER,s.node_num, s.slot, ACCEPTED_PROPOSAL | REJECTED_PROPOSAL); 
    if (response == NULL) { // failed to receive, try again with a new node
      error("! Failed to recieve message from acceptor");     
      s.state = S_SEND_PROPOSAL_TO_ACCEPTOR;

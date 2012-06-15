@@ -24,11 +24,18 @@ typedef struct {
 #define WRITE_FAILED 1024
 #define EXIT 2048
 
-extern char ** nodes; 
 extern int num_nodes;
-extern message * (*recv_from)(int, long, unsigned int);
+extern message * (*recv_from)(int, int, long, unsigned int);
 extern int (*send_to)(int, long, int, long, long);
 
-void init();
-
+char * get_address(int);
+int get_port(int);
+int my_id();
+message * create_message(int, int, long, int, long, long);
+void start_server();
+void stop_server();
+void init_network(int, char**, int);
+void init_network_nodes(int, char**);
+void destroy_network_nodes();
+void destroy_network();
 #endif

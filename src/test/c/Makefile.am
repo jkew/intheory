@@ -1,8 +1,12 @@
-check_PROGRAMS = test_proposer test_acceptor test_learner
+check_PROGRAMS = test_proposer test_acceptor test_learner test_network_nodes test_network
 test_proposer_SOURCES = test_proposer.c test_common.c
 test_proposer_LDADD = ../../main/c/libintheory-1.0.la
 test_acceptor_SOURCES = test_acceptor.c test_common.c 
 test_acceptor_LDADD = ../../main/c/libintheory-1.0.la
 test_learner_SOURCES = test_learner.c test_common.c 
 test_learner_LDADD = ../../main/c/libintheory-1.0.la
-TESTS = test_proposer test_acceptor test_learner
+test_network_nodes_SOURCES = test_network_nodes.c test_common.c 
+test_network_nodes_LDADD = ../../main/c/libintheory-1.0.la
+test_network_SOURCES = test_network.c test_common.c 
+test_network_LDADD = ../../main/c/libintheory-1.0.la
+TESTS = test_proposer test_acceptor test_learner test_network_nodes test_network

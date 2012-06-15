@@ -50,9 +50,11 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 check_PROGRAMS = test_proposer$(EXEEXT) test_acceptor$(EXEEXT) \
-	test_learner$(EXEEXT)
+	test_learner$(EXEEXT) test_network_nodes$(EXEEXT) \
+	test_network$(EXEEXT)
 TESTS = test_proposer$(EXEEXT) test_acceptor$(EXEEXT) \
-	test_learner$(EXEEXT)
+	test_learner$(EXEEXT) test_network_nodes$(EXEEXT) \
+	test_network$(EXEEXT)
 subdir = src/test/c
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(top_srcdir)/depcomp
@@ -70,6 +72,13 @@ test_acceptor_DEPENDENCIES = ../../main/c/libintheory-1.0.la
 am_test_learner_OBJECTS = test_learner.$(OBJEXT) test_common.$(OBJEXT)
 test_learner_OBJECTS = $(am_test_learner_OBJECTS)
 test_learner_DEPENDENCIES = ../../main/c/libintheory-1.0.la
+am_test_network_OBJECTS = test_network.$(OBJEXT) test_common.$(OBJEXT)
+test_network_OBJECTS = $(am_test_network_OBJECTS)
+test_network_DEPENDENCIES = ../../main/c/libintheory-1.0.la
+am_test_network_nodes_OBJECTS = test_network_nodes.$(OBJEXT) \
+	test_common.$(OBJEXT)
+test_network_nodes_OBJECTS = $(am_test_network_nodes_OBJECTS)
+test_network_nodes_DEPENDENCIES = ../../main/c/libintheory-1.0.la
 am_test_proposer_OBJECTS = test_proposer.$(OBJEXT) \
 	test_common.$(OBJEXT)
 test_proposer_OBJECTS = $(am_test_proposer_OBJECTS)
@@ -88,8 +97,10 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(test_acceptor_SOURCES) $(test_learner_SOURCES) \
+	$(test_network_SOURCES) $(test_network_nodes_SOURCES) \
 	$(test_proposer_SOURCES)
 DIST_SOURCES = $(test_acceptor_SOURCES) $(test_learner_SOURCES) \
+	$(test_network_SOURCES) $(test_network_nodes_SOURCES) \
 	$(test_proposer_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
@@ -221,6 +232,10 @@ test_acceptor_SOURCES = test_acceptor.c test_common.c
 test_acceptor_LDADD = ../../main/c/libintheory-1.0.la
 test_learner_SOURCES = test_learner.c test_common.c 
 test_learner_LDADD = ../../main/c/libintheory-1.0.la
+test_network_nodes_SOURCES = test_network_nodes.c test_common.c 
+test_network_nodes_LDADD = ../../main/c/libintheory-1.0.la
+test_network_SOURCES = test_network.c test_common.c 
+test_network_LDADD = ../../main/c/libintheory-1.0.la
 all: all-am
 
 .SUFFIXES:
@@ -270,6 +285,12 @@ test_acceptor$(EXEEXT): $(test_acceptor_OBJECTS) $(test_acceptor_DEPENDENCIES) $
 test_learner$(EXEEXT): $(test_learner_OBJECTS) $(test_learner_DEPENDENCIES) $(EXTRA_test_learner_DEPENDENCIES) 
 	@rm -f test_learner$(EXEEXT)
 	$(LINK) $(test_learner_OBJECTS) $(test_learner_LDADD) $(LIBS)
+test_network$(EXEEXT): $(test_network_OBJECTS) $(test_network_DEPENDENCIES) $(EXTRA_test_network_DEPENDENCIES) 
+	@rm -f test_network$(EXEEXT)
+	$(LINK) $(test_network_OBJECTS) $(test_network_LDADD) $(LIBS)
+test_network_nodes$(EXEEXT): $(test_network_nodes_OBJECTS) $(test_network_nodes_DEPENDENCIES) $(EXTRA_test_network_nodes_DEPENDENCIES) 
+	@rm -f test_network_nodes$(EXEEXT)
+	$(LINK) $(test_network_nodes_OBJECTS) $(test_network_nodes_LDADD) $(LIBS)
 test_proposer$(EXEEXT): $(test_proposer_OBJECTS) $(test_proposer_DEPENDENCIES) $(EXTRA_test_proposer_DEPENDENCIES) 
 	@rm -f test_proposer$(EXEEXT)
 	$(LINK) $(test_proposer_OBJECTS) $(test_proposer_LDADD) $(LIBS)
@@ -283,6 +304,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_acceptor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_learner.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_network.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_network_nodes.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_proposer.Po@am__quote@
 
 .c.o:

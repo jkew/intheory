@@ -10,7 +10,7 @@
 state sm_acceptor_available(state s) {
   assert(s.nodes_left == -1 && s.node_num == -1 && s.ticket == -1 
 	 && s.type == -1 && s.slot == -1);
-  message *mesg = recv_from(-1, -1, PROPOSAL);
+  message *mesg = recv_from(ACCEPTOR,-1, -1, PROPOSAL);
   s.depth++;
   s.slot = mesg->slot;
   s.value = mesg->value;
@@ -35,7 +35,7 @@ state sm_acceptor_accept(state s) {
 state sm_acceptor_accepted(state s) {
   assert(s.nodes_left == -1 && s.node_num >= 0 && s.ticket >= 0 
 	 && s.type == ACCEPTED_PROPOSAL && s.slot >= 0);
-  message *mesg = recv_from(-1, s.slot, PROPOSAL & ACCEPTOR_SET);
+  message *mesg = recv_from(ACCEPTOR,-1, s.slot, PROPOSAL | ACCEPTOR_SET);
   if (mesg == 0) {
     // unable to receive message from proposer, or any other
     // system

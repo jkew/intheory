@@ -44,7 +44,7 @@ long get(int slot) {
 state sm_learner_available(state s) {
   assert(s.nodes_left == -1 && s.node_num == -1 && s.ticket == -1 
 	 && s.type == -1 && s.slot == -1);
-  message *mesg = recv_from(-1, -1, SET & GET);
+  message *mesg = recv_from(LEARNER, -1, -1, SET | GET);
   s.depth++;
   s.slot = mesg->slot;
   s.node_num = mesg->from;
@@ -66,7 +66,7 @@ state sm_learner_available(state s) {
 state sm_learner_set(state s) {
   assert(s.nodes_left > 0 && s.ticket >= 0 
 	 && s.type == SET && s.slot >= 0);
-  message *mesg = recv_from(-1, s.slot, SET);
+  message *mesg = recv_from(LEARNER, -1, s.slot, SET);
   if (mesg == 0) {
     // did not receive message in time, go back to available
     error("No response from acceptor");
@@ -96,7 +96,7 @@ state sm_learner_set(state s) {
   discard(mesg);
   if (s.nodes_left <= 0) {
     // drain additional messages for this slot
-    while ((mesg = recv_from(-1, s.slot, SET)) != 0) { discard(mesg); }
+    while ((mesg = recv_from(LEARNER, -1, s.slot, SET)) != 0) { discard(mesg); }
     set(s.slot, s.value);
     return s;
   }
