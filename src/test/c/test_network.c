@@ -76,20 +76,6 @@ void test_ring() {
    destroy_network();
 }
 
-void test_server() {
-  printf("test_server\n");
-   const char * test_nodes[] = { "127.0.0.1:4321", 
-				 "zebra:321", 
-				 "apple:123",
-				 "intheory:876"};
-   init_network(4, test_nodes, 10);
-   start_server();
-   sleep(5);
-   stop_server();
-   destroy_network();
-}
-
 void test_network() {
-  test_server();
   test_ring();
 }

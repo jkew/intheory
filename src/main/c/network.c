@@ -62,17 +62,28 @@ message * create_message(int from, int to, long ticket, int type, long slot, lon
 }
 
 message * __recv_from(int r, int from_node, long slot, unsigned int mask) {
-  message * msg = get_if_matches(r, from_node, slot, mask);
+  int pos = role_read_ipos[r];
+  int initial_pos = pos;
+  int rounds = 5;
+  message * msg = get_if_matches(pos, from_node, slot, mask);
   while(msg == 0) {
-    int i = advance_role(r);
-    msg = get_if_matches(i, from_node, slot, mask);
+    pos = advance_role(r);
+    // If we loop around the message ring rounds times, we timeout and
+    // return nothing.
+    if (pos == initial_pos) {
+      if (rounds <= 0) {
+	return 0;
+      }
+      usleep(100000);
+      rounds--;
+    }
+    msg = get_if_matches(pos, from_node, slot, mask);
   }
   return msg;
 }
 
 int __send_to(int node, long ticket, int type, long slot, long value) {
-  
-  return -1;
+  return send_intheory(node, create_message(my_id(), node, ticket, type, slot, value));
 }
 
 void init_network(int _num_nodes, char *_nodes[], int _ring_size) {

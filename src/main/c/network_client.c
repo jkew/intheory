@@ -21,35 +21,39 @@ int send_intheory(int node, message *msg) {
   port = get_port(node);;
 
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
-  if (sockfd < 0) 
+  if (sockfd < 0)  {
     error("ERROR opening socket");
+    return 0;
+  }
 
   server = gethostbyname(hostname);
   discard(hostname);
   
   if (server == NULL) {
-    fprintf(stderr,"ERROR, no such host as %s\n", hostname);
-    exit(0);
+    printf("ERROR, no such host as %s\n", hostname);
+    return 0;
   }
 
   bzero((char *) &serveraddr, sizeof(serveraddr));
   serveraddr.sin_family = AF_INET;
-  //char * one = (char *)server->h_addr;
-  //char * two = (char *)&serveraddr.sin_addr.s_addr;
-  //serveraddr.sin_addr.s_addr = server->h_addr;
+
   bcopy((char *)server->h_addr, 
   (char *)&serveraddr.sin_addr.s_addr, 
   	server->h_length);
   serveraddr.sin_port = htons(port);
 
-  if (connect(sockfd, (struct sockaddr *) &serveraddr, sizeof(serveraddr)) < 0) 
+  if (connect(sockfd, (struct sockaddr *) &serveraddr, sizeof(serveraddr)) < 0) {
     error("ERROR connecting");
+    return 0;
+  }
 
   n = write(sockfd, msg, sizeof(message));
-  if (n < 0) 
+  if (n < 0) { 
     error("ERROR writing to socket");
-
+    return 0;
+  }
   close(sockfd);
+  return 1;
 }
 
 

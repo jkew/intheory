@@ -44,15 +44,15 @@ int cmp_fn(const void *one, const void *two) {
 }
 
 char * get_address(int node_num) {
-  assert(node_num < num_nodes);
   assert(node_num >= 0);
-  return to_addr(nodes[node_num]);
+  int n = node_num % num_nodes;
+  return to_addr(nodes[n]);
 }
 
 int get_port(int node_num) {
-  assert(node_num < num_nodes);
   assert(node_num >= 0);
-  return to_port(nodes[node_num]);
+  int n = node_num % num_nodes;
+  return to_port(nodes[n]);
 }
 
 void init_network_nodes(int _num_nodes, char *_nodes[]) {

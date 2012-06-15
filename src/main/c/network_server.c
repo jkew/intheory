@@ -9,9 +9,8 @@
 #include <arpa/inet.h>
 #include "include/intheory.h"
 #include "include/network.h"
-#define INITIAL_RING_SIZE 64
 
-int enabled = 1;
+int server_continue = 1;
 pthread_t recv_thread;
 
 int open_socket(int port) {
@@ -64,7 +63,7 @@ void server(void *args) {
   FD_SET(sockfd, &master);
   fdmax = sockfd;
   info("Server started");
-  while(enabled) {
+  while(server_continue) {
     read_fds = master;
     if (select(fdmax+1, &read_fds, NULL, NULL, NULL) == -1) { asser(0); return; }
     // run through all fds
@@ -86,13 +85,18 @@ void server(void *args) {
 	  bytes_read = recv(i, &msg, sizeof(message), 0);
 	  
 	  if (bytes_read == sizeof(message)) {
+	    if (msg.type == EXIT) {
+	      printf("got exit... \n");
+	      server_continue = 0;
+	      break;
+	    }
 	    add_message(create_message(msg.from, msg.to, msg.ticket, msg.type, msg.slot, msg.value));
 	  }
 	  if (bytes_read <= 0) {
 	    if (bytes_read == 0) {
-	      info("socket %d hung up\n", i);
+	      info("socket hung up");
 	    } else {
-	      info("socket %d read error\n", i);
+	      info("socket read error");
 	    }
 	    close(i);
 	    FD_CLR(i, &master);
@@ -101,20 +105,31 @@ void server(void *args) {
       }
     }
   }
+  // close all sockets
+  for(i = 0; i <= fdmax; i++) {
+    printf("Closing fd %d of %d\n", i, fdmax);
+    if(FD_ISSET(i, &read_fds)) {
+      close(i);
+      FD_CLR(i, &master);
+    }
+  }
+  close(sockfd);
+  printf("Terminating...\n");
  }
 
 void start_server() {
   assert(my_id() >= 0);
-  enabled = 1;
+  server_continue = 1;
   pthread_create(&recv_thread, 0, server, 0);
 }
 
 void stop_server() {
-  enabled = 0;
+  //server_continue = 0;
   send_intheory(my_id(), create_message(my_id(), my_id(), -1, EXIT, -1, -1));
+  usleep(100000);
   printf("Waiting for server to stop\n");
-  pthread_join(recv_thread, 0);
-  printf("Server stopped");
+  pthread_join(&recv_thread, 0);
+  printf("Server stopped\n");
 }
 
 

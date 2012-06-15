@@ -31,6 +31,8 @@ typedef struct {
   long value;
 } state;
 
+void start_intheory(char *, int , char**); 
+void stop_intheory(); 
 void intheory_sm(enum role_t role);
 void discard(void *thing);
 
