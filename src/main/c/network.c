@@ -2,11 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <pthread.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <arpa/inet.h>
 #include "include/intheory.h"
 #include "include/network.h"
 #define INITIAL_RING_SIZE 64
@@ -15,8 +10,6 @@ message **input_ring;
 int ring_size = -1;
 int write_ipos;
 int role_read_ipos[4];
-int enabled = 1;
-pthread_t receiver_thread;
 
 message * (*recv_from)(int, int, long, unsigned int) = 0;
 int (*send_to)(int, long, int, long, long) = 0;
@@ -80,39 +73,6 @@ message * __recv_from(int r, int from_node, long slot, unsigned int mask) {
 int __send_to(int node, long ticket, int type, long slot, long value) {
   
   return -1;
-}
-
-void server(void *args) {
-  struct sockaddr_in servaddr;
-  int socketfd = socket(AF_INET, SOCK_STREAM, 0);
-  assert(socketfd >= 0);
-  memset(&servaddr, 0, sizeof(struct sockaddr_in));
-  servaddr.sin_family      = AF_INET;
-  servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-  servaddr.sin_port        = get_port(my_id);
-  int bret = bind(socketfd, (struct sockaddr *) &servaddr, 
-		  sizeof(servaddr));
-  assert(bret >= 0);
-  int lret = listen(socketfd, 10);
-  assert(lret >= 0);
-  while(enabled) {
-    int conn_s = accept(socketfd, 0, 0);
-    assert(conn_s >= 0);
-    message *msg = malloc(sizeof(message));
-    read(conn_s, msg, sizeof(message));
-    add_message(msg);
-  }
-}
-
-void start_server() {
-  assert(ring_size > 0);
-  enabled = 1;
-  pthread_create(&server, 0, receiver_thread, 0);
-}
-
-void stop_server() {
-  enabled = 0;
-  pthread_join(receiver_thread, 0);
 }
 
 void init_network(int _num_nodes, char *_nodes[], int _ring_size) {

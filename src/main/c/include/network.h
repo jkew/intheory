@@ -34,6 +34,7 @@ int my_id();
 message * create_message(int, int, long, int, long, long);
 void start_server();
 void stop_server();
+int send_intheory(int, message *);
 void init_network(int, char**, int);
 void init_network_nodes(int, char**);
 void destroy_network_nodes();

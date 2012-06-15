@@ -8,7 +8,7 @@
 
 char ** nodes = 0; 
 int num_nodes = -1;
-int me;
+int me = -1;
 
 int my_id() {
   return me;
