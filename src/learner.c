@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <string.h>
 #include "include/intheory.h"
+#include "include/state_machine.h"
 #include "include/network.h"
 #include "include/learner.h"
 #include "include/logger.h"

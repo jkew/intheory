@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "include/intheory.h"
+#include "include/state_machine.h"
 #include "include/network.h"
 #include "include/proposer.h"
 #include "include/logger.h"

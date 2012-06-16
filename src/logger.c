@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "include/intheory.h"
+#include "include/state_machine.h"
 #include "include/logger.h"
 
 const char* getRole(enum role_t r) {

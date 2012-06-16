@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <pthread.h>
+#include "include/util.h"
+#include "include/state_machine.h"
 #include "include/intheory.h"
 #include "include/network.h"
 #include "include/proposer.h"
@@ -11,10 +13,6 @@
 int running = 0;
 pthread_t worker_thread;
 
-void discard(void *thing) {
-  free(thing);
-}
-
 void intheory_worker() {
   while(running) {
     intheory_sm(PROPOSER);
@@ -23,11 +21,12 @@ void intheory_worker() {
   }
 }
 
-void start_intheory(char *me, int other_node_count, char* other_nodes[]) {
-  
+void start_intheory(int port, int other_node_count, char* other_nodes[]) {
   running = 1;
   // munge these together
   char * all_nodes[other_node_count + 1];
+  char me[256];
+  sprintf(me, "localhost:%d", port);
   all_nodes[0] = me;
   int i;
   for (i = 1; i <= other_node_count; i++) {

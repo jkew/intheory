@@ -1,4 +1,5 @@
 #include "../src/include/intheory.h"
+#include "../src/include/state_machine.h"
 #include "../src/include/network.h"
 #include "include/test_common.h"
 #include <assert.h>

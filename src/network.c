@@ -3,6 +3,7 @@
 #include <string.h>
 #include <assert.h>
 #include "include/intheory.h"
+#include "include/state_machine.h"
 #include "include/network.h"
 #define INITIAL_RING_SIZE 64
 
@@ -63,6 +64,9 @@ message * create_message(int from, int to, long ticket, int type, long slot, lon
 
 message * __recv_from(int r, int from_node, long slot, unsigned int mask) {
   int pos = role_read_ipos[r];
+  if (pos < 0) {
+    pos = role_read_ipos[r] = 0;
+  }
   int initial_pos = pos;
   int rounds = 5;
   message * msg = get_if_matches(pos, from_node, slot, mask);
