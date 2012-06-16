@@ -1,5 +1,5 @@
-#include "../../main/c/include/intheory.h"
-#include "../../main/c/include/network.h"
+#include "../src/include/intheory.h"
+#include "../src/include/network.h"
 #include "include/test_common.h"
 #include <assert.h>
 #include <stdio.h>

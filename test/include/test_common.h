@@ -1,7 +1,7 @@
 #ifndef ITTESTCOMMONH
 #define ITTESTCOMMONH
-#include "../../../main/c/include/intheory.h"
-#include "../../../main/c/include/network.h"
+#include "../../src/include/intheory.h"
+#include "../../src/include/network.h"
 extern long (*recv)[5];
 extern long (*send)[5];
 extern int sendidx;

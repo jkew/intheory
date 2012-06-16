@@ -1,1 +1,1 @@
-SUBDIRS = src/main/c src/test/c
+SUBDIRS = src test examples

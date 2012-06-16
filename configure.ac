@@ -3,11 +3,13 @@
 
 AC_PREREQ([2.69])
 AC_INIT([intheory], [0.1], [john.v.kew.ii@gmail.com])
+AC_CONFIG_AUX_DIR(config)
 AM_INIT_AUTOMAKE(intheory, 0.1)
 LT_INIT
 
-AC_CONFIG_SRCDIR([src/main/c/intheory.c])
+AC_CONFIG_SRCDIR([src/intheory.c])
 
+AM_SILENT_RULES
 # Checks for programs.
 AC_PROG_CC
 
@@ -22,5 +24,5 @@ AC_CHECK_HEADERS([stdlib.h])
 AC_FUNC_MALLOC
 
 AC_OUTPUT
-AC_OUTPUT(Makefile src/main/c/Makefile src/test/c/Makefile)
+AC_OUTPUT(Makefile src/Makefile test/Makefile examples/Makefile)
 
