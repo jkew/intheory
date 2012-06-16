@@ -10,8 +10,15 @@
 
 #define INITIAL_SLOT_SIZE 256
 
-long *slots = 0; 
+typedef struct {
+  long slot;
+  slot_changed_cb cb;
+} callback;
+
+long *slots = 0;
 int maxslot = 0;
+callback *cbs = 0;
+int maxcbs = 0;
 
 void init_learner() {
   slots = malloc(sizeof(long)*INITIAL_SLOT_SIZE);
@@ -22,6 +29,37 @@ void destroy_learner() {
   discard(slots);
   slots = 0;
   maxslot = 0;
+}
+
+void slot_changed(long slot, long value) {
+  int i;
+  for(i = 0; i < maxcbs; i++) {
+    if (cbs[i].slot == slot) {
+      cbs[i].cb(slot, value);
+    }
+  }
+}
+
+void register_changed_cb(long slot, slot_changed_cb cb) {
+  int newsize = maxcbs + 1;
+  callback *tmp = malloc(sizeof(callback)*newsize);
+  memcpy(tmp, cbs, maxcbs);
+  callback *old = cbs;
+  cbs = tmp;
+  maxcbs = newsize;
+  discard(old);
+  cbs[maxcbs].slot = slot;
+  cbs[maxcbs].cb = cb;
+}
+
+void unregister_cb(long slot, slot_changed_cb cb) {
+  int i;
+  for(i = 0; i < maxcbs; i++) {
+    if (cbs[i].slot == slot && cbs[i].cb == cb) {
+      cbs[i].slot = -1;
+      return;
+    }
+  }
 }
 
 void set(int slot, long value) {

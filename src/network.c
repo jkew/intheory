@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <pthread.h>
 #include "include/intheory.h"
 #include "include/state_machine.h"
 #include "include/network.h"
@@ -11,6 +12,8 @@ message **input_ring;
 int ring_size = -1;
 int write_ipos;
 int role_read_ipos[4];
+
+pthread_mutex_t write_lock;
 
 message * (*recv_from)(int, int, long, unsigned int) = 0;
 int (*send_to)(int, long, int, long, long) = 0;
@@ -46,8 +49,10 @@ message * get_if_matches(int i, int from_node, long slot, unsigned int mask) {
 }
 
 void add_message(message *msg) {
+  pthread_mutex_lock(&write_lock);
   input_ring[write_ipos] = msg;
   advance_writer();
+  pthread_mutex_unlock(&write_lock);
 }
 
 message * create_message(int from, int to, long ticket, int type, long slot, long value) {
@@ -68,7 +73,7 @@ message * __recv_from(int r, int from_node, long slot, unsigned int mask) {
     pos = role_read_ipos[r] = 0;
   }
   int initial_pos = pos;
-  int rounds = 5;
+  int rounds = 10*num_nodes;
   message * msg = get_if_matches(pos, from_node, slot, mask);
   while(msg == 0) {
     pos = advance_role(r);
@@ -86,11 +91,21 @@ message * __recv_from(int r, int from_node, long slot, unsigned int mask) {
   return msg;
 }
 
+int __send_local(long ticket, int type, long slot, long value) {
+  message *msg = create_message(my_id(), my_id(), ticket, type, slot, value);
+  add_message(msg);
+  return 1;
+}
+
 int __send_to(int node, long ticket, int type, long slot, long value) {
+  if (node == my_id()) 
+    return __send_local(ticket, type, slot, value);
   return send_intheory(node, create_message(my_id(), node, ticket, type, slot, value));
 }
 
+
 void init_network(int _num_nodes, char *_nodes[], int _ring_size) {
+  pthread_mutex_init(&write_lock, 0);
   init_network_nodes(_num_nodes, _nodes);
   recv_from = __recv_from;
   send_to = __send_to;
@@ -113,5 +128,6 @@ void destroy_network() {
   free(input_ring);
   input_ring = 0;
   ring_size = 0;
+  pthread_mutex_lock(&write_lock);
 }
 

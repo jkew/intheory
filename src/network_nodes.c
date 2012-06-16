@@ -66,6 +66,7 @@ void init_network_nodes(int _num_nodes, char *_nodes[]) {
   }
   qsort(nodes, num_nodes, sizeof(char *), cmp_fn);
   for (i = 0; i < num_nodes; i++) {
+    printf("Configured node %s - %d\n", nodes[i], i);
     if (strncmp(my_nodes, nodes[i], 256) == 0) {
       me = i;
       break;

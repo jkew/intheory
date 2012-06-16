@@ -30,8 +30,8 @@ extern int (*send_to)(int, long, int, long, long);
 
 char * get_address(int);
 int get_port(int);
-int my_id();
 message * create_message(int, int, long, int, long, long);
+int send_local(long, int, long, long);
 void start_server();
 void stop_server();
 int send_intheory(int, message *);
