@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include "include/intheory.h"
+#include "include/network.h"
 #include "include/state_machine.h"
 #include "include/logger.h"
 
@@ -28,15 +30,48 @@ const char* getStateName(int i) {
   }
 }
 
-void error(const char *msg) {
-  printf("ERROR: %s\n", msg); 
+const char* getMessageName(int i) {
+  switch(i) {
+  case CLIENT_VALUE: return "CLIENT_VALUE";
+  case PROPOSAL: return "PROPOSAL";
+  case ACCEPTED_PROPOSAL: return "ACCEPTED_PROPOSAL";
+  case REJECTED_PROPOSAL: return "REJECTED_PROPOSAL";
+  case ACCEPTOR_SET: return "ACCEPTOR_SET";
+  case SET: return "SET";
+  case GET: return "GET";
+  case READ_SUCCESS: return "READ_SUCCESS";
+  case READ_FAILED: return "READ_FAILED";
+  case WRITE_SUCCESS: return "WRITE_SUCCESS";
+  case WRITE_FAILED: return "WRITE_FAILED";
+  case EXIT: return "EXIT";
+  default: return "UNKNOWN";
+  }
 }
 
-void info(const char * msg) {
-  printf("INFO: %s\n", msg); 
+void error(const char *msg, ...) {
+  va_list args;
+  fprintf(stderr, "ERROR: ");
+  va_start( args, msg );
+  vfprintf(stderr, msg, args );
+  va_end( args );
+  fprintf(stderr, "\n" );
+}
+
+void info(const char *msg, ...) {
+  return;
+  va_list args;
+  fprintf(stdout, "INFO:");
+  va_start( args, msg );
+  vfprintf(stdout, msg, args );
+  va_end( args );
+  fprintf(stdout, "\n" );
 }
 
 void log_state(state s, enum role_t r) {
-  printf("%*s" "%s - %s node %d nodes_left %d ticket %ld type %d slot %ld value %ld\n", 
+  info("%*s" "%s - %s node %d nodes_left %d ticket %ld type %d slot %ld value %ld", 
 	 s.depth, "", getRole(r), getStateName(s.state), s.node_num, s.nodes_left, s.ticket, s.type, s.slot, s.value);
+}
+
+void log_message(char *msg, message *m) {
+  info("(%s) Message %s from %d to %d ticket %ld slot %ld value %ld crc 0x%lx", msg, getMessageName(m->type), m->from, m->to, m->ticket, m->slot, m->value, m->crc);
 }

@@ -46,10 +46,10 @@ void register_changed_cb(long slot, slot_changed_cb cb) {
   memcpy(tmp, cbs, maxcbs);
   callback *old = cbs;
   cbs = tmp;
-  maxcbs = newsize;
   discard(old);
   cbs[maxcbs].slot = slot;
   cbs[maxcbs].cb = cb;
+  maxcbs = newsize;
 }
 
 void unregister_cb(long slot, slot_changed_cb cb) {
@@ -74,6 +74,7 @@ void set(int slot, long value) {
     discard(oldslots);
   }
   slots[slot] = value;
+  slot_changed(slot, value);
 }
 
 long get(int slot) {
@@ -84,6 +85,7 @@ state sm_learner_available(state s) {
   assert(s.nodes_left == -1 && s.node_num == -1 && s.ticket == -1 
 	 && s.type == -1 && s.slot == -1);
   message *mesg = recv_from(LEARNER, -1, -1, SET | GET);
+  if (mesg == 0) { return s; }
   s.depth++;
   s.slot = mesg->slot;
   s.node_num = mesg->from;
@@ -105,10 +107,11 @@ state sm_learner_available(state s) {
 state sm_learner_set(state s) {
   assert(s.nodes_left > 0 && s.ticket >= 0 
 	 && s.type == SET && s.slot >= 0);
+  yeild(LEARNER, s);
   message *mesg = recv_from(LEARNER, -1, s.slot, SET);
   if (mesg == 0) {
     // did not receive message in time, go back to available
-    error("No response from acceptor");
+    error("LEARNER: No response from acceptor");
     s.state = S_AVAILABLE;
     s.type = s.node_num = s.nodes_left = s.slot = s.ticket = s.value = -1;
     return sm_learner(s);
@@ -137,6 +140,7 @@ state sm_learner_set(state s) {
     // drain additional messages for this slot
     while ((mesg = recv_from(LEARNER, -1, s.slot, SET)) != 0) { discard(mesg); }
     set(s.slot, s.value);
+    info(">>>>>>>>>>> SETTING VALUE! SLOT: %d VALUE: %d", s.slot, s.value);
     return s;
   }
   // continue to wait for messages

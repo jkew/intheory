@@ -17,7 +17,7 @@ int main(int argc, char **args) {
 
 void test_server() {
   printf("test_server\n");
-   const char * test_nodes[] = { "127.0.0.1:4321", 
+   const char * test_nodes[] = { "127.0.0.1:4322", 
 				 "zebra:321", 
 				 "apple:123",
 				 "intheory:876"};

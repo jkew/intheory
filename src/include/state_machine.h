@@ -29,8 +29,10 @@ typedef struct {
   long ticket;
   long slot;
   long value;
+  long fails;
 } state;
 
+void yeild(enum role_t role, state s);
 void intheory_sm(enum role_t role);
 
 #endif

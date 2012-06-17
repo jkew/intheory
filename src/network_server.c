@@ -13,6 +13,7 @@
 int server_continue = 1;
 pthread_t recv_thread;
 
+
 int open_socket(int port) {
   int socketfd;
   struct sockaddr_in servaddr;
@@ -39,12 +40,16 @@ int open_socket(int port) {
   timeout.tv_sec = 1;
   timeout.tv_usec = 0;
   if (setsockopt (socketfd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,
-		  sizeof(timeout)) < 0)
+		  sizeof(timeout)) < 0) {
     error("setsockopt failed\n");
+    assert(0);
+  }
   
   if (setsockopt (socketfd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout,
-		  sizeof(timeout)) < 0)
+		  sizeof(timeout)) < 0) {
     error("setsockopt failed\n");
+    assert(0);
+  }
   return socketfd;
 }
 
@@ -76,7 +81,7 @@ void server(void *args) {
 	  if (newfd >= 0) {
 	    FD_SET(newfd, &master); 
 	    if(newfd > fdmax) { fdmax = newfd; }
-	    printf("Connection from %s on socket %d\n", inet_ntoa(clientaddr.sin_addr), newfd);	  
+	    info("Connection from %s on socket %d", inet_ntoa(clientaddr.sin_addr), newfd);	  
 	  }
 	} else {
           message msg;
@@ -85,18 +90,29 @@ void server(void *args) {
 	  bytes_read = recv(i, &msg, sizeof(message), 0);
 	  
 	  if (bytes_read == sizeof(message)) {
+	    if (!crc_valid(&msg)) {
+	      error("CRC not valid on message");
+	      break;
+	    } else {
+	      info("Valid message received");
+	    }
 	    if (msg.type == EXIT) {
-	      printf("got exit... \n");
+	      info("Received exit message");
 	      server_continue = 0;
 	      break;
 	    }
 	    add_message(create_message(msg.from, msg.to, msg.ticket, msg.type, msg.slot, msg.value));
 	  }
+
+          if (bytes_read > 0 && bytes_read != sizeof(message)) {
+	    error("Invalid read");
+	  }
 	  if (bytes_read <= 0) {
 	    if (bytes_read == 0) {
 	      info("socket hung up");
 	    } else {
-	      info("socket read error");
+	      error("socket read error");
+	      assert(0);
 	    }
 	    close(i);
 	    FD_CLR(i, &master);
@@ -107,14 +123,13 @@ void server(void *args) {
   }
   // close all sockets
   for(i = 0; i <= fdmax; i++) {
-    printf("Closing fd %d of %d\n", i, fdmax);
     if(FD_ISSET(i, &read_fds)) {
       close(i);
       FD_CLR(i, &master);
     }
   }
   close(sockfd);
-  printf("Terminating...\n");
+  info("Server Terminating...");
  }
 
 void start_server() {
@@ -127,9 +142,9 @@ void stop_server() {
   //server_continue = 0;
   send_intheory(my_id(), create_message(my_id(), my_id(), -1, EXIT, -1, -1));
   usleep(100000);
-  printf("Waiting for server to stop\n");
+  info("Waiting for network server to stop");
   pthread_join(&recv_thread, 0);
-  printf("Server stopped\n");
+  info("Server stopped");
 }
 
 

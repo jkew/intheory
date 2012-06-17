@@ -30,7 +30,7 @@ int send_intheory(int node, message *msg) {
   discard(hostname);
   
   if (server == NULL) {
-    printf("ERROR, no such host as %s\n", hostname);
+    error("ERROR, no such host as %s", hostname);
     return 0;
   }
 
@@ -52,6 +52,7 @@ int send_intheory(int node, message *msg) {
     error("ERROR writing to socket");
     return 0;
   }
+  log_message("send_intheory", msg);
   close(sockfd);
   return 1;
 }

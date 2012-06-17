@@ -30,10 +30,6 @@ int advance_writer() {
 
 int advance_role(int r) {
   int next_pos = (role_read_ipos[r] + 1) % ring_size;
-  // look for the next readable spot
-  while(input_ring[next_pos] == 0) {
-    next_pos = (next_pos + 1) % ring_size;
-  }
   role_read_ipos[r] = next_pos;
   return next_pos;
 }
@@ -50,9 +46,22 @@ message * get_if_matches(int i, int from_node, long slot, unsigned int mask) {
 
 void add_message(message *msg) {
   pthread_mutex_lock(&write_lock);
+  // log_message("add_message", msg);
   input_ring[write_ipos] = msg;
   advance_writer();
   pthread_mutex_unlock(&write_lock);
+}
+
+crc_t message_crc(message *msg) {
+  crc_t c = crc_init();
+  // crc everything except the last crc field
+  c = crc_update(c, (void *)msg, ((void *)&(msg->crc)) - ((void*)msg));
+  return crc_finalize(c);
+}
+
+int crc_valid(message *msg) {
+  crc_t c = message_crc(msg);
+  return c == msg->crc;
 }
 
 message * create_message(int from, int to, long ticket, int type, long slot, long value) {
@@ -64,6 +73,9 @@ message * create_message(int from, int to, long ticket, int type, long slot, lon
   msg->ticket = ticket;
   msg->slot = slot;
   msg->value = value;
+  crc_t c = message_crc(msg);
+  msg->crc = c;
+  //  log_message("create_message", msg);
   return msg;
 }
 
@@ -73,13 +85,13 @@ message * __recv_from(int r, int from_node, long slot, unsigned int mask) {
     pos = role_read_ipos[r] = 0;
   }
   int initial_pos = pos;
-  int rounds = 10*num_nodes;
+  int rounds = num_nodes;
   message * msg = get_if_matches(pos, from_node, slot, mask);
   while(msg == 0) {
     pos = advance_role(r);
     // If we loop around the message ring rounds times, we timeout and
     // return nothing.
-    if (pos == initial_pos) {
+    if (pos == initial_pos) {      
       if (rounds <= 0) {
 	return 0;
       }
@@ -88,17 +100,20 @@ message * __recv_from(int r, int from_node, long slot, unsigned int mask) {
     }
     msg = get_if_matches(pos, from_node, slot, mask);
   }
+  log_message("recv_from", msg);
   return msg;
 }
 
 int __send_local(long ticket, int type, long slot, long value) {
   message *msg = create_message(my_id(), my_id(), ticket, type, slot, value);
+  log_message("send_local", msg);
   add_message(msg);
   return 1;
 }
 
 int __send_to(int node, long ticket, int type, long slot, long value) {
-  if (node == my_id()) 
+  int n = node % num_nodes;
+  if (n == my_id()) 
     return __send_local(ticket, type, slot, value);
   return send_intheory(node, create_message(my_id(), node, ticket, type, slot, value));
 }

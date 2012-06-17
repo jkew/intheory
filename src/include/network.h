@@ -1,6 +1,7 @@
 #ifndef INTHEORYNETWORKH
 #define INTHEORYNETWORKH
 #include "intheory.h"
+#include "crc.h"
 
 typedef struct {
   int type;
@@ -9,6 +10,7 @@ typedef struct {
   long ticket;
   long slot;
   long value;
+  crc_t crc; // must be last, see message_crc fn
 } message;
 
 #define CLIENT_VALUE 1
@@ -31,6 +33,7 @@ extern int (*send_to)(int, long, int, long, long);
 char * get_address(int);
 int get_port(int);
 message * create_message(int, int, long, int, long, long);
+int crc_valid(message *);
 int send_local(long, int, long, long);
 void start_server();
 void stop_server();

@@ -77,6 +77,12 @@ void test_ring() {
    destroy_network();
 }
 
+void test_crc() {
+  message *msg = create_message(1, 2, 3, CLIENT_VALUE, 4, 999);
+  assert(crc_valid(msg));
+}
+
 void test_network() {
+  test_crc();
   test_ring();
 }

@@ -11,13 +11,52 @@
 #include "include/learner.h"
 
 int running = 0;
-pthread_t worker_thread;
 
-void intheory_worker() {
+// get rid of these
+pthread_t proposer_thread;
+pthread_t acceptor_thread;
+pthread_t learner_thread;
+
+state saved_proposer;
+state saved_acceptor;
+state saved_learner;
+
+void sm_init() {
+  state s;
+  s.type = s.node_num = s.nodes_left = s.slot = s.value = -1;
+  s.depth = 0; 
+  s.state = S_AVAILABLE;
+  s.ticket = -1;
+  saved_acceptor = s;  
+  saved_learner = s;
+  s.ticket = 0;
+  saved_proposer = s;
+}
+
+void proposer_worker(void *args) {
+  error("propser started");
   while(running) {
     intheory_sm(PROPOSER);
+    usleep(100000);
+  }
+}
+
+
+
+void acceptor_worker(void *args) {
+  error("acceptor started");
+  while(running) {
     intheory_sm(ACCEPTOR);
+    usleep(100000);
+  }
+}
+
+
+void learner_worker(void *args) {
+  error("learner started");
+  while(running) {
     intheory_sm(LEARNER);
+    usleep(100000);
   }
 }
 
@@ -31,6 +70,8 @@ void start_intheory(char *me, int other_node_count, char* other_nodes[]) {
     all_nodes[i] = other_nodes[i - 1];
   }
 
+  sm_init();
+
   // initialize the network
   init_network(other_node_count + 1, all_nodes, 256);
   
@@ -38,16 +79,23 @@ void start_intheory(char *me, int other_node_count, char* other_nodes[]) {
   start_server();
   
   // start the worker
-  pthread_create(&worker_thread, 0, intheory_worker, 0);
-  printf("INTHEORY STARTED, nodes: %d\n", num_nodes);
+  // TODO: instead of using three threads, use an interruptable
+  // state machine with yeild
+  pthread_create(&proposer_thread, 0, proposer_worker, 0);
+  pthread_create(&acceptor_thread, 0, acceptor_worker, 0);
+  pthread_create(&learner_thread, 0, learner_worker, 0);
+
+  info("INTHEORY STARTED, nodes: %d", num_nodes);
 }
 
 void stop_intheory() {
   running = 0;
   stop_server();
-  pthread_join(&worker_thread, 0);
+  pthread_join(&proposer_thread, 0);
+  pthread_join(&acceptor_thread, 0);
+  pthread_join(&learner_thread, 0);
   destroy_network();
-  printf("INTHEORY STOPPED\n");
+  info("INTHEORY STOPPED");
 }
 
 
@@ -72,6 +120,21 @@ int get_it(long slot, long *value) {
   } 
   discard(msg);
   return ret;
+}
+
+
+// TODO; we want to make these state machines interruptable,
+// which means exiting the stack asap for a restart later.
+void yeild(enum role_t role, state s) {
+  if (role == PROPOSER) {
+    saved_proposer = s;
+  }
+  if (role == ACCEPTOR) {
+    saved_acceptor = s;
+  }
+  if (role == LEARNER) {
+    saved_learner = s;
+  }
 }
 
 void intheory_sm(enum role_t role) {

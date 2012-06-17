@@ -9,12 +9,12 @@ int hellos_left = RETURN_HELLOS;
 int hellos_received = 0;
 
 void got_hello(long slot, long value) {
-  if (value != 0) {
+  if (value >= 0) {
     printf("Received Hello! from node %d\n", value);
     hellos_received++;
   }
   if (hellos_left--) {
-      say_hello();
+    say_hello();
   }
 }
 
