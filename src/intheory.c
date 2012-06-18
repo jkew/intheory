@@ -93,7 +93,7 @@ int get_it(long slot, long *value) {
 state init_state(enum role_t role) {
   state s;
   s.type = s.node_num = s.nodes_left = s.slot = s.value = -1;
-  s.depth = 0; 
+  s.depth = s.fails = 0; 
   s.state = S_AVAILABLE;
   s.ticket = -1;
   switch(role) {

@@ -18,13 +18,20 @@ state sm_proposer_available(state s) {
   s.value = mesg->value;
   s.state = S_PREPARE;
   latest_state = sm_proposer(s);
-  if (latest_state.state == S_ACCEPTED_PROPOSAL && latest_state.value == s.value) {
-    send_to(mesg->from, latest_state.ticket, WRITE_SUCCESS, s.slot, latest_state.value);
-  } else {
-    send_to(mesg->from, latest_state.ticket, WRITE_FAILED, s.slot, latest_state.value);
-  }
   discard(mesg);
   return latest_state;
+}
+
+state sm_write_failed(state s) {
+    send_to(mesg->from, latest_state.ticket, WRITE_FAILED, s.slot, latest_state.value);
+    s.state = S_DONE;
+    return s;
+}
+
+state sm_write_succeeded(state s) {
+    send_to(mesg->from, latest_state.ticket, WRITE_SUCCESS, s.slot, latest_state.value);
+    s.state = S_DONE;
+    return s;
 }
 
 state sm_proposer_prepare(state s) {
@@ -48,10 +55,12 @@ state sm_proposer_send_proposal(state s) {
   assert(s.nodes_left > 0 && s.node_num >= 0 && s.ticket >= 0 
 	 && s.type == PROPOSAL && s.slot >= 0);
   if (s.fails > num_nodes) {
+    error("Failed to send proposal to acceptors %d times, failing", s.fails);
     s.state = WRITE_FAILED;
     return s;
   } 
   int to_node = s.node_num % num_nodes;
+  trace("Sending proposal to node %d", to_node);
   while (!send_to(to_node, s.ticket, s.type, s.slot, s.value)) {
     error("Failed to send message to acceptor %d fails %d", to_node, s.fails);
     to_node = (to_node++) % num_nodes;
@@ -131,10 +140,16 @@ state sm_proposer(state s) {
     break;
   case S_ACCEPTED_PROPOSAL:
     ;
-    // send value to node
+    // send value to acceptor node
     send_to(s.node_num % num_nodes, s.ticket, ACCEPTOR_SET, s.slot, s.value);
     latest_state.state = s.state = S_DONE;
     break;
+  case S_WRITE_SUCCEEDED:
+    brokerd
+      break;
+  case S_WRITE_FAILED:
+    brokerd
+      break;
   default:
     assert(0);
     break;
