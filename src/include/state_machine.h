@@ -18,6 +18,7 @@ enum state_t {
   S_ACCEPTED_WAIT,
   S_SET,
   S_GET,
+  S_DONE
 };
 
 typedef struct {

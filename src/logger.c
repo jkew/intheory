@@ -6,6 +6,8 @@
 #include "include/state_machine.h"
 #include "include/logger.h"
 
+int log_level = TRACE;
+
 const char* getRole(enum role_t r) {
   switch(r) {
   case PROPOSER: return "PROPOSER";
@@ -48,7 +50,12 @@ const char* getMessageName(int i) {
   }
 }
 
+void set_log_level(int level) {
+  log_level = level;
+}
+
 void error(const char *msg, ...) {
+  if (log_level < ERROR) return;
   va_list args;
   fprintf(stderr, "ERROR: ");
   va_start( args, msg );
@@ -58,7 +65,7 @@ void error(const char *msg, ...) {
 }
 
 void info(const char *msg, ...) {
-  return;
+  if (log_level < INFO) return;
   va_list args;
   fprintf(stdout, "INFO:");
   va_start( args, msg );
@@ -67,11 +74,31 @@ void info(const char *msg, ...) {
   fprintf(stdout, "\n" );
 }
 
+void trace(const char *msg, ...) {
+  if (log_level < TRACE) return;
+  va_list args;
+  fprintf(stdout, "TRACE:");
+  va_start( args, msg );
+  vfprintf(stdout, msg, args );
+  va_end( args );
+  fprintf(stdout, "\n" );
+}
+
+void notice(const char *msg, ...) {
+  if (log_level < NOTICE) return;
+  va_list args;
+  fprintf(stdout, "NOTICE:");
+  va_start( args, msg );
+  vfprintf(stdout, msg, args );
+  va_end( args );
+  fprintf(stdout, "\n" );
+}
+
 void log_state(state s, enum role_t r) {
-  info("%*s" "%s - %s node %d nodes_left %d ticket %ld type %d slot %ld value %ld", 
+  trace("%*s" "%s - %s node %d nodes_left %d ticket %ld type %d slot %ld value %ld", 
 	 s.depth, "", getRole(r), getStateName(s.state), s.node_num, s.nodes_left, s.ticket, s.type, s.slot, s.value);
 }
 
 void log_message(char *msg, message *m) {
-  info("(%s) Message %s from %d to %d ticket %ld slot %ld value %ld crc 0x%lx", msg, getMessageName(m->type), m->from, m->to, m->ticket, m->slot, m->value, m->crc);
+  trace("(%s) Message %s from %d to %d ticket %ld slot %ld value %ld crc 0x%lx", msg, getMessageName(m->type), m->from, m->to, m->ticket, m->slot, m->value, m->crc);
 }

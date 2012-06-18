@@ -21,7 +21,7 @@ state sm_acceptor_available(state s) {
   s.type = PROPOSAL;
   s.node_num = mesg->from;
   discard(mesg);
-  return sm_acceptor(s);
+  return s;
 }
 
 state sm_acceptor_accept(state s) {
@@ -31,13 +31,12 @@ state sm_acceptor_accept(state s) {
   s.type = ACCEPTED_PROPOSAL;
   s.state = S_ACCEPTED_WAIT;
   send_to(s.node_num, s.ticket, s.type, s.slot, s.value);
-  return sm_acceptor(s);
+  return s;
 }
 
 state sm_acceptor_accepted(state s) {
   assert(s.nodes_left == -1 && s.node_num >= 0 && s.ticket >= 0 
 	 && s.type == ACCEPTED_PROPOSAL && s.slot >= 0);
-  yeild(ACCEPTOR, s);
   message *mesg = recv_from(ACCEPTOR,-1, s.slot, PROPOSAL | ACCEPTOR_SET);
   if (mesg == 0) {
     // unable to receive message from proposer, or any other
@@ -45,7 +44,7 @@ state sm_acceptor_accepted(state s) {
     error("No response from proposer");
     s.state = S_AVAILABLE;
     s.type = s.node_num = s.nodes_left = s.slot = s.ticket = s.value = -1;
-    return sm_acceptor(s);
+    return s;
   }
   // New proposal received after acceptance
   if (mesg->type == PROPOSAL) {
@@ -57,13 +56,13 @@ state sm_acceptor_accepted(state s) {
       s.node_num = mesg->from;
       s.state = S_ACCEPT_PROPOSAL;
       discard(mesg);
-      return sm_acceptor(s);
+      return s;
     } else {
       // proposal not worth considering
       send_to(mesg->from, s.ticket, REJECTED_PROPOSAL, s.slot, s.value);
       // no state change
       discard(mesg);
-      return sm_acceptor(s);
+      return s;
     }
   }
 
@@ -72,15 +71,16 @@ state sm_acceptor_accepted(state s) {
       // this is an old ticket, ignore
       // or this is from a proposer we have relinquished our promise to
       // should we send a reject message here?
+      send_to(mesg->from, s.ticket, REJECTED_PROPOSAL, s.slot, s.value);
       discard(mesg);
-      return sm_acceptor(s);
+      return s;
     }
     s.state = S_SET;
     s.nodes_left = num_nodes;
     s.node_num = 0;
     s.type = SET;
     discard(mesg);
-    return sm_acceptor(s);
+    return s;
   }
 }
 
@@ -91,15 +91,15 @@ state sm_acceptor_set(state s) {
   s.nodes_left--;
   s.node_num++;
   if (s.nodes_left <= 0) {
+    s.state = S_DONE;
     return s;
   }
     
-  return sm_acceptor(s);
+  return s;
 }
 
 state sm_acceptor(state s) {
   log_state(s, ACCEPTOR);
-  s.depth++;
   state latest_state = s;
   switch(s.state) {
   case S_AVAILABLE:
@@ -119,7 +119,6 @@ state sm_acceptor(state s) {
     break;
   }
   log_state(latest_state, ACCEPTOR);
-  latest_state.depth--;
   return latest_state;
 }
 

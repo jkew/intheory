@@ -101,26 +101,25 @@ state sm_learner_available(state s) {
     s.state = S_SET;
   }
   discard(mesg);
-  return sm_learner(s);
+  return s;
 }
 
 state sm_learner_set(state s) {
   assert(s.nodes_left > 0 && s.ticket >= 0 
 	 && s.type == SET && s.slot >= 0);
-  yeild(LEARNER, s);
   message *mesg = recv_from(LEARNER, -1, s.slot, SET);
   if (mesg == 0) {
     // did not receive message in time, go back to available
     error("LEARNER: No response from acceptor");
     s.state = S_AVAILABLE;
     s.type = s.node_num = s.nodes_left = s.slot = s.ticket = s.value = -1;
-    return sm_learner(s);
+    return s;
   }
   
   if (s.ticket > mesg->ticket) {
     //ignore
     discard(mesg);
-    return sm_learner(s);
+    return s;
   }
 
   if (s.ticket < mesg->ticket) {
@@ -129,7 +128,7 @@ state sm_learner_set(state s) {
     s.ticket = mesg->ticket;
     s.nodes_left = quorom_size - 1;
     discard(mesg);
-    return sm_learner(s);
+    return s;
   }
 
   assert(s.value == mesg->value);
@@ -144,7 +143,7 @@ state sm_learner_set(state s) {
     return s;
   }
   // continue to wait for messages
-  return sm_learner(s);
+  return s;
 }
 
 state sm_learner_get(state s) {
@@ -160,11 +159,11 @@ state sm_learner_get(state s) {
 }
 
 state sm_learner(state s) {
+  // TODO: move to normal init spot
   if (slots == 0) {
     init_learner();
   }
   log_state(s, LEARNER);
-  s.depth++;
   state latest_state = s;
   switch(s.state) {
   case S_AVAILABLE:
@@ -182,7 +181,6 @@ state sm_learner(state s) {
     break;
   }
   log_state(latest_state, LEARNER);
-  latest_state.depth--;
   return latest_state;
 }
 

@@ -41,7 +41,7 @@ state sm_proposer_prepare(state s) {
   s.node_num = start_node;
   s.nodes_left = quorom_size + failsafe_acceptors;
   s.fails = 0;
-  return sm_proposer(s);
+  return s;
 }
 
 state sm_proposer_send_proposal(state s) {
@@ -59,20 +59,19 @@ state sm_proposer_send_proposal(state s) {
   }
   s.state = S_COLLECT_ACCEPTOR_PROPOSAL_RESPONSE;
   s.node_num = to_node;
-  return sm_proposer(s);
+  return s;
 }
 
 state sm_proposer_collect(state s) {
    assert(s.nodes_left > 0 && s.node_num >= 0 && s.ticket >= 0 
 	  && s.type == PROPOSAL && s.slot >= 0);
-   yeild(PROPOSER, s);
    message* response = recv_from(PROPOSER,s.node_num, s.slot, ACCEPTED_PROPOSAL | REJECTED_PROPOSAL); 
    if (response == NULL) { // failed to receive, try again with a new node
      error("! Failed to recieve message from acceptor %d fails %d", s.node_num, s.fails);     
      s.state = S_SEND_PROPOSAL_TO_ACCEPTOR;
      s.node_num++;
      s.fails++;
-     return sm_proposer(s);
+     return s;
    }
    assert(response->slot == s.slot);
    if (response->type == REJECTED_PROPOSAL) { // rejected directly, propose with a new ticket
@@ -82,7 +81,7 @@ state sm_proposer_collect(state s) {
      s.type = CLIENT_VALUE;
      s.node_num = s.nodes_left = -1;
      discard(response); 
-     return sm_proposer(s);
+     return s;
    }
    assert(response->type == ACCEPTED_PROPOSAL);
    if (response->ticket > s.ticket) {
@@ -103,20 +102,20 @@ state sm_proposer_collect(state s) {
      s.state = S_ACCEPTED_PROPOSAL;
      s.nodes_left = -1;
      discard(response);
-     return sm_proposer(s);
+     return s;
    } else {
      // yay. all required acceptors accepted     
      s.state = S_ACCEPTED_PROPOSAL;
-     s.nodes_left = -1;
+     s.nodes_left = num_nodes;
+     s.node_num = 0;
      discard(response);     
-     return sm_proposer(s);
+     return s;
    }
 }
 
 state sm_proposer(state s) {
   log_state(s, PROPOSER);
   state latest_state = s;
-  s.depth++;
   switch(s.state) {
   case S_AVAILABLE:
     latest_state = sm_proposer_available(s);
@@ -132,15 +131,16 @@ state sm_proposer(state s) {
     break;
   case S_ACCEPTED_PROPOSAL:
     ;
-    // send value to all nodes
+    // send value to node
     send_to(s.node_num % num_nodes, s.ticket, ACCEPTOR_SET, s.slot, s.value);
+    latest_state.state = s.state = S_DONE;
     break;
   default:
     assert(0);
     break;
   }
+
   log_state(latest_state, PROPOSER);
-  s.depth--;
   return latest_state;
 }
 
