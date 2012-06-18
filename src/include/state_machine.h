@@ -1,6 +1,9 @@
 #ifndef STATEMACHINEH
 #define STATEMACHINEH
 
+// proposer has at most 5 active states
+#define MAX_STACK_SIZE 5
+
 enum role_t {
   PROPOSER,
   ACCEPTOR,
@@ -33,7 +36,16 @@ typedef struct {
   long fails;
 } state;
 
-void yeild(enum role_t role, state s);
+typedef struct {
+  state state_stack[MAX_STACK_SIZE];
+  int size;
+  enum role_t role;
+} stack; 
+
+typedef state (*sm_role_fn)(state);
+
 void intheory_sm(enum role_t role);
+state init_state(enum role_t role);
+stack init_stack(enum role_t role);
 
 #endif

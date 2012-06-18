@@ -10,16 +10,16 @@
 #include "include/acceptor.h"
 #include "include/learner.h"
 
+
 int running = 0;
 
 pthread_t worker_thread;
 
-// TODO: Ideally we should have one state per slot
-state saved_proposer;
-state saved_acceptor;
-state saved_learner;
 
-state init_state(enum role_t role);
+// TODO: Ideally we should have one state stack per slot
+stack saved_proposer;
+stack saved_acceptor;
+stack saved_learner;
 
 // TODO: May be able to eventually merge this with the server thread
 // and register callbacks when specific messages are received
@@ -42,9 +42,9 @@ void start_intheory(char *me, int other_node_count, char* other_nodes[]) {
     all_nodes[i] = other_nodes[i - 1];
   }
 
-  saved_learner = init_state(LEARNER);
-  saved_proposer = init_state(PROPOSER);
-  saved_acceptor = init_state(ACCEPTOR);
+  saved_learner = init_stack(LEARNER);
+  saved_proposer = init_stack(PROPOSER);
+  saved_acceptor = init_stack(ACCEPTOR);
 
   // initialize the network
   init_network(other_node_count + 1, all_nodes, 256);
@@ -91,7 +91,7 @@ int get_it(long slot, long *value) {
 }
 
 state init_state(enum role_t role) {
-  state s, nextstate;
+  state s;
   s.type = s.node_num = s.nodes_left = s.slot = s.value = -1;
   s.depth = 0; 
   s.state = S_AVAILABLE;
@@ -99,79 +99,97 @@ state init_state(enum role_t role) {
   switch(role) {
   case PROPOSER:
     s.ticket = 0;
-    return s;
   case ACCEPTOR:
   case LEARNER:
-    return s;
-    break;  
   case CLIENT:
     break;
   }
+  return s;
 }
+
+stack init_stack(enum role_t role) {
+  stack stk;
+  stk.role = role;
+  stk.state_stack[0] = init_state(role);
+  stk.size = 1;
+  return stk;
+}
+
 
 void next_state(enum role_t role) {
   state s;
+  stack *stk;
+  sm_role_fn sm = 0;
   switch(role) {
   case PROPOSER:
-    s = saved_proposer;
-    s = sm_proposer(s);
-    if (s.state == S_DONE)  {
-      saved_proposer = init_state(PROPOSER);
-    } else {
-      saved_proposer = s;
-    }
-    return;
+    stk = &saved_proposer;
+    sm = sm_proposer;
+    break;
   case ACCEPTOR:
-    s = saved_acceptor;
-    s = sm_acceptor(s);
-    if (s.state == S_DONE)  {
-      saved_acceptor = init_state(ACCEPTOR);
-    } else {
-      saved_acceptor = s;
-    }
-    return;
+    stk = &saved_acceptor;
+    sm = sm_acceptor;
+    break;
   case LEARNER:
-    s = saved_learner;
-    s = sm_learner(s);
-    if (s.state == S_DONE)  {
-      saved_learner = init_state(LEARNER);
-    } else {
-      saved_learner = s;
-    }
-    return;
+    stk = &saved_learner;
+    sm = sm_learner;
+    break;
   case CLIENT:
+    assert(0);
     break;
   }
+  s = stk->state_stack[stk->size - 1];
+  s = sm(s);
+  if (s.state == S_DONE) {
+    // pop
+    stk->size--;
+    assert(stk->size >= 1);
+  } else {
+    // push
+    stk->state_stack[stk->size] = s;
+    stk->size++;
+    assert(stk->size <= MAX_STACK_SIZE);
+  }
+  return;
 }
 
 /**
  * For testing only
  */ 
 void intheory_sm(enum role_t role) {
+  stack stk = init_stack(role);
   state s, nextstate;
-  s.type = s.node_num = s.nodes_left = s.slot = s.value = -1;
-  s.depth = 0; 
-  s.state = S_AVAILABLE;
-  s.ticket = -1;
-  switch(role) {
-  case PROPOSER:
-    s.ticket = 0;
-    do {
+  s = stk.state_stack[0];
+  do {
+    switch(role) {
+    case PROPOSER:
       nextstate = sm_proposer(s);
-    } while(nextstate.state != S_DONE);
-    break;
-  case ACCEPTOR:
-    do {
+      break;
+    case ACCEPTOR:
       nextstate = sm_acceptor(s);
-    } while(nextstate.state != S_DONE);
-    break;
-  case LEARNER:
-    do {
+      break;
+    case LEARNER:
       nextstate = sm_learner(s);
-    } while(nextstate.state != S_DONE);
-    break;  
-  case CLIENT:
-    break;
-  }
+      
+      break;  
+    case CLIENT:
+      break;
+    }    
+
+    if (nextstate.state == S_DONE) {
+      // pop
+      stk.size--;
+      assert(stk.size >= 1);
+      if (stk.size == 1) {
+	return;
+      }
+    } else {
+      // push
+      stk.state_stack[stk.size] = nextstate;
+      stk.size++;
+      assert(stk.size <= 5);
+    }
+    return;
+
+  } while(nextstate.state != S_DONE);
 }
 
