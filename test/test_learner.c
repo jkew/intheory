@@ -108,6 +108,7 @@ long learner_some_recv[][5] = {
 long learner_some_send[][5] = {
   { 66, READ_SUCCESS, -1, 0, 999}
 };
+
 void test_learner() {
   num_nodes = 4;
   recv_from = &recv_from_scenario; 
@@ -116,22 +117,28 @@ void test_learner() {
   recv = learner_basic_recv;
   send = learner_basic_send;
   intheory_sm(LEARNER);
+  
+  
   sendidx = recvidx = 0;
   recv = learner_getfail_recv;
   send = learner_getfail_send;
   intheory_sm(LEARNER);
+
   sendidx = recvidx = 0;
   recv = learner_expand_recv;
   send = learner_expand_send;
   intheory_sm(LEARNER);
+
   sendidx = recvidx = 0;
   recv = learner_mixed_recv;
   send = learner_mixed_send;
   intheory_sm(LEARNER);
+
   sendidx = recvidx = 0;
   recv = learner_mixed2_recv;
   send = learner_mixed2_send;
   intheory_sm(LEARNER);
+
   sendidx = recvidx = 0;
   recv = learner_some_recv;
   send = learner_some_send;

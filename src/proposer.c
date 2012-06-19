@@ -28,6 +28,7 @@ state sm_proposer_prepare(state s) {
   int quorom_size = ((int) num_nodes / 2) + 1;
   // send a few more proposals up-to the number required for acceptor faults
   int failsafe_acceptors = ((int)quorom_size / 3);
+  trace("Picking a quorom size of %d with %d failsafe acceptors from %d total nodes", quorom_size, failsafe_acceptors, num_nodes);
   int node = random() % num_nodes;
   s.type = PROPOSAL;
   s.state = S_SEND_PROPOSAL_TO_ACCEPTOR;
@@ -37,34 +38,17 @@ state sm_proposer_prepare(state s) {
   s.nodes_left = s.num_quorom = quorom_size + failsafe_acceptors;
   s.fails = 0;
   assert(s.num_quorom <= MAX_QUOROM_SIZE);
-  assert(s.num_quorom < num_nodes);
+  assert(s.num_quorom <= num_nodes);
   int i;
   for (i = 0; i < s.num_quorom; i++) {
     s.nodes_quorom[i] = node;
-    node = node % num_nodes;
+    node = (node + 1) % num_nodes;
   }
   return s;
 }
 
-int is_unique(int node, int discard_id, state s) {
-  if (node == discard_id) return 0;
-  int i;
-  for (i = 0; i < s.num_quorom; i++) {
-    if (node == s.nodes_quorom[i])
-      return 0;
-  }  
-  return 1;
-}
-
-int pick_unique(int discard_id, state s) {
-  int node = discard_id % num_nodes;
-  while(!is_unique(node, discard_id, s))
-    node = discard_id % num_nodes;
-  return node;
-}
-
 state sm_proposer_send_proposal(state s) {
-  assert(s.nodes_left > 0 && s.ticket >= 0 
+  assert(s.nodes_left >= 0 && s.ticket >= 0 
 	 && s.type == PROPOSAL && s.slot >= 0);
 
 
@@ -72,14 +56,16 @@ state sm_proposer_send_proposal(state s) {
     // sent all proposals, move onto collection
     s.state = S_COLLECT_ACCEPTOR_PROPOSAL_RESPONSE;
     s.nodes_left = s.num_quorom;
+    return s;
   }
  
   int to_node = s.nodes_quorom[s.nodes_left - 1];
   trace("Sending proposal to node %d", to_node);
   if (send_to(to_node, s.ticket, s.type, s.slot, s.value)) {
-     // send succeeded, same state, but move on to a different acceptor node
-     s.nodes_left--;
-     return s;
+    // send succeeded, same state, but move on to a different acceptor node
+    trace("Proposal was sent successfully to node %d", to_node);
+    s.nodes_left--;
+    return s;
   } else {
     // send failed, pick a new node
     error("Failed to send message to acceptor %d fails %d", to_node, s.fails);
@@ -90,8 +76,10 @@ state sm_proposer_send_proposal(state s) {
       s.type = WRITE_FAILED;
       return s;
     }
-    to_node = pick_unique(to_node, s);    
-    s.nodes_quorom[s.nodes_left - 1] = to_node; 
+    s.nodes_left--;
+    s.num_quorom--;
+    // acceptable loss, remove that node
+    s.nodes_quorom[s.nodes_left] = s.nodes_quorom[s.num_quorom];
   }
   return s;
 }
@@ -111,12 +99,19 @@ state sm_proposer_collect(state s) {
       s.type = WRITE_FAILED;
       return s;
      }
-     // acceptable loss, try again with a new node
-     s.state = S_SEND_PROPOSAL_TO_ACCEPTOR;
-     // pick the new node
-     s.nodes_quorom[s.nodes_left - 1] = pick_unique(s.nodes_quorom[s.nodes_left - 1], s);
-     // we have to send to one more acceptor;
-     s.nodes_left = 1;
+     s.nodes_left--;
+     s.num_quorom--;
+     // acceptable loss, remove that node
+     s.nodes_quorom[s.nodes_left] = s.nodes_quorom[s.num_quorom];
+
+     if (s.nodes_left <= 0) {
+       // good enough
+       s.state = S_ACCEPTED_PROPOSAL;
+       s.nodes_left = s.num_quorom;
+       discard(response);     
+       return s;
+     }
+
      return s;
    }
 
@@ -138,8 +133,11 @@ state sm_proposer_collect(state s) {
 
    assert(response->type == ACCEPTED_PROPOSAL);
    if (response->ticket > s.ticket) {
+     // should never happen with current acceptor code
      error("Unexpectedly received an updated ticket from an acceptor as part of an ACCEPTED_PROPOSAL");
-     assert(0);
+     s.state = S_CLIENT_RESPOND;
+     s.type = WRITE_FAILED;
+     return s;
    }
 
    if (s.nodes_left > 1) {

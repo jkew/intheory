@@ -28,6 +28,8 @@ const char* getStateName(int i) {
   case S_ACCEPTED_PROPOSAL: return "S_ACCEPTED_PROPOSAL";
   case S_SET: return "S_SET";
   case S_GET: return "S_GET";
+  case S_CLIENT_RESPOND: return "S_CLIENT_RESPOND";
+  case S_DONE: return "S_DONE";
   default: return "UNKNOWN";
   }
 }

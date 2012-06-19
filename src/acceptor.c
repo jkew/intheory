@@ -50,6 +50,7 @@ state sm_acceptor_accepted(state s) {
   if (mesg->type == PROPOSAL) {
     // ticket greater, accept again
     if (mesg->ticket > s.ticket) {
+      trace("Recieved an updated ticket from some proposer, accepting that one!");
       s.ticket = mesg->ticket;
       s.value = mesg->value;
       s.type = PROPOSAL;
@@ -71,7 +72,7 @@ state sm_acceptor_accepted(state s) {
       // this is an old ticket, ignore
       // or this is from a proposer we have relinquished our promise to
       // should we send a reject message here?
-      send_to(mesg->from, s.ticket, REJECTED_PROPOSAL, s.slot, s.value);
+      // ?   send_to(mesg->from, s.ticket, REJECTED_PROPOSAL, s.slot, s.value);
       discard(mesg);
       return s;
     }

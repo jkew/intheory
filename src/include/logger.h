@@ -16,5 +16,5 @@ void error(const char *msg, ...);
 void info(const char *msg, ...);
 void notice(const char *msg, ...);
 void trace(const char *msg, ...);
-
+const char * getMessageName(int);
 #endif

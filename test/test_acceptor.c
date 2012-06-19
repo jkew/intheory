@@ -56,16 +56,17 @@ long acceptor_high_send[][5] = {
 long acceptor_pfail_recv[][5] = { 
   { 1, PROPOSAL, 1, 0, 999},
   { -1, -1, -1, -1, -1},
-  { 2, PROPOSAL, 1, 0, 777}
+  { 2, PROPOSAL, 2, 0, 777},
+  { 2, ACCEPTOR_SET, 2, 0, 777}
 };
 
 long acceptor_pfail_send[][5] = {
   { 1, ACCEPTED_PROPOSAL, 1, 0, 999},
-  { 2, ACCEPTED_PROPOSAL, 1, 0,777},
-  { -1, SET, 1, 0, 777},
-  { -1, SET, 1, 0, 777},
-  { -1, SET, 1, 0, 777},
-  { -1, SET, 1, 0, 777},
+  { 2, ACCEPTED_PROPOSAL, 2, 0,777},
+  { -1, SET, 2, 0, 777},
+  { -1, SET, 2, 0, 777},
+  { -1, SET, 2, 0, 777},
+  { -1, SET, 2, 0, 777},
 };
 
 /**
@@ -90,18 +91,22 @@ void test_acceptor() {
   num_nodes = 4;
   recv_from = &recv_from_scenario; 
   send_to = &send_to_scenario;
+  
   sendidx = recvidx = 0;
   recv = acceptor_basic_recv;
   send = acceptor_basic_send;
   intheory_sm(ACCEPTOR);
+
   sendidx = recvidx = 0;
   recv = acceptor_high_recv;
   send = acceptor_high_send;
   intheory_sm(ACCEPTOR);
+  
   sendidx = recvidx = 0;
   recv = acceptor_pfail_recv;
   send = acceptor_pfail_send;
   intheory_sm(ACCEPTOR);
+
   sendidx = recvidx = 0;
   recv = acceptor_lower_recv;
   send = acceptor_lower_send;

@@ -142,6 +142,7 @@ state sm_learner_set(state s) {
     while ((mesg = recv_from(LEARNER, -1, s.slot, SET)) != 0) { discard(mesg); }
     set(s.slot, s.value);
     info(">>>>>>>>>>> SETTING VALUE! SLOT: %d VALUE: %d", s.slot, s.value);
+    s.state = S_DONE;
     return s;
   }
   // continue to wait for messages
