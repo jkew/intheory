@@ -69,12 +69,18 @@ void stop_intheory() {
 
 int set_it(long slot, long value) {
   send_to(my_id(), -1, CLIENT_VALUE, slot, value);
-  message *msg = recv_from(CLIENT, -1, slot, WRITE_SUCCESS | WRITE_FAILED);
+  int tries = 10;
+  message *msg = 0; 
+  while ((msg = recv_from(CLIENT, -1, slot, WRITE_SUCCESS | WRITE_FAILED)) == 0 && tries--);
   int ret = 0;
-  if (msg != 0 && msg->type == WRITE_SUCCESS) {
-    ret = 1;
+  if (msg != 0) {
+    if (msg->type == WRITE_SUCCESS) {
+      ret = 1;
+    } else {
+      discard(msg);
+    }
   } 
-  discard(msg);
+
   return ret;
 }
 

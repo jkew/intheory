@@ -50,7 +50,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-noinst_PROGRAMS = echo$(EXEEXT)
+noinst_PROGRAMS = echo$(EXEEXT) hello$(EXEEXT)
 subdir = examples
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(top_srcdir)/config/depcomp
@@ -68,6 +68,9 @@ echo_DEPENDENCIES = ../src/libintheory-1.0.la
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
+am_hello_OBJECTS = hello.$(OBJEXT)
+hello_OBJECTS = $(am_hello_OBJECTS)
+hello_DEPENDENCIES = ../src/libintheory-1.0.la
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
@@ -94,8 +97,8 @@ am__v_CCLD_0 = @echo "  CCLD    " $@;
 AM_V_GEN = $(am__v_GEN_@AM_V@)
 am__v_GEN_ = $(am__v_GEN_@AM_DEFAULT_V@)
 am__v_GEN_0 = @echo "  GEN     " $@;
-SOURCES = $(echo_SOURCES)
-DIST_SOURCES = $(echo_SOURCES)
+SOURCES = $(echo_SOURCES) $(hello_SOURCES)
+DIST_SOURCES = $(echo_SOURCES) $(hello_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -219,6 +222,8 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 echo_SOURCES = echo.c
 echo_LDADD = ../src/libintheory-1.0.la
+hello_SOURCES = hello.c
+hello_LDADD = ../src/libintheory-1.0.la
 all: all-am
 
 .SUFFIXES:
@@ -265,6 +270,9 @@ clean-noinstPROGRAMS:
 echo$(EXEEXT): $(echo_OBJECTS) $(echo_DEPENDENCIES) $(EXTRA_echo_DEPENDENCIES) 
 	@rm -f echo$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(echo_OBJECTS) $(echo_LDADD) $(LIBS)
+hello$(EXEEXT): $(hello_OBJECTS) $(hello_DEPENDENCIES) $(EXTRA_hello_DEPENDENCIES) 
+	@rm -f hello$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(hello_OBJECTS) $(hello_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -273,6 +281,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/echo.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hello.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

@@ -3,31 +3,22 @@
 #include <stdlib.h>
 
 #define SLOT 0
-#define RETURN_HELLOS 10
 
-int hellos_left = RETURN_HELLOS;
 int hellos_received = 0;
 
 
 void say_hello() {
-  int tries = 10;
-  while (!set_it(SLOT, my_id()) && tries--);
-  
-  if (!tries) {
+  if (!set_it(SLOT, my_id())) {
     printf("ERROR: Can't get a word in!");
     exit(1);
   }
-  hellos_left--;
 }
 
 void got_hello(long slot, long value) {
   if (value >= 0) {
-    printf("Received Hello! from node %d\n", value);
     hellos_received++;
+    printf("Received my %d th Hello! from node %d\n", hellos_received, value);
   }
-  if (hellos_left) {
-    say_hello();
-  } 
 }
 
 int main(int argc, char **args) {
@@ -37,7 +28,7 @@ int main(int argc, char **args) {
     return 1;
   }
 
-  set_log_level(ERROR);
+  //set_log_level(ERROR);
   char * me;
   char * other_nodes[argc - 2];
 
@@ -52,12 +43,12 @@ int main(int argc, char **args) {
   register_changed_cb(SLOT, got_hello);
   printf("MY ID: %d\n", my_id());
   if (my_id() == 0) {
-    printf("I guess I'm the first to say hello!\n");
+    printf("I guess I'm the designated hello-er! Start your nodes!\n");
     sleep(5);
     say_hello();
   }
 
-  while (hellos_left) { sleep(1); }
+  while (hellos_received < 1) { sleep(1); }
 
   stop_intheory();
   return 0;
