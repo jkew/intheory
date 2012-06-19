@@ -52,7 +52,7 @@ const char* getMessageName(int i) {
   }
 }
 
-void set_log_level(int level) {
+void set_log_level(enum loglevel_t level) {
   log_level = level;
 }
 

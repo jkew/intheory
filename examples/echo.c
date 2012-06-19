@@ -8,15 +8,6 @@
 int hellos_left = RETURN_HELLOS;
 int hellos_received = 0;
 
-void got_hello(long slot, long value) {
-  if (value >= 0) {
-    printf("Received Hello! from node %d\n", value);
-    hellos_received++;
-  }
-  if (hellos_left--) {
-    say_hello();
-  }
-}
 
 void say_hello() {
   int tries = 10;
@@ -28,12 +19,24 @@ void say_hello() {
   }
 }
 
+void got_hello(long slot, long value) {
+  if (value >= 0) {
+    printf("Received Hello! from node %d\n", value);
+    hellos_received++;
+  }
+  if (hellos_left--) {
+    say_hello();
+  } 
+}
+
 int main(int argc, char **args) {
   if (argc < 5) {
     printf("Usage: %s LOCAL_ADDRESS:LOCAL_PORT second_node:port third_node:port fourth_node:port ...\n", args[0]);
     printf("   ex: %s 10.0.0.1:4321 10.0.0.2:4321 10.0.0.3:4321 10.0.0.4:4321 ...\n", args[0]);
     return 1;
   }
+
+  set_log_level(ERROR);
   char * me;
   char * other_nodes[argc - 2];
 

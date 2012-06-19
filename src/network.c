@@ -46,7 +46,6 @@ message * get_if_matches(int i, int from_node, long slot, unsigned int mask) {
 
 void add_message(message *msg) {
   pthread_mutex_lock(&write_lock);
-  // log_message("add_message", msg);
   input_ring[write_ipos] = msg;
   advance_writer();
   pthread_mutex_unlock(&write_lock);

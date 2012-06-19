@@ -41,7 +41,7 @@ state sm_acceptor_accepted(state s) {
   if (mesg == 0) {
     // unable to receive message from proposer, or any other
     // system
-    error("No response from proposer");
+    error("ACCEPTOR: No response from proposer");
     s.state = S_AVAILABLE;
     s.type = s.client = s.nodes_left = s.slot = s.ticket = s.value = -1;
     return s;
@@ -50,7 +50,7 @@ state sm_acceptor_accepted(state s) {
   if (mesg->type == PROPOSAL) {
     // ticket greater, accept again
     if (mesg->ticket > s.ticket) {
-      trace("Recieved an updated ticket from some proposer, accepting that one!");
+      trace("ACCEPTOR: Recieved an updated ticket from some proposer, accepting that one!");
       s.ticket = mesg->ticket;
       s.value = mesg->value;
       s.type = PROPOSAL;
@@ -68,7 +68,7 @@ state sm_acceptor_accepted(state s) {
   }
 
   if (mesg->type == ACCEPTOR_SET) {
-    if (mesg->ticket < s.ticket || s.client != mesg->from) {
+    if (mesg->ticket != s.ticket || s.client != mesg->from) {
       // this is an old ticket, ignore
       // or this is from a proposer we have relinquished our promise to
       // should we send a reject message here?

@@ -81,7 +81,7 @@ void server(void *args) {
 	  if (newfd >= 0) {
 	    FD_SET(newfd, &master); 
 	    if(newfd > fdmax) { fdmax = newfd; }
-	    info("Connection from %s on socket %d", inet_ntoa(clientaddr.sin_addr), newfd);	  
+	    trace("Connection from %s on socket %d", inet_ntoa(clientaddr.sin_addr), newfd);	  
 	  }
 	} else {
           message msg;
@@ -94,7 +94,7 @@ void server(void *args) {
 	      error("CRC not valid on message");
 	      break;
 	    } else {
-	      info("Valid message received");
+	      trace("Valid message received");
 	    }
 	    if (msg.type == EXIT) {
 	      info("Received exit message");
@@ -109,7 +109,7 @@ void server(void *args) {
 	  }
 	  if (bytes_read <= 0) {
 	    if (bytes_read == 0) {
-	      info("socket hung up");
+	      trace("socket hung up");
 	    } else {
 	      error("socket read error");
 	      assert(0);
