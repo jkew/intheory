@@ -16,10 +16,10 @@ int running = 0;
 pthread_t worker_thread;
 
 
-// TODO: Ideally we should have one state stack per slot
-stack saved_proposer;
-stack saved_acceptor;
-stack saved_learner;
+// TODO: Ideally we should have one state per slot
+state saved_proposer;
+state saved_acceptor;
+state saved_learner;
 
 // TODO: May be able to eventually merge this with the server thread
 // and register callbacks when specific messages are received
@@ -42,9 +42,9 @@ void start_intheory(char *me, int other_node_count, char* other_nodes[]) {
     all_nodes[i] = other_nodes[i - 1];
   }
 
-  saved_learner = init_stack(LEARNER);
-  saved_proposer = init_stack(PROPOSER);
-  saved_acceptor = init_stack(ACCEPTOR);
+  saved_learner = init_state(LEARNER);
+  saved_proposer = init_state(PROPOSER);
+  saved_acceptor = init_state(ACCEPTOR);
 
   // initialize the network
   init_network(other_node_count + 1, all_nodes, 256);
@@ -92,7 +92,7 @@ int get_it(long slot, long *value) {
 
 state init_state(enum role_t role) {
   state s;
-  s.type = s.node_num = s.nodes_left = s.slot = s.value = -1;
+  s.type = s.num_quorom = s.max_fails = s.client = s.nodes_left = s.slot = s.value = -1;
   s.depth = s.fails = 0; 
   s.state = S_AVAILABLE;
   s.ticket = -1;
@@ -107,47 +107,32 @@ state init_state(enum role_t role) {
   return s;
 }
 
-stack init_stack(enum role_t role) {
-  stack stk;
-  stk.role = role;
-  stk.state_stack[0] = init_state(role);
-  stk.size = 1;
-  return stk;
-}
-
-
 void next_state(enum role_t role) {
-  state s;
-  stack *stk;
+  state *s;
   sm_role_fn sm = 0;
   switch(role) {
   case PROPOSER:
-    stk = &saved_proposer;
+    s = &saved_proposer;
     sm = sm_proposer;
     break;
   case ACCEPTOR:
-    stk = &saved_acceptor;
+    s = &saved_acceptor;
     sm = sm_acceptor;
     break;
   case LEARNER:
-    stk = &saved_learner;
+    s = &saved_learner;
     sm = sm_learner;
     break;
   case CLIENT:
     assert(0);
     break;
   }
-  s = stk->state_stack[stk->size - 1];
-  s = sm(s);
-  if (s.state == S_DONE) {
-    // pop
-    stk->size--;
-    assert(stk->size >= 1);
+  state new_state = sm(*s);
+
+  if (new_state.state == S_DONE) {
+    *s = init_state(role);
   } else {
-    // push
-    stk->state_stack[stk->size] = s;
-    stk->size++;
-    assert(stk->size <= MAX_STACK_SIZE);
+    *s = new_state;
   }
   return;
 }
@@ -156,40 +141,23 @@ void next_state(enum role_t role) {
  * For testing only
  */ 
 void intheory_sm(enum role_t role) {
-  stack stk = init_stack(role);
-  state s, nextstate;
-  s = stk.state_stack[0];
+  state s;
+  
+  s = init_state(role);
   do {
     switch(role) {
     case PROPOSER:
-      nextstate = sm_proposer(s);
+      s = sm_proposer(s);
       break;
     case ACCEPTOR:
-      nextstate = sm_acceptor(s);
+      s = sm_acceptor(s);
       break;
     case LEARNER:
-      nextstate = sm_learner(s);
-      
+      s = sm_learner(s);      
       break;  
     case CLIENT:
       break;
     }    
-
-    if (nextstate.state == S_DONE) {
-      // pop
-      stk.size--;
-      assert(stk.size >= 1);
-      if (stk.size == 1) {
-	return;
-      }
-    } else {
-      // push
-      stk.state_stack[stk.size] = nextstate;
-      stk.size++;
-      assert(stk.size <= 5);
-    }
-    return;
-
-  } while(nextstate.state != S_DONE);
+  } while(s.state != S_DONE);
 }
 

@@ -9,7 +9,7 @@
 
 
 state sm_acceptor_available(state s) {
-  assert(s.nodes_left == -1 && s.node_num == -1 && s.ticket == -1 
+  assert(s.nodes_left == -1 && s.ticket == -1 
 	 && s.type == -1 && s.slot == -1);
   message *mesg = recv_from(ACCEPTOR,-1, -1, PROPOSAL);
   if (mesg == 0) { return s; }
@@ -19,23 +19,23 @@ state sm_acceptor_available(state s) {
   s.state = S_ACCEPT_PROPOSAL; // We have not accepted any proposal yet
   s.ticket = mesg->ticket;
   s.type = PROPOSAL;
-  s.node_num = mesg->from;
+  s.client = mesg->from;
   discard(mesg);
   return s;
 }
 
 state sm_acceptor_accept(state s) {
-  assert(s.nodes_left == -1 && s.node_num >= 0 && s.ticket >= 0 
+  assert(s.nodes_left == -1 && s.client >= 0 && s.ticket >= 0 
 	 && s.type == PROPOSAL && s.slot >= 0);
   // send acceptance
   s.type = ACCEPTED_PROPOSAL;
   s.state = S_ACCEPTED_WAIT;
-  send_to(s.node_num, s.ticket, s.type, s.slot, s.value);
+  send_to(s.client, s.ticket, s.type, s.slot, s.value);
   return s;
 }
 
 state sm_acceptor_accepted(state s) {
-  assert(s.nodes_left == -1 && s.node_num >= 0 && s.ticket >= 0 
+  assert(s.nodes_left == -1 && s.client >= 0 && s.ticket >= 0 
 	 && s.type == ACCEPTED_PROPOSAL && s.slot >= 0);
   message *mesg = recv_from(ACCEPTOR,-1, s.slot, PROPOSAL | ACCEPTOR_SET);
   if (mesg == 0) {
@@ -43,7 +43,7 @@ state sm_acceptor_accepted(state s) {
     // system
     error("No response from proposer");
     s.state = S_AVAILABLE;
-    s.type = s.node_num = s.nodes_left = s.slot = s.ticket = s.value = -1;
+    s.type = s.client = s.nodes_left = s.slot = s.ticket = s.value = -1;
     return s;
   }
   // New proposal received after acceptance
@@ -53,7 +53,7 @@ state sm_acceptor_accepted(state s) {
       s.ticket = mesg->ticket;
       s.value = mesg->value;
       s.type = PROPOSAL;
-      s.node_num = mesg->from;
+      s.client = mesg->from;
       s.state = S_ACCEPT_PROPOSAL;
       discard(mesg);
       return s;
@@ -67,7 +67,7 @@ state sm_acceptor_accepted(state s) {
   }
 
   if (mesg->type == ACCEPTOR_SET) {
-    if (mesg->ticket < s.ticket || s.node_num != mesg->from) {
+    if (mesg->ticket < s.ticket || s.client != mesg->from) {
       // this is an old ticket, ignore
       // or this is from a proposer we have relinquished our promise to
       // should we send a reject message here?
@@ -77,7 +77,6 @@ state sm_acceptor_accepted(state s) {
     }
     s.state = S_SET;
     s.nodes_left = num_nodes;
-    s.node_num = 0;
     s.type = SET;
     discard(mesg);
     return s;
@@ -85,11 +84,10 @@ state sm_acceptor_accepted(state s) {
 }
 
 state sm_acceptor_set(state s) {
-  assert(s.nodes_left > 0 && s.node_num >= 0 && s.ticket >= 0 
+  assert(s.nodes_left > 0 && s.client >= 0 && s.ticket >= 0 
 	 && s.type == SET && s.slot >= 0);
-  send_to(s.node_num % num_nodes, s.ticket, SET, s.slot, s.value);
+  send_to((s.nodes_left - 1) % num_nodes, s.ticket, SET, s.slot, s.value);
   s.nodes_left--;
-  s.node_num++;
   if (s.nodes_left <= 0) {
     s.state = S_DONE;
     return s;

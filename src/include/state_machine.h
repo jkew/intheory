@@ -1,8 +1,8 @@
 #ifndef STATEMACHINEH
 #define STATEMACHINEH
 
-// proposer has at most 5 active states
-#define MAX_STACK_SIZE 5
+// TODO: Eventually remove this limitation
+#define MAX_QUOROM_SIZE 16
 
 enum role_t {
   PROPOSER,
@@ -21,31 +21,28 @@ enum state_t {
   S_ACCEPTED_WAIT,
   S_SET,
   S_GET,
-  S_DONE
+  S_CLIENT_RESPOND,
+  S_DONE,
 };
 
 typedef struct {
   int state; 
   int type;
   int depth; 
-  int node_num;
   int nodes_left;
+  int nodes_quorom[MAX_QUOROM_SIZE];
+  int num_quorom;
+  int max_fails;
   long ticket;
   long slot;
   long value;
+  long client;
   long fails;
 } state;
-
-typedef struct {
-  state state_stack[MAX_STACK_SIZE];
-  int size;
-  enum role_t role;
-} stack; 
 
 typedef state (*sm_role_fn)(state);
 
 void intheory_sm(enum role_t role);
 state init_state(enum role_t role);
-stack init_stack(enum role_t role);
 
 #endif

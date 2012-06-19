@@ -95,8 +95,8 @@ void notice(const char *msg, ...) {
 }
 
 void log_state(state s, enum role_t r) {
-  trace("%*s" "%s(%ld) - %s node %d nodes_left %d ticket %ld type %d slot %ld value %ld", 
-	s.depth, "", getRole(r), s.slot, getStateName(s.state), s.node_num, s.nodes_left, s.ticket, s.type, s.slot, s.value);
+  trace("%*s" "%s(%ld) - %s quorom_size %d nodes_left %d ticket %ld type %d slot %ld value %ld", 
+	s.depth, "", getRole(r), s.slot, getStateName(s.state), s.num_quorom, s.nodes_left, s.ticket, s.type, s.slot, s.value);
 }
 
 void log_message(char *msg, message *m) {

@@ -82,13 +82,13 @@ long get(int slot) {
 }
 
 state sm_learner_available(state s) {
-  assert(s.nodes_left == -1 && s.node_num == -1 && s.ticket == -1 
+  assert(s.nodes_left == -1 && s.client == -1 && s.ticket == -1 
 	 && s.type == -1 && s.slot == -1);
   message *mesg = recv_from(LEARNER, -1, -1, SET | GET);
   if (mesg == 0) { return s; }
   s.depth++;
   s.slot = mesg->slot;
-  s.node_num = mesg->from;
+  s.client = mesg->from;
   if (mesg->type == GET) {
     s.type = GET;
     s.state = S_GET;
@@ -96,7 +96,7 @@ state sm_learner_available(state s) {
     int quorom_size = ((int) num_nodes / 2) + 1;
     s.value = mesg->value;
     s.ticket = mesg->ticket;
-    s.nodes_left = quorom_size - 1;
+    s.nodes_left = quorom_size - 1; // we have already received one set msg 
     s.type = SET;
     s.state = S_SET;
   }
@@ -105,14 +105,14 @@ state sm_learner_available(state s) {
 }
 
 state sm_learner_set(state s) {
-  assert(s.nodes_left > 0 && s.ticket >= 0 
+  assert(s.nodes_left > 0 && s.ticket >= 0 && s.client >= 0
 	 && s.type == SET && s.slot >= 0);
   message *mesg = recv_from(LEARNER, -1, s.slot, SET);
   if (mesg == 0) {
     // did not receive message in time, go back to available
     error("LEARNER: No response from acceptor");
-    s.state = S_AVAILABLE;
-    s.type = s.node_num = s.nodes_left = s.slot = s.ticket = s.value = -1;
+    s.state = S_DONE;
+    s.type = s.client = s.nodes_left = s.slot = s.ticket = s.value = -1;
     return s;
   }
   
@@ -123,9 +123,11 @@ state sm_learner_set(state s) {
   }
 
   if (s.ticket < mesg->ticket) {
+    // higher ticket, reset
     int quorom_size = ((int) num_nodes / 2) + 1;
     s.value = mesg->value;
     s.ticket = mesg->ticket;
+    s.client = mesg->from;
     s.nodes_left = quorom_size - 1;
     discard(mesg);
     return s;
@@ -147,14 +149,14 @@ state sm_learner_set(state s) {
 }
 
 state sm_learner_get(state s) {
-  assert(s.type == GET && s.slot >= 0 && s.node_num >= 0);
+  assert(s.type == GET && s.slot >= 0 && s.client >= 0);
   if (s.slot <= maxslot) {
-    send_to(s.node_num, -1, READ_SUCCESS, s.slot, get(s.slot));     
+    send_to(s.client, -1, READ_SUCCESS, s.slot, get(s.slot));     
   } else {
-    send_to(s.node_num, -1, READ_FAILED, s.slot, -1);     
+    send_to(s.client, -1, READ_FAILED, s.slot, -1);     
   }
-  s.state = S_AVAILABLE;
-  s.type = s.node_num = s.nodes_left = s.slot = s.ticket = s.value = -1;
+  s.state = S_DONE;
+  s.type = s.client = s.nodes_left = s.slot = s.ticket = s.value = -1;
   return s;
 }
 
