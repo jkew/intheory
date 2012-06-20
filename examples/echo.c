@@ -10,6 +10,7 @@ int hellos_received = 0;
 
 
 void say_hello() {
+  printf("Sending my hello!\n");
   int tries = 10;
   while (!set_it(SLOT, my_id()) && tries--);
   
@@ -21,7 +22,7 @@ void say_hello() {
 }
 
 void got_hello(long slot, long value) {
-  if (value >= 0) {
+  if (value != my_id()) {
     printf("Received Hello! from node %d\n", value);
     hellos_received++;
   }

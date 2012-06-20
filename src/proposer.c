@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <sys/time.h>
 #include "include/intheory.h"
 #include "include/state_machine.h"
 #include "include/network.h"
 #include "include/proposer.h"
 #include "include/logger.h"
+#include "include/util.h"
 
 state sm_proposer_available(state s) {
   state latest_state = s;
@@ -18,6 +20,7 @@ state sm_proposer_available(state s) {
   s.slot = mesg->slot;
   s.value = mesg->value;
   s.state = S_PREPARE;
+  set_deadline(10, &s);
   return s;
 }
 
@@ -90,6 +93,10 @@ state sm_proposer_collect(state s) {
    int node = s.nodes_quorom[s.nodes_left - 1];
    message* response = recv_from(PROPOSER,node, s.slot, ACCEPTED_PROPOSAL | REJECTED_PROPOSAL); 
    if (response == NULL) { 
+     if (!deadline_passed(&s)) {
+	 return s;
+     } 
+
      // failed to receive any message
      error("! Failed to recieve message from acceptor %d fails %d",  node, s.fails);     
      s.fails++;
@@ -188,7 +195,8 @@ state sm_proposer_respond_to_client(state s) {
 }
 
 state sm_proposer(state s) {
-  log_state(s, PROPOSER);
+  if (s.state != S_AVAILABLE)
+    log_state(s, PROPOSER);
   state latest_state = s;
   switch(s.state) {
   case S_AVAILABLE:
@@ -214,7 +222,6 @@ state sm_proposer(state s) {
     break;
   }
 
-  log_state(latest_state, PROPOSER);
   return latest_state;
 }
 

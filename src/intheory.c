@@ -71,7 +71,9 @@ int set_it(long slot, long value) {
   send_to(my_id(), -1, CLIENT_VALUE, slot, value);
   int tries = 10;
   message *msg = 0; 
-  while ((msg = recv_from(CLIENT, -1, slot, WRITE_SUCCESS | WRITE_FAILED)) == 0 && tries--);
+  while ((msg = recv_from(CLIENT, -1, slot, WRITE_SUCCESS | WRITE_FAILED)) == 0 && tries--) {
+    sleep(1);
+  }
   int ret = 0;
   if (msg != 0) {
     if (msg->type == WRITE_SUCCESS) {
@@ -86,7 +88,11 @@ int set_it(long slot, long value) {
 
 int get_it(long slot, long *value) {
   send_to(my_id(), -1, GET, slot, -1);
-  message *msg = recv_from(CLIENT, -1, slot, READ_SUCCESS | READ_FAILED);
+  message *msg = 0;
+  int tries = 10;
+  while ((msg = recv_from(CLIENT, -1, slot, READ_SUCCESS | READ_FAILED)) == 0 && tries--) {
+    sleep(1);
+  }
   int ret = 0;
   if (msg != 0 && msg->type == READ_SUCCESS) {
     ret = 1;

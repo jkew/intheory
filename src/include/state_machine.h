@@ -3,6 +3,7 @@
 
 // TODO: Eventually remove this limitation
 #define MAX_QUOROM_SIZE 16
+#include <sys/time.h>
 
 enum role_t {
   PROPOSER,
@@ -38,6 +39,7 @@ typedef struct {
   long value;
   long client;
   long fails;
+  struct timeval deadline;
 } state;
 
 typedef state (*sm_role_fn)(state);

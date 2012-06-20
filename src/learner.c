@@ -100,6 +100,7 @@ state sm_learner_available(state s) {
     s.type = SET;
     s.state = S_SET;
   }
+  set_deadline(10, &s);
   discard(mesg);
   return s;
 }
@@ -109,6 +110,9 @@ state sm_learner_set(state s) {
 	 && s.type == SET && s.slot >= 0);
   message *mesg = recv_from(LEARNER, -1, s.slot, SET);
   if (mesg == 0) {
+     if (!deadline_passed(&s)) {
+	 return s;
+     }
     // did not receive message in time, go back to available
     error("LEARNER: No response from acceptor");
     s.state = S_DONE;
@@ -166,7 +170,8 @@ state sm_learner(state s) {
   if (slots == 0) {
     init_learner();
   }
-  log_state(s, LEARNER);
+  if (s.state != S_AVAILABLE)
+    log_state(s, LEARNER);
   state latest_state = s;
   switch(s.state) {
   case S_AVAILABLE:
@@ -183,7 +188,6 @@ state sm_learner(state s) {
     assert(0);
     break;
   }
-  log_state(latest_state, LEARNER);
   return latest_state;
 }
 

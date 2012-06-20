@@ -84,7 +84,7 @@ message * __recv_from(int r, int from_node, long slot, unsigned int mask) {
     pos = role_read_ipos[r] = 0;
   }
   int initial_pos = pos;
-  int rounds = num_nodes * 1000;
+  int rounds = num_nodes;
   message * msg = get_if_matches(pos, from_node, slot, mask);
   while(msg == 0) {
     pos = advance_role(r);
