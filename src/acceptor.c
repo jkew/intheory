@@ -42,7 +42,7 @@ state sm_acceptor_accepted(state s) {
   if (mesg == 0) {
      if (!deadline_passed(&s)) {
        trace("Acceptor still waiting... ");
-	 return s;
+       return s;
      }
     // unable to receive message from proposer, or any other
     // system

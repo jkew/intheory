@@ -8,8 +8,8 @@
 enum role_t {
   PROPOSER,
   ACCEPTOR,
+  LEARNER,
   CLIENT,
-  LEARNER
 };
 
 enum state_t {
@@ -45,6 +45,6 @@ typedef struct {
 typedef state (*sm_role_fn)(state);
 
 void intheory_sm(enum role_t role);
-state init_state(enum role_t role);
+state init_state(enum role_t role, state *prev_state);
 
 #endif

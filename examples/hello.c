@@ -37,7 +37,7 @@ int main(int argc, char **args) {
   for (; i < argc; i++) {
     other_nodes[i - 2] = args[i];
   }
-
+  set_log_level(GRAPH);
 
   start_intheory(me, argc - 2, other_nodes);
   register_changed_cb(SLOT, got_hello);

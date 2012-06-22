@@ -100,6 +100,7 @@ message * __recv_from(int r, int from_node, long slot, unsigned int mask) {
     msg = get_if_matches(pos, from_node, slot, mask);
   }
   log_message("recv_from", msg);
+  log_graph(msg->from, my_id(), msg->type, 1); 
   return msg;
 }
 
@@ -112,8 +113,10 @@ int __send_local(long ticket, int type, long slot, long value) {
 
 int __send_to(int node, long ticket, int type, long slot, long value) {
   int n = node % num_nodes;
-  if (n == my_id()) 
+  log_graph(my_id(), node, type, 0); 
+  if (n == my_id()) {
     return __send_local(ticket, type, slot, value);
+  }
   return send_intheory(node, create_message(my_id(), node, ticket, type, slot, value));
 }
 

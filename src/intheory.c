@@ -13,8 +13,8 @@
 
 int running = 0;
 
-pthread_t worker_thread;
 
+pthread_t worker_thread;
 
 // TODO: Ideally we should have one state per slot
 state saved_proposer;
@@ -42,9 +42,9 @@ void start_intheory(char *me, int other_node_count, char* other_nodes[]) {
     all_nodes[i] = other_nodes[i - 1];
   }
 
-  saved_learner = init_state(LEARNER);
-  saved_proposer = init_state(PROPOSER);
-  saved_acceptor = init_state(ACCEPTOR);
+  saved_learner = init_state(LEARNER, 0);
+  saved_proposer = init_state(PROPOSER, 0);
+  saved_acceptor = init_state(ACCEPTOR, 0);
 
   // initialize the network
   init_network(other_node_count + 1, all_nodes, 256);
@@ -63,26 +63,23 @@ void stop_intheory() {
   stop_server();
   pthread_join(&worker_thread, 0);
   destroy_network();
+  destroy_learner();
   notice("INTHEORY STOPPED");
 }
 
 
 int set_it(long slot, long value) {
   send_to(my_id(), -1, CLIENT_VALUE, slot, value);
-  int tries = 10;
   message *msg = 0; 
-  while ((msg = recv_from(CLIENT, -1, slot, WRITE_SUCCESS | WRITE_FAILED)) == 0 && tries--) {
+  while ((msg = recv_from(CLIENT, -1, slot, WRITE_SUCCESS | WRITE_FAILED)) == 0) {
     sleep(1);
   }
   int ret = 0;
-  if (msg != 0) {
-    if (msg->type == WRITE_SUCCESS) {
-      ret = 1;
-    } else {
-      discard(msg);
-    }
-  } 
-
+  if (msg->type == WRITE_SUCCESS) {
+    ret = 1;
+  } else {
+    discard(msg);
+  }
   return ret;
 }
 
@@ -102,17 +99,19 @@ int get_it(long slot, long *value) {
   return ret;
 }
 
-state init_state(enum role_t role) {
+state init_state(enum role_t role, state *prev_state) {
   state s;
-  s.type = s.num_quorom = s.max_fails = s.client = s.nodes_left = s.slot = s.value = -1;
+  s.type = s.num_quorom = s.max_fails = s.client = s.nodes_left = s.slot = s.value = s.ticket =-1;
   s.depth = s.fails = 0; 
   s.state = S_AVAILABLE;
-  s.ticket = -1;
   switch(role) {
-  case PROPOSER:
-    s.ticket = 0;
-  case ACCEPTOR:
   case LEARNER:
+  case PROPOSER:
+    if (prev_state != 0) 
+      s.ticket = prev_state->ticket;
+    else
+      s.ticket = 0;
+  case ACCEPTOR:
   case CLIENT:
     break;
   }
@@ -142,10 +141,9 @@ void next_state(enum role_t role) {
   state new_state = sm(*s);
 
   if (new_state.state == S_DONE) {
-    *s = init_state(role);
-  } else {
-    *s = new_state;
+    new_state = init_state(role, &new_state);
   }
+  *s = new_state;
   return;
 }
 
@@ -155,7 +153,7 @@ void next_state(enum role_t role) {
 void intheory_sm(enum role_t role) {
   state s;
   
-  s = init_state(role);
+  s = init_state(role, 0);
   do {
     switch(role) {
     case PROPOSER:

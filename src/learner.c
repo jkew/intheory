@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <pthread.h>
 #include "include/intheory.h"
 #include "include/state_machine.h"
 #include "include/network.h"
@@ -12,7 +13,10 @@
 
 typedef struct {
   long slot;
+  long value;
+  int runstate;
   slot_changed_cb cb;
+  pthread_t thread;
 } callback;
 
 long *slots = 0;
@@ -25,17 +29,42 @@ void init_learner() {
   maxslot = 255;
 }
 
+void destroy_cb() {
+  int i;
+  for(i = 0; i < maxcbs; i++) {
+    if (cbs[i].runstate == 1) {
+      cbs[i].runstate = 0;
+      pthread_join(&cbs[i].thread, 0);
+    }
+  }
+  discard(cbs);
+}
+
 void destroy_learner() {
   discard(slots);
   slots = 0;
   maxslot = 0;
+  destroy_cb();
+}
+
+void cb_worker(void *callback_struct) {
+  callback *cbs = callback_struct; 
+  cbs->cb(cbs->slot, cbs->value);
+  cbs->runstate = 1; 
 }
 
 void slot_changed(long slot, long value) {
   int i;
   for(i = 0; i < maxcbs; i++) {
     if (cbs[i].slot == slot) {
-      cbs[i].cb(slot, value);
+      cbs[i].value = value;
+      pthread_create(&(cbs[i].thread), 0, cb_worker, &cbs[i]);
+      cbs[i].runstate = 2;
+    } else {
+      if (cbs[i].runstate == 1) {
+	cbs[i].runstate = 0;
+	pthread_join(&cbs[i].thread, 0);
+      }
     }
   }
 }
@@ -49,6 +78,8 @@ void register_changed_cb(long slot, slot_changed_cb cb) {
   discard(old);
   cbs[maxcbs].slot = slot;
   cbs[maxcbs].cb = cb;
+  cbs[maxcbs].runstate = 0;
+  cbs[maxcbs].thread = 0;
   maxcbs = newsize;
 }
 
@@ -73,6 +104,7 @@ void set(int slot, long value) {
     maxslot = new_size - 1;
     discard(oldslots);
   }
+  long oldval = slots[slot];
   slots[slot] = value;
   slot_changed(slot, value);
 }
@@ -82,8 +114,7 @@ long get(int slot) {
 }
 
 state sm_learner_available(state s) {
-  assert(s.nodes_left == -1 && s.client == -1 && s.ticket == -1 
-	 && s.type == -1 && s.slot == -1);
+  assert(s.nodes_left == -1 && s.type == -1);
   message *mesg = recv_from(LEARNER, -1, -1, SET | GET);
   if (mesg == 0) { return s; }
   s.depth++;
@@ -93,63 +124,15 @@ state sm_learner_available(state s) {
     s.type = GET;
     s.state = S_GET;
   } else {
-    int quorom_size = ((int) num_nodes / 2) + 1;
-    s.value = mesg->value;
+    if (mesg->ticket <= s.ticket) {
+      discard(mesg);
+      return s;
+    }
     s.ticket = mesg->ticket;
-    s.nodes_left = quorom_size - 1; // we have already received one set msg 
-    s.type = SET;
-    s.state = S_SET;
-  }
-  set_deadline(10, &s);
-  discard(mesg);
-  return s;
-}
-
-state sm_learner_set(state s) {
-  assert(s.nodes_left > 0 && s.ticket >= 0 && s.client >= 0
-	 && s.type == SET && s.slot >= 0);
-  message *mesg = recv_from(LEARNER, -1, s.slot, SET);
-  if (mesg == 0) {
-     if (!deadline_passed(&s)) {
-	 return s;
-     }
-    // did not receive message in time, go back to available
-    error("LEARNER: No response from acceptor");
+    set(mesg->slot, mesg->value);
     s.state = S_DONE;
-    s.type = s.client = s.nodes_left = s.slot = s.ticket = s.value = -1;
-    return s;
   }
-  
-  if (s.ticket > mesg->ticket) {
-    //ignore
-    discard(mesg);
-    return s;
-  }
-
-  if (s.ticket < mesg->ticket) {
-    // higher ticket, reset
-    int quorom_size = ((int) num_nodes / 2) + 1;
-    s.value = mesg->value;
-    s.ticket = mesg->ticket;
-    s.client = mesg->from;
-    s.nodes_left = quorom_size - 1;
-    discard(mesg);
-    return s;
-  }
-
-  assert(s.value == mesg->value);
-
-  s.nodes_left--;
   discard(mesg);
-  if (s.nodes_left <= 0) {
-    // drain additional messages for this slot
-    while ((mesg = recv_from(LEARNER, -1, s.slot, SET)) != 0) { discard(mesg); }
-    set(s.slot, s.value);
-    info(">>>>>>>>>>> SETTING VALUE! SLOT: %d VALUE: %d", s.slot, s.value);
-    s.state = S_DONE;
-    return s;
-  }
-  // continue to wait for messages
   return s;
 }
 
@@ -176,10 +159,9 @@ state sm_learner(state s) {
   switch(s.state) {
   case S_AVAILABLE:
     latest_state = sm_learner_available(s);
-    destroy_learner();
     break;
   case S_SET:
-    latest_state = sm_learner_set(s);
+    assert(0);
     break;
   case S_GET:
     latest_state = sm_learner_get(s);

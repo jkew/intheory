@@ -8,6 +8,7 @@
 enum loglevel_t {
   NONE,
   ERROR,
+  GRAPH,
   NOTICE,
   INFO,
   TRACE,

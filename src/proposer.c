@@ -125,27 +125,33 @@ state sm_proposer_collect(state s) {
    // we actually received a message
 
    assert(response->slot == s.slot);
-   if (response->type == REJECTED_PROPOSAL) { 
+
+   // TODO: Review carefully
+   if (response->type == REJECTED_PROPOSAL || response->ticket > s.ticket) { 
      // rejected directly, propose with a new ticket
      info("Acceptor rejected proposal, retrying ");
      // delay?
+     int usec_delay = random() % 1000000;
+     usleep(usec_delay);
      s.state = S_PREPARE;
      s.type = CLIENT_VALUE;
      s.fails = 0;
      s.nodes_left = -1;
-     s.ticket = response->ticket + 1;
+     if (response->ticket > s.ticket) {
+       s.ticket = response->ticket;
+     }
+     s.ticket++;
      discard(response); 
      return s;
    }
 
    assert(response->type == ACCEPTED_PROPOSAL);
-   if (response->ticket > s.ticket) {
-     // should never happen with current acceptor code
-     error("Unexpectedly received an updated ticket from an acceptor as part of an ACCEPTED_PROPOSAL");
-     s.state = S_CLIENT_RESPOND;
-     s.type = WRITE_FAILED;
-     return s;
-   }
+   //if (response->ticket > s.ticket) {
+   //  error("Unexpectedly received an updated ticket from an acceptor as part of an ACCEPTED_PROPOSAL");
+   //  s.state = S_CLIENT_RESPOND;
+   //  s.type = WRITE_FAILED;
+   //  return s;
+   //}
 
    if (s.nodes_left > 1) {
      // continue to wait for responses

@@ -96,11 +96,108 @@ void notice(const char *msg, ...) {
   fprintf(stdout, "\n" );
 }
 
-void log_state(state s, enum role_t r) {
-  trace("%*s" "%s(%ld) - %s quorom_size %d nodes_left %d ticket %ld type %d slot %ld value %ld", 
-	s.depth, "", getRole(r), s.slot, getStateName(s.state), s.num_quorom, s.nodes_left, s.ticket, s.type, s.slot, s.value);
-}
-
 void log_message(char *msg, message *m) {
   trace("(%s) Message %s from %d to %d ticket %ld slot %ld value %ld crc 0x%lx", msg, getMessageName(m->type), m->from, m->to, m->ticket, m->slot, m->value, m->crc);
+}
+
+int message_to_role(int m) {
+  switch(m) {
+  case CLIENT_VALUE: return PROPOSER;
+  case PROPOSAL: return ACCEPTOR;
+  case ACCEPTED_PROPOSAL: return PROPOSER;
+  case REJECTED_PROPOSAL: return PROPOSER;
+  case ACCEPTOR_SET: return ACCEPTOR;
+  case SET: return LEARNER;
+  case GET: return LEARNER;
+  case READ_SUCCESS: return CLIENT;
+  case READ_FAILED: return CLIENT;
+  case WRITE_SUCCESS: return CLIENT;
+  case WRITE_FAILED: return CLIENT;
+  case EXIT: return PROPOSER; // technically wrong
+  default: return PROPOSER;
+  };
+}
+
+int message_from_role(int m) {
+  switch(m) {
+  case CLIENT_VALUE: return CLIENT;
+  case PROPOSAL: return PROPOSER;
+  case ACCEPTED_PROPOSAL: return ACCEPTOR;
+  case REJECTED_PROPOSAL: return ACCEPTOR;
+  case ACCEPTOR_SET: return PROPOSER;
+  case SET: return ACCEPTOR;
+  case GET: return CLIENT;
+  case READ_SUCCESS: return LEARNER;
+  case READ_FAILED: return LEARNER;
+  case WRITE_SUCCESS: return PROPOSER;
+  case WRITE_FAILED: return PROPOSER;
+  case EXIT: return PROPOSER; // technically wrong
+  default: return PROPOSER;
+  };
+}
+
+void draw_base_graph(char *line, int line_size) {
+  memset(line, ' ', line_size);
+  line[line_size - 1] = 0;
+  int i;
+  for (i = 0; i < num_nodes; i++) {
+    line[graph_index(i, PROPOSER)] = '|';
+    line[graph_index(i, ACCEPTOR)] = '|';
+    line[graph_index(i, LEARNER)] = '|';
+    line[graph_index(i, CLIENT)] = '|';
+  }
+}
+
+int graph_index(int node, enum role_t role) {
+  return node * 9 + role * 2;
+}
+
+void log_graph(int from_node, int to_node, int message, int recv) {
+  if (log_level < GRAPH) return;
+  enum role_t to_role = message_to_role(message);
+  enum role_t from_role = message_from_role(message);
+
+  int line_size = num_nodes * 9 + 6;
+
+  char line[line_size];
+  draw_base_graph(line, line_size);
+
+  // printf("GRAPH(0): %s %s\n", line, getMessageName(message));
+  int to_idx = graph_index(to_node, to_role);
+  int from_idx = graph_index(from_node, from_role);
+
+  line[from_idx] = '*';
+  line[to_idx] = 'M';
+
+  if (to_idx < from_idx) {
+    int tmp = to_idx;
+    to_idx = from_idx;
+    from_idx = tmp;
+    line[to_idx - 1] = '-';
+    line[from_idx + 1] = '<';
+  } else {
+    line[from_idx + 1] = '-';
+    line[to_idx - 1] = '>';
+  }
+
+  int i;
+  for (i = (from_idx + 2); i < (to_idx - 1); i++) {
+    line[i] = '-';
+  }
+
+  printf("GRAPH: %s %s %s\n", line, recv ? "RECV " : "SENT ", getMessageName(message));
+  
+}
+
+void log_state(state s, enum role_t r) {
+  if (log_level < GRAPH) return;
+  int line_size = num_nodes * 9 + 6;
+  char line[line_size];
+  draw_base_graph(line, line_size);
+
+  int meidx = graph_index(my_id(), r);
+
+  line[meidx] = getStateName(s.state)[2];
+
+  printf("GRAPH: %s STATE %s %s %ld %ld %ld\n", line, getRole(r), getStateName(s.state), s.ticket, s.slot, s.value);
 }
