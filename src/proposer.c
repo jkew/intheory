@@ -20,6 +20,7 @@ state sm_proposer_available(state s) {
   s.slot = mesg->slot;
   s.value = mesg->value;
   s.state = S_PREPARE;
+  set_deadline(deadline, &(s.deadline));
   return s;
 }
 
@@ -39,7 +40,6 @@ state sm_proposer_prepare(state s) {
   s.max_fails = failsafe_acceptors;
   s.nodes_left = s.num_quorom = quorom_size + failsafe_acceptors;
   s.fails = 0;
-  set_deadline(deadline, &(s.deadline));
   assert(s.num_quorom <= MAX_QUOROM_SIZE);
   assert(s.num_quorom <= num_nodes);
   int i;

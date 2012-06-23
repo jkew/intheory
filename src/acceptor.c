@@ -47,7 +47,7 @@ state sm_acceptor_accepted(state s) {
     // unable to receive message from proposer, or any other
     // system
     error("ACCEPTOR: No response from proposer");
-    s.state = S_AVAILABLE;
+    s.state = S_DONE;
     s.type = s.client = s.nodes_left = s.slot = s.ticket = s.value = -1;
     return s;
   }

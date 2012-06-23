@@ -102,6 +102,7 @@ int get_it(long slot, long *value) {
   return ret;
 }
 
+// TODO move to state_machine.c, and more complicated case to learner/proposer
 state init_state(enum role_t role, state *prev_state) {
   state s;
   s.type = s.num_quorom = s.max_fails = s.client = s.nodes_left = s.slot = s.value = s.ticket =-1;
@@ -109,6 +110,10 @@ state init_state(enum role_t role, state *prev_state) {
   s.state = S_AVAILABLE;
   switch(role) {
   case LEARNER:
+    if (prev_state != 0) {
+      s.slot = prev_state->slot;
+      s.value = prev_state->value;
+    }
   case PROPOSER:
     if (prev_state != 0) 
       s.ticket = prev_state->ticket;
@@ -121,6 +126,7 @@ state init_state(enum role_t role, state *prev_state) {
   return s;
 }
 
+//TODO move to state_machine
 void next_state(enum role_t role) {
   state *s;
   sm_role_fn sm = 0;
@@ -150,6 +156,7 @@ void next_state(enum role_t role) {
   return;
 }
 
+// TODO Move to state_machine
 /**
  * For testing only
  */ 

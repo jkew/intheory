@@ -10,18 +10,20 @@ int hellos_received = 0;
 
 void say_hello() {
   printf("Sending my hello! Hellos Left %d\n", hellos_left);
-  if (!set_it(SLOT, my_id())) {
+  while (!set_it(SLOT, my_id())) {
     printf("ERROR: Can't get a word in!");
-    exit(1);
   }
   hellos_left--;
 }
 
+
+/**
+ * Callback handler for changed slots
+ */
 void got_hello(long slot, long value) {
   if (value != my_id()) {
     if (value < 0) {
-      stop_intheory();
-      exit(1);
+      hellos_left = -1;
     }
     printf("Received hello from node %d\n", value);
     hellos_received++;
@@ -50,24 +52,34 @@ int main(int argc, char **args) {
 
   start_intheory(me, argc - 2, other_nodes);
   register_changed_cb(SLOT, got_hello);
+
   printf("MY ID: %d\n", my_id());
   if (my_id() == 0) {
     printf("Since I'm node 0 I'll kick this off with the first hello... waiting 5 seconds\n");
     sleep(5);
     say_hello();
   }
-  int more_left = 0;
-  while (hellos_left) {
-    if (more_left < hellos_received) {      
-      more_left = hellos_received;
+
+  int last_hello_count = 0;
+  while (hellos_left > 0) {
+    if (last_hello_count != hellos_received) {      
+      last_hello_count = hellos_received;
       say_hello();
+    } else {
+      sleep(1);
     }
-    sleep(1); 
   }
 
   printf("This is a stupid conversation. I'm ending it.");
   set_it(SLOT, -1);
-  while (1);
+
+  // wait to recieve our -1 before quiting
+  while (hellos_left >= 0) {
+    sleep(1);
+  }
+
+  stop_intheory();
+
   return 0;
 }
 

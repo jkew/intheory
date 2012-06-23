@@ -58,11 +58,12 @@ state sm_learner_available(state s) {
     s.type = GET;
     s.state = S_GET;
   } else {
-    if (mesg->ticket <= s.ticket) {
+    if (mesg->ticket == s.ticket && mesg->slot == s.slot && mesg->value == s.value) {
       discard(mesg);
       return s;
     }
     s.ticket = mesg->ticket;
+    s.value = mesg->value;
     set(mesg->slot, mesg->value);
     s.state = S_DONE;
   }
