@@ -12,7 +12,7 @@
 
 
 int running = 0;
-
+int deadline = 10;
 
 pthread_t worker_thread;
 

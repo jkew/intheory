@@ -72,6 +72,10 @@ long proposer_acceptor_has_new_ticket_recv[][5] = {
   { -1, ACCEPTED_PROPOSAL, 1, 0, -1},
   { -1, ACCEPTED_PROPOSAL, 1, 0, -1},
   { -1, ACCEPTED_PROPOSAL, 2, 0, 888},
+  { -1, ACCEPTED_PROPOSAL, 3, 0, 888},
+  { -1, ACCEPTED_PROPOSAL, 3, 0, 888},
+  { -1, ACCEPTED_PROPOSAL, 3, 0, 888},
+  { -1, ACCEPTED_PROPOSAL, 3, 0, 888},
 };
 
 long proposer_acceptor_has_new_ticket_send[][5] = {
@@ -79,7 +83,15 @@ long proposer_acceptor_has_new_ticket_send[][5] = {
   { -1, PROPOSAL, 1, 0, 999},
   { -1, PROPOSAL, 1, 0, 999},
   { -1, PROPOSAL, 1, 0, 999},
-  { 3, WRITE_FAILED, 1, 0, 999},
+  { -1, PROPOSAL, 3, 0, 888},
+  { -1, PROPOSAL, 3, 0, 888},
+  { -1, PROPOSAL, 3, 0, 888},
+  { -1, PROPOSAL, 3, 0, 888},
+  { -1, ACCEPTOR_SET, 3, 0, 888},
+  { -1, ACCEPTOR_SET, 3, 0, 888},
+  { -1, ACCEPTOR_SET, 3, 0, 888},
+  { -1, ACCEPTOR_SET, 3, 0, 888},
+  { 3, WRITE_SUCCESS, 3, 0, 888},
 };
 
 /**
@@ -106,10 +118,11 @@ long proposer_dead_inside_send[][5] = {
 
 
 void test_proposer() {
+  deadline = -1;
   num_nodes = 4;
   recv_from = &recv_from_scenario; 
   send_to = &send_to_scenario; 
-  /*    
+      
   recv = proposer_basic_recv;
   send = proposer_basic_send;
   intheory_sm(PROPOSER);
@@ -118,15 +131,15 @@ void test_proposer() {
   send = proposer_acceptor_fails_send;
   sendidx = recvidx = 0;
   intheory_sm(PROPOSER);
-  */
+  
   recv = proposer_acceptor_has_new_ticket_recv;
   send = proposer_acceptor_has_new_ticket_send;
   sendidx = recvidx = 0;
   intheory_sm(PROPOSER);
 
-  //recv = proposer_dead_inside_recv;
-  //send = proposer_dead_inside_send;
-  //sendidx = recvidx = 0;
-  //intheory_sm(PROPOSER);
+  recv = proposer_dead_inside_recv;
+  send = proposer_dead_inside_send;
+  sendidx = recvidx = 0;
+  intheory_sm(PROPOSER);
   
 } 

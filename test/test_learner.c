@@ -21,25 +21,24 @@ long learner_basic_recv[][5] = {
   { 1, SET, 1, 0, 999},
   { 2, SET, 1, 0, 999},
   { 3, SET, 1, 0, 999},
-  { 4, SET, 1, 0, 999},
+  { 0, SET, 1, 0, 999},
   { -1, -1, -1, -1, -1},
-  { 66, GET, -1, 0, -1},
+  { 0, GET, -1, 0, -1},
 };
 
 long learner_basic_send[][5] = {
-  { 66, READ_SUCCESS, -1, 0, 999}
+  { 0, READ_SUCCESS, -1, 0, 999}
 };
 
 /**
  * LEARNER SCENARIO: get fails
  **/
 long learner_getfail_recv[][5] = { 
-  { 66, GET, -1, 700, -1},
-  { -1, -1, -1, -1, -1}
+  { 1, GET, -1, 700, -1},
 };
 
 long learner_getfail_send[][5] = {
-  { 66, READ_FAILED, -1, 700, -1}
+  { 1, READ_FAILED, -1, 700, -1}
 };
 
 /**
@@ -49,64 +48,31 @@ long learner_expand_recv[][5] = {
   { 1, SET, 1, 777, 777},
   { 2, SET, 1, 777, 777},
   { 3, SET, 1, 777, 777},
-  { 4, SET, 1, 777, 777},
+  { 0, SET, 1, 777, 777},
   { -1, -1, -1, -1, -1},
-  { 66, GET, -1, 777, -1},
+  { 0, GET, -1, 777, -1},
 };
 
 long learner_expand_send[][5] = {
-  { 66, READ_SUCCESS, -1, 777, 777}
+  { 0, READ_SUCCESS, -1, 777, 777}
 };
 
-// INVALID SET
 long learner_mixed_recv[][5] = { 
   { 1, SET, 2, 0, 999},
-  { 666, SET, 1, 0, 777},
-  { 2, SET, 2, 0, 999},
-  { 667, SET, 1, 0, 777},
-  { 3, SET, 2, 0, 999},
-  { 668, SET, 1, 0, 777},
-  { 4, SET, 1, 0, 999},
-  { 669, SET, 1, 0, 777},
+  { 2, SET, 1, 0, 777},
+  { 1, SET, 2, 0, 999},
+  { 2, SET, 1, 0, 777},
+  { 1, SET, 2, 0, 999},
+  { 2, SET, 1, 0, 777},
+  { 1, SET, 1, 0, 999},
+  { 2, SET, 1, 0, 777},
   { -1, -1, -1, -1, -1},
-  { 66, GET, -1, 0, -1},
+  { 0, GET, -1, 0, -1},
 };
 
 
 long learner_mixed_send[][5] = {
-  { 66, READ_SUCCESS, -1, 0, 777}
-};
-
-long learner_mixed2_recv[][5] = { 
-  { 666, SET, 1, 0, 777},
-  { 1, SET, 2, 0, 999},
-  { 667, SET, 1, 0, 777},
-  { 2, SET, 2, 0, 999},
-  { 668, SET, 1, 0, 777},
-  { 3, SET, 2, 0, 999},
-  { 669, SET, 1, 0, 777},
-  { 4, SET, 1, 0, 999},
-  { -1, -1, -1, -1, -1},
-  { 66, GET, -1, 0, -1},
-};
-
-long learner_mixed2_send[][5] = {
-  { 66, READ_SUCCESS, -1, 0, 777}
-};
-
-/**
- * Only the quorum size was received
- */
-long learner_some_recv[][5] = { 
-  { 1, SET, 1, 0, 999},
-  { 2, SET, 1, 0, 999},
-  { 3, SET, 1, 0, 999},
-  { -1, -1, -1, -1, -1},
-  { 66, GET, -1, 0, -1},
-};
-
-long learner_some_send[][5] = {
-  { 66, READ_SUCCESS, -1, 0, 999}
+  { 0, READ_SUCCESS, -1, 0, 777}
 };
 
 void test_learner() {
@@ -117,7 +83,6 @@ void test_learner() {
   recv = learner_basic_recv;
   send = learner_basic_send;
   intheory_sm(LEARNER);
-  
   
   sendidx = recvidx = 0;
   recv = learner_getfail_recv;
@@ -134,13 +99,4 @@ void test_learner() {
   send = learner_mixed_send;
   intheory_sm(LEARNER);
 
-  sendidx = recvidx = 0;
-  recv = learner_mixed2_recv;
-  send = learner_mixed2_send;
-  intheory_sm(LEARNER);
-
-  sendidx = recvidx = 0;
-  recv = learner_some_recv;
-  send = learner_some_send;
-  intheory_sm(LEARNER);
 }

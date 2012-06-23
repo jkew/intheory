@@ -20,7 +20,6 @@ state sm_proposer_available(state s) {
   s.slot = mesg->slot;
   s.value = mesg->value;
   s.state = S_PREPARE;
-  set_deadline(10, &s);
   return s;
 }
 
@@ -40,6 +39,7 @@ state sm_proposer_prepare(state s) {
   s.max_fails = failsafe_acceptors;
   s.nodes_left = s.num_quorom = quorom_size + failsafe_acceptors;
   s.fails = 0;
+  set_deadline(deadline, &s);
   assert(s.num_quorom <= MAX_QUOROM_SIZE);
   assert(s.num_quorom <= num_nodes);
   int i;
@@ -138,9 +138,9 @@ state sm_proposer_collect(state s) {
      s.fails = 0;
      s.nodes_left = -1;
      if (response->ticket > s.ticket) {
+       s.value = response->value;
        s.ticket = response->ticket;
      }
-     s.ticket++;
      discard(response); 
      return s;
    }

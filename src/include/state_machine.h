@@ -44,6 +44,8 @@ typedef struct {
 
 typedef state (*sm_role_fn)(state);
 
+extern int deadline;
+
 void intheory_sm(enum role_t role);
 state init_state(enum role_t role, state *prev_state);
 
