@@ -18,7 +18,7 @@ void say_hello() {
 
 
 /**
- * Callback handler for changed slots
+ * Callback handler for changed slots.
  */
 void got_hello(long slot, long value) {
   if (value != my_id()) {

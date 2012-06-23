@@ -9,6 +9,7 @@
 #include "include/proposer.h"
 #include "include/acceptor.h"
 #include "include/learner.h"
+#include "include/store.h"
 
 
 int running = 0;
@@ -50,6 +51,7 @@ void start_intheory(char *me, int other_node_count, char* other_nodes[]) {
   saved_acceptor = init_state(ACCEPTOR, 0);
 
   // initialize the network
+  init_store();  
   init_network(other_node_count + 1, all_nodes, 256);
   
   // start the server
@@ -66,7 +68,8 @@ void stop_intheory() {
   stop_server();
   pthread_join(&worker_thread, 0);
   destroy_network();
-  destroy_learner();
+  destroy_store();
+  destroy_cb();
   notice("INTHEORY STOPPED");
 }
 

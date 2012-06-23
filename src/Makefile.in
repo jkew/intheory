@@ -95,7 +95,7 @@ libintheory_1_0_la_LIBADD =
 am_libintheory_1_0_la_OBJECTS = intheory.lo network.lo proposer.lo \
 	logger.lo acceptor.lo learner.lo network_nodes.lo \
 	network_server.lo network_client.lo util.lo crc.lo \
-	callbacks.lo
+	callbacks.lo store.lo
 libintheory_1_0_la_OBJECTS = $(am_libintheory_1_0_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -251,7 +251,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 lib_LTLIBRARIES = libintheory-1.0.la
-libintheory_1_0_la_SOURCES = intheory.c network.c proposer.c logger.c acceptor.c learner.c network_nodes.c network_server.c network_client.c util.c crc.c callbacks.c
+libintheory_1_0_la_SOURCES = intheory.c network.c proposer.c logger.c acceptor.c learner.c network_nodes.c network_server.c network_client.c util.c crc.c callbacks.c store.c
 library_includedir = $(includedir)/intheory-1.0/intheory
 library_include_HEADERS = include/intheory.h
 all: all-am
@@ -342,6 +342,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/network_nodes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/network_server.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/proposer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/store.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Plo@am__quote@
 
 .c.o:

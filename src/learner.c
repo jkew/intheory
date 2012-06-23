@@ -7,45 +7,9 @@
 #include "include/state_machine.h"
 #include "include/network.h"
 #include "include/learner.h"
+#include "include/store.h"
 #include "include/logger.h"
 #include "include/callbacks.h"
-
-#define INITIAL_SLOT_SIZE 256
-
-long *slots = 0;
-int maxslot = 0;
-
-void init_learner() {
-  slots = malloc(sizeof(long)*INITIAL_SLOT_SIZE);
-  maxslot = 255;
-}
-
-void destroy_learner() {
-  discard(slots);
-  slots = 0;
-  maxslot = 0;
-  destroy_cb();
-}
-
-void set(int slot, long value) {
-  if (slot > maxslot) {
-    int new_size = slot * 2;
-    long *oldslots = slots;
-    long *newslots = malloc(sizeof(long)*new_size);
-
-    memcpy(newslots, oldslots, maxslot + 1);    
-    slots = newslots;
-    maxslot = new_size - 1;
-    discard(oldslots);
-  }
-  long oldval = slots[slot];
-  slots[slot] = value;
-  slot_changed(slot, value);
-}
-
-long get(int slot) {
-  return slots[slot];
-}
 
 state sm_learner_available(state s) {
   assert(s.nodes_left == -1 && s.type == -1);
@@ -73,7 +37,7 @@ state sm_learner_available(state s) {
 
 state sm_learner_get(state s) {
   assert(s.type == GET && s.slot >= 0 && s.client >= 0);
-  if (s.slot <= maxslot) {
+  if (s.slot <= get_max_slot()) {
     send_to(s.client, -1, READ_SUCCESS, s.slot, get(s.slot));     
   } else {
     send_to(s.client, -1, READ_FAILED, s.slot, -1);     
@@ -84,10 +48,6 @@ state sm_learner_get(state s) {
 }
 
 state sm_learner(state s) {
-  // TODO: move to normal init spot
-  if (slots == 0) {
-    init_learner();
-  }
   if (s.state != S_AVAILABLE)
     log_state(s, LEARNER);
   state latest_state = s;
