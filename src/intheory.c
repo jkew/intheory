@@ -29,6 +29,9 @@ void worker(void *args) {
     next_state(PROPOSER);
     next_state(ACCEPTOR);
     next_state(LEARNER);
+    if (saved_proposer.state == S_AVAILABLE) {
+      usleep(500000);
+    }
   }
 }
 

@@ -7,8 +7,6 @@
 
 int hellos_left = RETURN_HELLOS;
 int hellos_received = 0;
-int sending = 0;
-
 
 void say_hello() {
   printf("Sending my hello! Hellos Left %d\n", hellos_left);
@@ -16,23 +14,19 @@ void say_hello() {
     printf("ERROR: Can't get a word in!");
     exit(1);
   }
-  sending = 0;
   hellos_left--;
 }
 
 void got_hello(long slot, long value) {
   if (value != my_id()) {
-
     if (value < 0) {
-      hellos_left = 0;
+      stop_intheory();
+      exit(1);
     }
-
-    printf("Received Hello! from node %d\n", value);
+    printf("Received hello from node %d\n", value);
     hellos_received++;
-    if (hellos_left && !sending) {
-      sending++;
-      say_hello();
-    } 
+  } else {
+    printf("Received my own hello!\n");
   }
 }
 
@@ -43,7 +37,7 @@ int main(int argc, char **args) {
     return 1;
   }
 
-  set_log_level(NONE);
+  set_log_level(ERROR);
   char * me;
   char * other_nodes[argc - 2];
 
@@ -58,16 +52,22 @@ int main(int argc, char **args) {
   register_changed_cb(SLOT, got_hello);
   printf("MY ID: %d\n", my_id());
   if (my_id() == 0) {
-    printf("I guess I'm the first to say hello!\n");
+    printf("Since I'm node 0 I'll kick this off with the first hello... waiting 5 seconds\n");
     sleep(5);
     say_hello();
   }
-
-  while (hellos_left) { sleep(1); }
+  int more_left = 0;
+  while (hellos_left) {
+    if (more_left < hellos_received) {      
+      more_left = hellos_received;
+      say_hello();
+    }
+    sleep(1); 
+  }
 
   printf("This is a stupid conversation. I'm ending it.");
   set_it(SLOT, -1);
-  stop_intheory();
+  while (1);
   return 0;
 }
 

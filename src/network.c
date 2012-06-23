@@ -21,9 +21,18 @@ int (*send_to)(int, long, int, long, long) = 0;
 int advance_writer() {
   int next_pos = (write_ipos + 1) % ring_size;
   // look for the next writable spot
-  while(input_ring[next_pos] != 0) {
-    next_pos = (next_pos + 1) % ring_size;
+  while(1) {
+    if (input_ring[next_pos] == 0) break;
+    if (deadline_passed(&(input_ring[next_pos]->deadline))) {
+      message *msg = input_ring[next_pos];
+      pthread_mutex_lock(&write_lock);
+      input_ring[next_pos] = 0;
+      pthread_mutex_unlock(&write_lock);
+      discard(msg);
+      break;
+    }
   }
+
   write_ipos = next_pos;
   return next_pos;
 }
@@ -40,15 +49,19 @@ message * get_if_matches(int i, int from_node, long slot, unsigned int mask) {
   if (from_node != -1 && (mesg->from) != from_node) return 0;
   if (slot != -1 && mesg->slot != slot) return 0;
   if (! (mesg->type & mask)) return 0;
-  input_ring[i] = 0;
+  pthread_mutex_lock(&write_lock);
+  if (input_ring[i] == mesg)
+    input_ring[i] = 0;
+  pthread_mutex_unlock(&write_lock);
   return mesg;
 }
 
 void add_message(message *msg) {
+  set_deadline(deadline, &(msg->deadline));
   pthread_mutex_lock(&write_lock);
   input_ring[write_ipos] = msg;
-  advance_writer();
   pthread_mutex_unlock(&write_lock);
+  advance_writer();
 }
 
 crc_t message_crc(message *msg) {
@@ -74,7 +87,6 @@ message * create_message(int from, int to, long ticket, int type, long slot, lon
   msg->value = value;
   crc_t c = message_crc(msg);
   msg->crc = c;
-  //  log_message("create_message", msg);
   return msg;
 }
 
@@ -84,18 +96,11 @@ message * __recv_from(int r, int from_node, long slot, unsigned int mask) {
     pos = role_read_ipos[r] = 0;
   }
   int initial_pos = pos;
-  int rounds = num_nodes;
   message * msg = get_if_matches(pos, from_node, slot, mask);
   while(msg == 0) {
     pos = advance_role(r);
-    // If we loop around the message ring rounds times, we timeout and
-    // return nothing.
     if (pos == initial_pos) {      
-      if (rounds <= 0) {
 	return 0;
-      }
-      usleep(10000);
-      rounds--;
     }
     msg = get_if_matches(pos, from_node, slot, mask);
   }

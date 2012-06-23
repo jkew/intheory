@@ -17,7 +17,7 @@ int main(int argc, char **args) {
 
 void writer( void *arg) {
   printf("Writer started\n");
-  int rounds = 10000;
+  int rounds = 100;
   while(rounds--) {
      message *msg = create_message(1, 2, 3, CLIENT_VALUE, 4, 999);
      add_message(msg);
@@ -68,7 +68,7 @@ void test_ring() {
    pthread_t writer_thread;
    pthread_create(&writer_thread, NULL, writer, 0);
    printf("Reading...\n");
-   int rounds = 10000;
+   int rounds = 100;
    while(rounds--) {
      msg = recv_from(PROPOSER, 1, 4, CLIENT_VALUE);
      assert(msg != 0);

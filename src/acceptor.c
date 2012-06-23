@@ -20,7 +20,7 @@ state sm_acceptor_available(state s) {
   s.ticket = mesg->ticket;
   s.type = PROPOSAL;
   s.client = mesg->from;
-  set_deadline(deadline, &s);
+  set_deadline(deadline, &(s.deadline));
   discard(mesg);
   return s;
 }
@@ -40,10 +40,10 @@ state sm_acceptor_accepted(state s) {
 	 && s.type == ACCEPTED_PROPOSAL && s.slot >= 0);
   message *mesg = recv_from(ACCEPTOR,-1, s.slot, PROPOSAL | ACCEPTOR_SET);
   if (mesg == 0) {
-     if (!deadline_passed(&s)) {
-       trace("Acceptor still waiting... ");
-       return s;
-     }
+    if (!deadline_passed(&(s.deadline))) {
+      trace("Acceptor still waiting... ");
+      return s;
+    }
     // unable to receive message from proposer, or any other
     // system
     error("ACCEPTOR: No response from proposer");

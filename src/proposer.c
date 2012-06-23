@@ -39,7 +39,7 @@ state sm_proposer_prepare(state s) {
   s.max_fails = failsafe_acceptors;
   s.nodes_left = s.num_quorom = quorom_size + failsafe_acceptors;
   s.fails = 0;
-  set_deadline(deadline, &s);
+  set_deadline(deadline, &(s.deadline));
   assert(s.num_quorom <= MAX_QUOROM_SIZE);
   assert(s.num_quorom <= num_nodes);
   int i;
@@ -93,7 +93,7 @@ state sm_proposer_collect(state s) {
    int node = s.nodes_quorom[s.nodes_left - 1];
    message* response = recv_from(PROPOSER,node, s.slot, ACCEPTED_PROPOSAL | REJECTED_PROPOSAL); 
    if (response == NULL) { 
-     if (!deadline_passed(&s)) {
+     if (!deadline_passed(&(s.deadline))) {
 	 return s;
      } 
 
