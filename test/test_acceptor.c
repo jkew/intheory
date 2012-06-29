@@ -88,7 +88,8 @@ long acceptor_lower_send[][5] = {
 };
 
 void test_acceptor() {
-  num_nodes = 4;
+  set_log_level(NONE);
+  _node_count = 4;
   recv_from = &recv_from_scenario; 
   send_to = &send_to_scenario;
   

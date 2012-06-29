@@ -21,6 +21,7 @@ int set_it(long, long);
 int get_it(long, long*);
 void register_changed_cb(long, slot_changed_cb);
 int my_id();
+int num_nodes();
 void set_log_level(enum loglevel_t level);
 
 #endif

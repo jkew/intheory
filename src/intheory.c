@@ -60,7 +60,7 @@ void start_intheory(char *me, int other_node_count, char* other_nodes[]) {
   // start the worker
   pthread_create(&worker_thread, 0, worker, 0);
 
-  notice("INTHEORY STARTED, nodes: %d", num_nodes);
+  notice("INTHEORY STARTED, nodes: %d", num_nodes());
 }
 
 void stop_intheory() {

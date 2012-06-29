@@ -116,10 +116,10 @@ long proposer_dead_inside_send[][5] = {
   { 3, WRITE_FAILED, 1, 0, 999},
 };
 
-
 void test_proposer() {
+  set_log_level(NONE);
   deadline = -1;
-  num_nodes = 4;
+  _node_count = 4;
   recv_from = &recv_from_scenario; 
   send_to = &send_to_scenario; 
       

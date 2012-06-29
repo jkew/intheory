@@ -28,11 +28,11 @@ state sm_proposer_prepare(state s) {
   assert(s.nodes_left = -1 && s.ticket >= 0 
 	 && s.type == CLIENT_VALUE && s.slot >= 0);
   // send to a quorom of acceptors
-  int quorom_size = ((int) num_nodes / 2) + 1;
+  int quorom_size = ((int) num_nodes() / 2) + 1;
   // send a few more proposals up-to the number required for acceptor faults
   int failsafe_acceptors = ((int)quorom_size / 3);
-  trace("Picking a quorom size of %d with %d failsafe acceptors from %d total nodes", quorom_size, failsafe_acceptors, num_nodes);
-  int node = random() % num_nodes;
+  trace("Picking a quorom size of %d with %d failsafe acceptors from %d total nodes", quorom_size, failsafe_acceptors, num_nodes());
+  int node = random() % num_nodes();
   s.type = PROPOSAL;
   s.state = S_SEND_PROPOSAL_TO_ACCEPTOR;
   s.ticket = s.ticket + 1;
@@ -41,11 +41,11 @@ state sm_proposer_prepare(state s) {
   s.nodes_left = s.num_quorom = quorom_size + failsafe_acceptors;
   s.fails = 0;
   assert(s.num_quorom <= MAX_QUOROM_SIZE);
-  assert(s.num_quorom <= num_nodes);
+  assert(s.num_quorom <= num_nodes());
   int i;
   for (i = 0; i < s.num_quorom; i++) {
     s.nodes_quorom[i] = node;
-    node = (node + 1) % num_nodes;
+    node = (node + 1) % num_nodes();
   }
   return s;
 }

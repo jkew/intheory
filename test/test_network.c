@@ -16,7 +16,6 @@ int main(int argc, char **args) {
 }
 
 void writer( void *arg) {
-  printf("Writer started\n");
   int rounds = 100;
   while(rounds--) {
      message *msg = create_message(1, 2, 3, CLIENT_VALUE, 4, 999);
@@ -85,6 +84,7 @@ void test_crc() {
 }
 
 void test_network() {
+  set_log_level(NONE);
   test_crc();
   test_ring();
 }

@@ -11,6 +11,7 @@ char * to_addr(char *nodePort);
 int to_port(char *nodePort);
 
 int main(int argc, char **args) {
+  set_log_level(NONE);
   test_network_nodes();
   return 0;
 }

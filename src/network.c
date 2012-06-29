@@ -117,7 +117,7 @@ int __send_local(long ticket, int type, long slot, long value) {
 }
 
 int __send_to(int node, long ticket, int type, long slot, long value) {
-  int n = node % num_nodes;
+  int n = node % (num_nodes());
   log_graph(my_id(), node, type, 0); 
   if (n == my_id()) {
     return __send_local(ticket, type, slot, value);

@@ -11,12 +11,12 @@ void test_network();
 message * get_if_matches(int, int,long, unsigned int);
 
 int main(int argc, char **args) {
+  set_log_level(NONE);
   test_network();
   return 0;
 }
 
 void test_server() {
-  printf("test_server\n");
    const char * test_nodes[] = { "127.0.0.1:4322", 
 				 "zebra:321", 
 				 "apple:123",

@@ -140,7 +140,7 @@ void draw_base_graph(char *line, int line_size) {
   memset(line, ' ', line_size);
   line[line_size - 1] = 0;
   int i;
-  for (i = 0; i < num_nodes; i++) {
+  for (i = 0; i < num_nodes(); i++) {
     line[graph_index(i, PROPOSER)] = '|';
     line[graph_index(i, ACCEPTOR)] = '|';
     line[graph_index(i, LEARNER)] = '|';
@@ -157,7 +157,7 @@ void log_graph(int from_node, int to_node, int message, int recv) {
   enum role_t to_role = message_to_role(message);
   enum role_t from_role = message_from_role(message);
 
-  int line_size = num_nodes * 9 + 6;
+  int line_size = (num_nodes()) * 9 + 6;
 
   char line[line_size];
   draw_base_graph(line, line_size);
@@ -191,7 +191,7 @@ void log_graph(int from_node, int to_node, int message, int recv) {
 
 void log_state(state s, enum role_t r) {
   if (log_level < GRAPH) return;
-  int line_size = num_nodes * 9 + 6;
+  int line_size = (num_nodes()) * 9 + 6;
   char line[line_size];
   draw_base_graph(line, line_size);
 

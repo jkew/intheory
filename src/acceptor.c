@@ -82,7 +82,7 @@ state sm_acceptor_accepted(state s) {
       return s;
     }
     s.state = S_SET;
-    s.nodes_left = num_nodes;
+    s.nodes_left = num_nodes();
     s.type = SET;
     discard(mesg);
     return s;
@@ -92,7 +92,7 @@ state sm_acceptor_accepted(state s) {
 state sm_acceptor_set(state s) {
   assert(s.nodes_left > 0 && s.client >= 0 && s.ticket >= 0 
 	 && s.type == SET && s.slot >= 0);
-  send_to((s.nodes_left - 1) % num_nodes, s.ticket, SET, s.slot, s.value);
+  send_to((s.nodes_left - 1) % (num_nodes()), s.ticket, SET, s.slot, s.value);
   s.nodes_left--;
   if (s.nodes_left <= 0) {
     s.state = S_DONE;

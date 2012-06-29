@@ -1,6 +1,7 @@
 #include "../src/include/intheory.h"
 #include "../src/include/state_machine.h"
 #include "../src/include/network.h"
+#include "../src/include/store.h"
 #include "include/test_common.h"
 #include <assert.h>
 #include <stdio.h>
@@ -76,7 +77,10 @@ long learner_mixed_send[][5] = {
 };
 
 void test_learner() {
-  num_nodes = 4;
+  
+  set_log_level(NONE);
+  init_store();
+  _node_count = 4;
   recv_from = &recv_from_scenario; 
   send_to = &send_to_scenario;
   sendidx = recvidx = 0;

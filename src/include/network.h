@@ -27,7 +27,6 @@ typedef struct {
 #define WRITE_FAILED 1024
 #define EXIT 2048
 
-extern int num_nodes;
 extern message * (*recv_from)(int, int, long, unsigned int);
 extern int (*send_to)(int, long, int, long, long);
 

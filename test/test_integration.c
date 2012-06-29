@@ -10,12 +10,12 @@
 void test_integration();
 
 int main(int argc, char **args) {
+  set_log_level(NONE);
   test_integration();
   return 0;
 }
 
 void test_integration() {
-  printf("test_server\n");
    const char * other_nodes[] = { "127.0.0.1:4322", 
 				  "127.0.0.1:4323", 
 				  "127.0.0.1:4324", 

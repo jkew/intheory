@@ -7,6 +7,7 @@ extern long (*send)[5];
 extern int sendidx;
 extern int recvidx;
 
+extern int _node_count;
 message * recv_from_scenario(int, long, unsigned int);
 int send_to_scenario(int, long, unsigned int, long, long);
 #endif

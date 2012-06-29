@@ -7,11 +7,15 @@
 #define INITIAL_RING_SIZE 64
 
 char ** nodes = 0; 
-int num_nodes = -1;
+int _node_count = -1;
 int me = -1;
 
 int my_id() {
   return me;
+}
+
+int num_nodes() {
+  return _node_count;
 }
 
 char * to_addr(char *nodePort) {
@@ -45,28 +49,28 @@ int cmp_fn(const void *one, const void *two) {
 
 char * get_address(int node_num) {
   assert(node_num >= 0);
-  int n = node_num % num_nodes;
+  int n = node_num % (num_nodes());
   return to_addr(nodes[n]);
 }
 
 int get_port(int node_num) {
   assert(node_num >= 0);
-  int n = node_num % num_nodes;
+  int n = node_num % (num_nodes());
   return to_port(nodes[n]);
 }
 
 void init_network_nodes(int _num_nodes, char *_nodes[]) {
   char *my_nodes = _nodes[0];
-  num_nodes = _num_nodes;
+  _node_count = _num_nodes;
   nodes = malloc(sizeof(char *)*_num_nodes);
   int i;
-  for (i = 0; i < num_nodes; i++) {
+  for (i = 0; i < (num_nodes()); i++) {
     nodes[i] = (char *) malloc(sizeof(char)*256);
     strncpy(nodes[i], _nodes[i], 255 );
   }
-  qsort(nodes, num_nodes, sizeof(char *), cmp_fn);
-  for (i = 0; i < num_nodes; i++) {
-    printf("Configured node %s - %d\n", nodes[i], i);
+  qsort(nodes, num_nodes(), sizeof(char *), cmp_fn);
+  for (i = 0; i < (num_nodes()); i++) {
+    info("Configured node %s - %d\n", nodes[i], i);
     if (strncmp(my_nodes, nodes[i], 256) == 0) {
       me = i;
       break;
@@ -76,10 +80,10 @@ void init_network_nodes(int _num_nodes, char *_nodes[]) {
 
 void destroy_network_nodes() {
   int i;
-  for (i = 0; i < num_nodes; i++)
+  for (i = 0; i < num_nodes(); i++)
     discard(nodes[i]);
   discard(nodes);
   nodes = 0;
-  num_nodes = 0;
+  _node_count = 0;
 }
 
