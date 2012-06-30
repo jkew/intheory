@@ -9,8 +9,8 @@ make check
 
 TODO
 ====
-- ephemeral nodes for leader election
 - distributed locks api
+- ephemeral locks for leader election
 - "reserved" slots
 - a more space efficient slot storage
 - backup/restore node
