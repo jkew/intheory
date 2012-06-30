@@ -7,3 +7,15 @@ Implementation of paxos in c, in theory.
 make
 make check
 
+TODO
+====
+- ephemeral nodes for leader election
+- distributed locks api
+- "reserved" slots
+- a more space efficient slot storage
+- backup/restore node
+- redirectable log/output
+- code cleanup/documentation
+- JSON protocol instead of native
+- ruby/java clients
+ 
