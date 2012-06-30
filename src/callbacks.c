@@ -27,16 +27,15 @@ void cb_worker(void *callback_struct) {
 void slot_changed(long slot, long value) {
   int i;
   for(i = 0; i < maxcbs; i++) {
-    if (cbs[i].slot == slot && cbs[i].runstate == 0) {
+    if (cbs[i].runstate == 1) {
+      pthread_join(&cbs[i].thread, 0);
+      cbs[i].thread = 0;
+      cbs[i].runstate = 0;
+    }
+    if (cbs[i].slot == slot && cbs[i].runstate == 0) {      
       cbs[i].value = value;
       pthread_create(&(cbs[i].thread), 0, cb_worker, &cbs[i]);
       cbs[i].runstate = 2;
-    } else {
-      if (cbs[i].runstate == 1) {
-	pthread_join(&cbs[i].thread, 0);
-	cbs[i].thread = 0;
-	cbs[i].runstate = 0;
-      }
     }
   }
 }

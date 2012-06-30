@@ -190,7 +190,7 @@ void log_graph(int from_node, int to_node, int message, int recv) {
 }
 
 void log_state(state s, enum role_t r) {
-  if (log_level < GRAPH) return;
+  if (log_level < TRACE) return;
   int line_size = (num_nodes()) * 9 + 6;
   char line[line_size];
   draw_base_graph(line, line_size);

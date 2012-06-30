@@ -22,7 +22,7 @@ void test_server() {
 				 "apple:123",
 				 "intheory:876"};
    message *msg, *result;
-   init_network(4, test_nodes, 10);
+   init_network(0, 4, test_nodes, 10);
    start_server();
    msg = create_message(1, 2, 3, CLIENT_VALUE, 4, 999);   
    send_intheory(my_id(), msg);

@@ -38,8 +38,8 @@ int send_local(long, int, long, long);
 void start_server();
 void stop_server();
 int send_intheory(int, message *);
-void init_network(int, char**, int);
-void init_network_nodes(int, char**);
+void init_network(int, int, char**, int);
+void init_network_nodes(int, int, char**);
 void destroy_network_nodes();
 void destroy_network();
 #endif

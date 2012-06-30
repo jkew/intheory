@@ -16,15 +16,16 @@ int main(int argc, char **args) {
 }
 
 void test_integration() {
-   const char * other_nodes[] = { "127.0.0.1:4322", 
-				  "127.0.0.1:4323", 
-				  "127.0.0.1:4324", 
+   const char * all_nodes[] = { "127.0.0.1:4321", 
+				"127.0.0.1:4322", 
+				"127.0.0.1:4323", 
+				"127.0.0.1:4324", 
    };
    
    message *msg, *result;
    
 
-   start_intheory("127.0.0.1:4321", 3, other_nodes);
+   start_intheory(0 , 4, all_nodes);
    msg = create_message(1, 2, 3, CLIENT_VALUE, 4, 999);   
    send_intheory(my_id(), msg);
 

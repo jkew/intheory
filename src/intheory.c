@@ -36,24 +36,19 @@ void worker(void *args) {
   }
 }
 
-void start_intheory(char *me, int other_node_count, char* other_nodes[]) {
-  running = 1;
-  // munge these together
-  char * all_nodes[other_node_count + 1];
-  all_nodes[0] = me;
-  int i;
-  for (i = 1; i <= other_node_count; i++) {
-    all_nodes[i] = other_nodes[i - 1];
-  }
+void start_intheory(int my_index, int node_count, char* nodes[]) {
+  assert(my_index < node_count);
+  running = 1;  
 
   saved_learner = init_state(LEARNER, 0);
   saved_proposer = init_state(PROPOSER, 0);
   saved_acceptor = init_state(ACCEPTOR, 0);
 
   // initialize the network
-  init_store();  
-  init_network(other_node_count + 1, all_nodes, 256);
-  
+  init_store();
+  notice("INTIALIZED STORE");
+  init_network(my_index, node_count, nodes, 256);
+  notice("INTIALIZED NETWORK");
   // start the server
   start_server();
   
@@ -87,6 +82,10 @@ int set_it(long slot, long value) {
     discard(msg);
   }
   return ret;
+}
+
+void set_it_async(long slot, long value) {
+  send_to(my_id(), -1, CLIENT_VALUE, slot, value);
 }
 
 int get_it(long slot, long *value) {

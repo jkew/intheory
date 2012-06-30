@@ -126,9 +126,9 @@ int __send_to(int node, long ticket, int type, long slot, long value) {
 }
 
 
-void init_network(int _num_nodes, char *_nodes[], int _ring_size) {
+void init_network(int my_idx, int _num_nodes, char *_nodes[], int _ring_size) {
   pthread_mutex_init(&write_lock, 0);
-  init_network_nodes(_num_nodes, _nodes);
+  init_network_nodes(my_idx, _num_nodes, _nodes);
   recv_from = __recv_from;
   send_to = __send_to;
   ring_size = _ring_size;

@@ -28,7 +28,7 @@ void test_ring() {
 				 "zebra:321", 
 				 "apple:123",
 				 "intheory:876"};
-   init_network(4, test_nodes, 10);
+   init_network(0, 4, test_nodes, 10);
    // spot check that the nodes list was populated correctly
    assert(my_id() == 2);
    assert(get_port(3) == 321);

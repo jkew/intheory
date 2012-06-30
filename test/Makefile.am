@@ -1,4 +1,4 @@
-check_PROGRAMS = test_proposer test_acceptor test_learner test_network_nodes test_network test_network_server test_integration
+check_PROGRAMS = test_proposer test_acceptor test_learner test_network_nodes test_network test_network_server test_integration test_4node_count
 test_proposer_SOURCES = test_proposer.c test_common.c
 test_proposer_LDADD = ../src/libintheory-1.0.la
 test_acceptor_SOURCES = test_acceptor.c test_common.c 
@@ -13,4 +13,6 @@ test_network_server_SOURCES = test_network_server.c test_common.c
 test_network_server_LDADD = ../src/libintheory-1.0.la
 test_integration_SOURCES = test_integration.c test_common.c 
 test_integration_LDADD = ../src/libintheory-1.0.la
-TESTS = test_proposer test_acceptor test_learner test_network_nodes test_network test_network_server test_integration
+test_4node_count_SOURCES = test_4node_count.c
+test_4node_count_LDADD = ../src/libintheory-1.0.la
+TESTS = test_proposer test_acceptor test_learner test_network_nodes test_network test_network_server test_integration test_4node_count

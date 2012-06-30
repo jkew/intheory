@@ -40,17 +40,16 @@ int main(int argc, char **args) {
   }
 
   set_log_level(ERROR);
-  char * me;
-  char * other_nodes[argc - 2];
-
-  me = args[1];
-  int i = 2;
+  char * all_nodes[argc - 1];
+  
+  all_nodes[0] = args[1];
+  int i = 1;
   for (; i < argc; i++) {
-    other_nodes[i - 2] = args[i];
+    all_nodes[i] = args[i + 1];
   }
 
 
-  start_intheory(me, argc - 2, other_nodes);
+  start_intheory(0, argc - 1, all_nodes);
   register_changed_cb(SLOT, got_hello);
 
   printf("MY ID: %d\n", my_id());

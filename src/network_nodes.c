@@ -59,12 +59,12 @@ int get_port(int node_num) {
   return to_port(nodes[n]);
 }
 
-void init_network_nodes(int _num_nodes, char *_nodes[]) {
-  char *my_nodes = _nodes[0];
+void init_network_nodes(int my_idx, int _num_nodes, char *_nodes[]) {
+  char *my_nodes = _nodes[my_idx];
   _node_count = _num_nodes;
   nodes = malloc(sizeof(char *)*_num_nodes);
   int i;
-  for (i = 0; i < (num_nodes()); i++) {
+  for (i = 0; i < _num_nodes; i++) {
     nodes[i] = (char *) malloc(sizeof(char)*256);
     strncpy(nodes[i], _nodes[i], 255 );
   }

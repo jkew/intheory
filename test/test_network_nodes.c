@@ -28,7 +28,7 @@ void test_address_parse() {
 				 "zebra:321", 
 				 "apple:123",
 				 "intheory:876"};
-   init_network_nodes(4, test_nodes);
+   init_network_nodes(0, 4, test_nodes);
    assert(my_id() == 2);
    assert(get_port(0) == 123);
    assert(get_port(1) == 876);
