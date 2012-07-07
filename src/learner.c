@@ -28,7 +28,7 @@ state sm_learner_available(state s) {
     }
     s.ticket = mesg->ticket;
     s.value = mesg->value;
-    set(mesg->slot, mesg->value);
+    set(mesg->slot, mesg->value, -1);
     s.state = S_DONE;
   }
   discard(mesg);

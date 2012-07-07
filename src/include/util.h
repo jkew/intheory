@@ -1,8 +1,13 @@
 #ifndef INTHEORY_UTIL
 #define INTHEORY_UTIL
+#define TRUE 1
+#define FALSE 0
+#define NULL 0
+typedef int bool;
 
-int deadline_passed(struct timeval *deadline);
-void set_deadline(int sec, struct timeval *deadline);
+
+bool deadline_passed(long deadline);
+long get_deadline(long ms);
 void *create(size_t size);
 void discard(void *thing);
 

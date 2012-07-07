@@ -10,7 +10,7 @@ typedef struct {
   long ticket;
   long slot;
   long value;
-  struct timeval deadline;
+  long deadline;
   crc_t crc; // must be last, see message_crc fn
 } message;
 

@@ -8,42 +8,109 @@
 #include "include/logger.h"
 #include "include/callbacks.h"
 
-#define INITIAL_SLOT_SIZE 256
+typedef struct {
+  int slot;
+  long value;
+  long deadline;
+  struct slot *prev;
+  struct slot *next;
+} slot_node;
 
-long *slots = 0;
-int maxslot = 0;
+
+slot_node *slots;
 
 void init_store() {
-  slots = malloc(sizeof(long)*INITIAL_SLOT_SIZE);
-  maxslot = 255;
 }
 
 void destroy_store() {
-  discard(slots);
-  slots = 0;
-  maxslot = 0;
+  while(slots != NULL)
+    remove(slots);
 }
 
-void set(int slot, long value) {
-  if (slot > maxslot) {
-    int new_size = slot * 2;
-    long *oldslots = slots;
-    long *newslots = malloc(sizeof(long)*new_size);
+void remove_slot(slot_node *s) {
+  slot_node *next, *prev;
+  next = s->next;
+  prev = s->prev;
 
-    memcpy(newslots, oldslots, maxslot + 1);    
-    slots = newslots;
-    maxslot = new_size - 1;
-    discard(oldslots);
+  if (prev == NULL) {
+    slots = next;
+    if (next != NULL) {
+      next->prev = NULL;
+    }
+  } else {
+    prev->next = next;
   }
-  long oldval = slots[slot];
-  slots[slot] = value;
+  discard(s);
+}
+
+void add_slot(slot_node *s, slot_node *prev) {
+  if (prev != NULL) { 
+    if (prev->next != NULL) {
+      s->next = prev->next;
+      ((slot_node *)prev->next)->prev = s;
+    }
+    s->prev = prev; 
+    prev->next = s; 
+  } else {
+    s->next = NULL;
+    slots = s;
+  }
+}
+
+bool verify(slot_node *s) {
+  assert(s != NULL);
+  slot_node *ret = s;
+  if (s->deadline > 0 && deadline_passed(s->deadline)) {
+    return FALSE;
+  }
+  return TRUE;
+}
+
+slot_node *find(int slot) {
+  slot_node *curr = slots;
+  slot_node *ret = NULL;
+  while(curr != NULL) {
+    if (!verify(curr)) {
+      slot_node *old = curr;
+      curr = curr->next;
+      remove_slot(old);
+      continue;
+    }
+    if (curr->slot == slot) {
+      ret = slot;
+      return ret;
+    }
+    if (curr->slot > slot) {
+      curr = curr->prev;
+      break;
+    }
+    curr = curr->next;
+  }
+  return ret;
+}
+
+void set(int slot, long value, long deadline) {
+  
+  slot_node *s = find(slot);
+  if (s == NULL || s->slot != slot) {
+    slot_node *curr = malloc(sizeof(slot_node));
+    curr->slot = slot;
+    add_slot(curr, s);
+  }
+  s->value = value;
+  s->deadline = deadline;
+
   slot_changed(slot, value);
 }
 
-long get(int slot) {
-  return slots[slot];
+bool exists(int slot) {
+  slot_node *s = find(slot);
+  if (s->slot == slot) return 1;
+  return 0;
 }
 
-int get_max_slot() {
-  return maxslot;
+long get(int slot) {
+  slot_node *s = find(slot);
+  if (s->slot == slot) return s->value;
+  return 0;
 }

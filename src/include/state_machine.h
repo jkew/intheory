@@ -39,7 +39,7 @@ typedef struct {
   long value;
   long client;
   long fails;
-  struct timeval deadline;
+  long deadline;
 } state;
 
 typedef state (*sm_role_fn)(state);
