@@ -20,7 +20,7 @@ state sm_acceptor_available(state s) {
   s.ticket = mesg->ticket;
   s.type = PROPOSAL;
   s.client = mesg->from;
-  set_deadline(deadline, &(s.deadline));
+  s.deadline = get_deadline(deadline);
   discard(mesg);
   return s;
 }
