@@ -80,6 +80,7 @@ void test_learner() {
   
   set_log_level(NONE);
   init_store();
+
   _node_count = 4;
   recv_from = &recv_from_scenario; 
   send_to = &send_to_scenario;
@@ -87,7 +88,7 @@ void test_learner() {
   recv = learner_basic_recv;
   send = learner_basic_send;
   intheory_sm(LEARNER);
-  
+  exit(0);  
   sendidx = recvidx = 0;
   recv = learner_getfail_recv;
   send = learner_getfail_send;

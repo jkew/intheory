@@ -52,11 +52,13 @@ host_triplet = @host@
 check_PROGRAMS = test_proposer$(EXEEXT) test_acceptor$(EXEEXT) \
 	test_learner$(EXEEXT) test_network_nodes$(EXEEXT) \
 	test_network$(EXEEXT) test_network_server$(EXEEXT) \
-	test_integration$(EXEEXT) test_4node_count$(EXEEXT)
+	test_integration$(EXEEXT) test_4node_count$(EXEEXT) \
+	test_store$(EXEEXT)
 TESTS = test_proposer$(EXEEXT) test_acceptor$(EXEEXT) \
 	test_learner$(EXEEXT) test_network_nodes$(EXEEXT) \
-	test_network$(EXEEXT) test_network_server$(EXEEXT) \
-	test_integration$(EXEEXT) test_4node_count$(EXEEXT)
+	test_network$(EXEEXT) test_store$(EXEEXT) \
+	test_network_server$(EXEEXT) test_integration$(EXEEXT) \
+	test_4node_count$(EXEEXT)
 subdir = test
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(top_srcdir)/config/depcomp
@@ -99,6 +101,9 @@ am_test_proposer_OBJECTS = test_proposer.$(OBJEXT) \
 	test_common.$(OBJEXT)
 test_proposer_OBJECTS = $(am_test_proposer_OBJECTS)
 test_proposer_DEPENDENCIES = ../src/libintheory-1.0.la
+am_test_store_OBJECTS = test_store.$(OBJEXT)
+test_store_OBJECTS = $(am_test_store_OBJECTS)
+test_store_DEPENDENCIES = ../src/libintheory-1.0.la
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
@@ -128,11 +133,13 @@ am__v_GEN_0 = @echo "  GEN     " $@;
 SOURCES = $(test_4node_count_SOURCES) $(test_acceptor_SOURCES) \
 	$(test_integration_SOURCES) $(test_learner_SOURCES) \
 	$(test_network_SOURCES) $(test_network_nodes_SOURCES) \
-	$(test_network_server_SOURCES) $(test_proposer_SOURCES)
+	$(test_network_server_SOURCES) $(test_proposer_SOURCES) \
+	$(test_store_SOURCES)
 DIST_SOURCES = $(test_4node_count_SOURCES) $(test_acceptor_SOURCES) \
 	$(test_integration_SOURCES) $(test_learner_SOURCES) \
 	$(test_network_SOURCES) $(test_network_nodes_SOURCES) \
-	$(test_network_server_SOURCES) $(test_proposer_SOURCES)
+	$(test_network_server_SOURCES) $(test_proposer_SOURCES) \
+	$(test_store_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -274,6 +281,8 @@ test_integration_SOURCES = test_integration.c test_common.c
 test_integration_LDADD = ../src/libintheory-1.0.la
 test_4node_count_SOURCES = test_4node_count.c
 test_4node_count_LDADD = ../src/libintheory-1.0.la
+test_store_SOURCES = test_store.c
+test_store_LDADD = ../src/libintheory-1.0.la
 all: all-am
 
 .SUFFIXES:
@@ -341,6 +350,9 @@ test_network_server$(EXEEXT): $(test_network_server_OBJECTS) $(test_network_serv
 test_proposer$(EXEEXT): $(test_proposer_OBJECTS) $(test_proposer_DEPENDENCIES) $(EXTRA_test_proposer_DEPENDENCIES) 
 	@rm -f test_proposer$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(test_proposer_OBJECTS) $(test_proposer_LDADD) $(LIBS)
+test_store$(EXEEXT): $(test_store_OBJECTS) $(test_store_DEPENDENCIES) $(EXTRA_test_store_DEPENDENCIES) 
+	@rm -f test_store$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(test_store_OBJECTS) $(test_store_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -357,6 +369,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_network_nodes.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_network_server.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_proposer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_store.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

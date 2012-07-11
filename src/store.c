@@ -23,8 +23,9 @@ void init_store() {
 }
 
 void destroy_store() {
-  while(slots != NULL)
-    remove(slots);
+  while(slots != NULL) {
+    remove_slot(slots);
+  }
 }
 
 void remove_slot(slot_node *s) {
@@ -77,7 +78,7 @@ slot_node *find(int slot) {
       continue;
     }
     if (curr->slot == slot) {
-      ret = slot;
+      ret = curr;
       return ret;
     }
     if (curr->slot > slot) {
@@ -95,22 +96,24 @@ void set(int slot, long value, long deadline) {
   if (s == NULL || s->slot != slot) {
     slot_node *curr = malloc(sizeof(slot_node));
     curr->slot = slot;
+    curr->prev = NULL;
+    curr->next = NULL;
     add_slot(curr, s);
+    s = curr;
   }
   s->value = value;
   s->deadline = deadline;
-
   slot_changed(slot, value);
 }
 
 bool exists(int slot) {
   slot_node *s = find(slot);
-  if (s->slot == slot) return 1;
-  return 0;
+  if (s != NULL && s->slot == slot) return TRUE;
+  return FALSE;
 }
 
 long get(int slot) {
   slot_node *s = find(slot);
-  if (s->slot == slot) return s->value;
+  if (s != NULL && s->slot == slot) return s->value;
   return 0;
 }

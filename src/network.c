@@ -57,7 +57,7 @@ message * get_if_matches(int i, int from_node, long slot, unsigned int mask) {
 }
 
 void add_message(message *msg) {
-  set_deadline(deadline, &(msg->deadline));
+  msg->deadline = get_deadline(deadline);
   pthread_mutex_lock(&write_lock);
   input_ring[write_ipos] = msg;
   pthread_mutex_unlock(&write_lock);

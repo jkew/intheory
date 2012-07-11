@@ -126,12 +126,12 @@ void test_proposer() {
   recv = proposer_basic_recv;
   send = proposer_basic_send;
   intheory_sm(PROPOSER);
-  
+
   recv = proposer_acceptor_fails_recv;
   send = proposer_acceptor_fails_send;
   sendidx = recvidx = 0;
   intheory_sm(PROPOSER);
-  
+
   recv = proposer_acceptor_has_new_ticket_recv;
   send = proposer_acceptor_has_new_ticket_send;
   sendidx = recvidx = 0;
@@ -140,6 +140,5 @@ void test_proposer() {
   recv = proposer_dead_inside_recv;
   send = proposer_dead_inside_send;
   sendidx = recvidx = 0;
-  intheory_sm(PROPOSER);
-  
+  intheory_sm(PROPOSER);  
 } 

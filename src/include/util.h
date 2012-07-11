@@ -1,5 +1,6 @@
 #ifndef INTHEORY_UTIL
 #define INTHEORY_UTIL
+#include <stdlib.h>
 #define TRUE 1
 #define FALSE 0
 #define NULL 0

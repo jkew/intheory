@@ -37,7 +37,7 @@ state sm_learner_available(state s) {
 
 state sm_learner_get(state s) {
   assert(s.type == GET && s.slot >= 0 && s.client >= 0);
-  if (s.slot <= get_max_slot()) {
+  if (!exists(s.slot)) {
     send_to(s.client, -1, READ_SUCCESS, s.slot, get(s.slot));     
   } else {
     send_to(s.client, -1, READ_FAILED, s.slot, -1);     

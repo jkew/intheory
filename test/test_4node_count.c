@@ -3,12 +3,14 @@
 #include <stdlib.h>
 
 #define SLOT 0
-#define COUNT_TO 10
+#define COUNT_TO 5
 #define TOTAL_NODES 4
+int running = 1;
 
 void got_count(long slot, long value) {
   if (value >= 10) {
     stop_intheory();
+    running = 0;
     exit(0);
   }
   if ((value % TOTAL_NODES) == my_id()) {
@@ -23,7 +25,7 @@ int main() {
 
   int pid;
 
-  set_log_level(GRAPH);
+  set_log_level(NONE);
 
   while (node >= 0 && (pid = fork())) {
     node--;
@@ -44,7 +46,7 @@ int main() {
       sleep(2);
       set_it(SLOT, 1);
     }
-    while (1) { sleep(1); }
+    while (running) { sleep(1); }
   } else {
 
     int allswellthat = 0;

@@ -20,7 +20,7 @@ state sm_proposer_available(state s) {
   s.slot = mesg->slot;
   s.value = mesg->value;
   s.state = S_PREPARE;
-  set_deadline(deadline, &(s.deadline));
+  s.deadline = get_deadline(deadline);
   return s;
 }
 
@@ -93,7 +93,7 @@ state sm_proposer_collect(state s) {
    int node = s.nodes_quorom[s.nodes_left - 1];
    message* response = recv_from(PROPOSER,node, s.slot, ACCEPTED_PROPOSAL | REJECTED_PROPOSAL); 
    if (response == NULL) { 
-     if (!deadline_passed(&(s.deadline))) {
+     if (s.deadline > 0 && !deadline_passed(s.deadline)) {
 	 return s;
      } 
 

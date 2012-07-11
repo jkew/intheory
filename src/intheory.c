@@ -13,7 +13,7 @@
 
 
 int running = 0;
-int deadline = 10;
+int deadline = 10000;
 
 pthread_t worker_thread;
 
@@ -60,10 +60,15 @@ void start_intheory(int my_index, int node_count, char* nodes[]) {
 
 void stop_intheory() {
   running = 0;
-  stop_server();
+  trace("Stopping worker");
   pthread_join(&worker_thread, 0);
+  trace("Stopping network server");
+  stop_server();
+  trace("Destroying network datastructures");
   destroy_network();
+  trace("Destroying slot store");
   destroy_store();
+  trace("Destroying callback datastructures");
   destroy_cb();
   notice("INTHEORY STOPPED");
 }

@@ -9,7 +9,7 @@ bool deadline_passed(long deadline_ms) {
   struct timeval current;
   gettimeofday(&current, 0);
   long current_ms = timeval_to_ms(current);
-  if (current_ms > deadline_ms) {    
+  if (current_ms > deadline_ms) {
     return 1;
   }
   return 0;
