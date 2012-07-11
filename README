@@ -12,7 +12,6 @@ TODO
 - distributed locks api
 - ephemeral locks for leader election
 - "reserved" slots
-- a more space efficient slot storage
 - backup/restore node
 - redirectable log/output
 - code cleanup/documentation
