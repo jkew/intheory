@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <sys/time.h>
 #include "include/intheory.h"
 #include "include/state_machine.h"
 #include "include/network.h"
 #include "include/acceptor.h"
 #include "include/logger.h"
-
+#include "include/util.h"
 
 state sm_acceptor_available(state s) {
   assert(s.nodes_left == -1 && s.ticket == -1 
@@ -40,7 +41,7 @@ state sm_acceptor_accepted(state s) {
 	 && s.type == ACCEPTED_PROPOSAL && s.slot >= 0);
   message *mesg = recv_from(ACCEPTOR,-1, s.slot, PROPOSAL | ACCEPTOR_SET);
   if (mesg == 0) {
-    if (!deadline_passed(&(s.deadline))) {
+    if (!deadline_passed(s.deadline)) {
       trace("Acceptor still waiting... ");
       return s;
     }

@@ -23,7 +23,7 @@ int advance_writer() {
   // look for the next writable spot
   while(1) {
     if (input_ring[next_pos] == 0) break;
-    if (deadline_passed(&(input_ring[next_pos]->deadline))) {
+    if (deadline_passed(input_ring[next_pos]->deadline)) {
       message *msg = input_ring[next_pos];
       pthread_mutex_lock(&write_lock);
       input_ring[next_pos] = 0;

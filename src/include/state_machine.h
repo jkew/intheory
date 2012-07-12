@@ -39,12 +39,12 @@ typedef struct {
   long value;
   long client;
   long fails;
-  long deadline;
+  unsigned long deadline;
 } state;
 
 typedef state (*sm_role_fn)(state);
 
-extern int deadline;
+extern unsigned long deadline;
 
 void intheory_sm(enum role_t role);
 state init_state(enum role_t role, state *prev_state);

@@ -13,7 +13,7 @@
 
 
 int running = 0;
-int deadline = 10000;
+unsigned long deadline = 10000;
 
 pthread_t worker_thread;
 
@@ -30,8 +30,10 @@ void worker(void *args) {
     next_state(PROPOSER);
     next_state(ACCEPTOR);
     next_state(LEARNER);
-    if (saved_proposer.state == S_AVAILABLE) {
-      usleep(500000);
+    if (saved_proposer.state == S_AVAILABLE
+	&& saved_acceptor.state == S_AVAILABLE
+	&& saved_learner.state == S_AVAILABLE) {
+      usleep(5000);
     }
   }
 }

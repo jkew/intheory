@@ -199,5 +199,5 @@ void log_state(state s, enum role_t r) {
 
   line[meidx] = getStateName(s.state)[2];
 
-  printf("GRAPH: %s STATE %s %s %ld %ld %ld\n", line, getRole(r), getStateName(s.state), s.ticket, s.slot, s.value);
+  printf("GRAPH: %s STATE %s %s %ld %ld %ld dead %ld\n", line, getRole(r), getStateName(s.state), s.ticket, s.slot, s.value, s.deadline);
 }

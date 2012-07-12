@@ -82,6 +82,8 @@ void server(void *args) {
 	    FD_SET(newfd, &master); 
 	    if(newfd > fdmax) { fdmax = newfd; }
 	    trace("Connection from %s on socket %d", inet_ntoa(clientaddr.sin_addr), newfd);	  
+	  } else {
+	    printf("conitinue;.... \n");
 	  }
 	} else {
           message msg;

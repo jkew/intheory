@@ -1,25 +1,30 @@
 #include <stdlib.h>
+#include <assert.h>
 #include "include/util.h"
 
-long timeval_to_ms(struct timeval tv) {
-  return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
+unsigned long timeval_to_ms(struct timeval *tv) {
+  unsigned long sec_ms = ((unsigned long)tv->tv_sec) * 1000;
+  unsigned long usec_ms = ((unsigned long)tv->tv_usec) / 1000;
+  return sec_ms + usec_ms;
 }
 
-bool deadline_passed(long deadline_ms) {
+bool deadline_passed(unsigned long deadline_ms) {
   struct timeval current;
   gettimeofday(&current, 0);
-  long current_ms = timeval_to_ms(current);
+  unsigned long current_ms = timeval_to_ms(&current);
+  if (current_ms > (deadline_ms * 2)) assert(0);
   if (current_ms > deadline_ms) {
     return 1;
   }
   return 0;
 }
 
-long get_deadline(long ms) {
+unsigned long get_deadline(unsigned long ms) {
   struct timeval current;
   gettimeofday(&current, 0);
-  long current_ms = timeval_to_ms(current);
-  return current_ms + ms;
+  unsigned long current_ms = timeval_to_ms(&current);
+  unsigned long deadline_result = current_ms + ms;
+  return deadline_result;
 }
 
 void * create(size_t s) {

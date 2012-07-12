@@ -7,8 +7,8 @@
 typedef int bool;
 
 
-bool deadline_passed(long deadline);
-long get_deadline(long ms);
+bool deadline_passed(unsigned long deadline);
+unsigned long get_deadline(unsigned long ms);
 void *create(size_t size);
 void discard(void *thing);
 
