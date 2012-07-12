@@ -50,6 +50,12 @@ int open_socket(int port) {
     error("setsockopt failed\n");
     assert(0);
   }
+
+  if (setsockopt (socketfd, SOL_SOCKET, SO_REUSEADDR, (char *)&timeout,
+		  sizeof(timeout)) < 0) {
+    error("setsockopt failed\n");
+    assert(0);
+  }
   return socketfd;
 }
 

@@ -53,12 +53,12 @@ check_PROGRAMS = test_proposer$(EXEEXT) test_acceptor$(EXEEXT) \
 	test_learner$(EXEEXT) test_network_nodes$(EXEEXT) \
 	test_network$(EXEEXT) test_network_server$(EXEEXT) \
 	test_integration$(EXEEXT) test_4node_count$(EXEEXT) \
-	test_store$(EXEEXT)
+	test_store$(EXEEXT) test_4node_contenious_count$(EXEEXT)
 TESTS = test_proposer$(EXEEXT) test_acceptor$(EXEEXT) \
 	test_learner$(EXEEXT) test_network_nodes$(EXEEXT) \
 	test_network$(EXEEXT) test_store$(EXEEXT) \
 	test_network_server$(EXEEXT) test_integration$(EXEEXT) \
-	test_4node_count$(EXEEXT)
+	test_4node_count$(EXEEXT) test_4node_contenious_count$(EXEEXT)
 subdir = test
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(top_srcdir)/config/depcomp
@@ -69,12 +69,19 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am_test_4node_count_OBJECTS = test_4node_count.$(OBJEXT)
-test_4node_count_OBJECTS = $(am_test_4node_count_OBJECTS)
-test_4node_count_DEPENDENCIES = ../src/libintheory-1.0.la
+am_test_4node_contenious_count_OBJECTS =  \
+	test_4node_contenious_count.$(OBJEXT) \
+	test_4node_common.$(OBJEXT)
+test_4node_contenious_count_OBJECTS =  \
+	$(am_test_4node_contenious_count_OBJECTS)
+test_4node_contenious_count_DEPENDENCIES = ../src/libintheory-1.0.la
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
+am_test_4node_count_OBJECTS = test_4node_count.$(OBJEXT) \
+	test_4node_common.$(OBJEXT)
+test_4node_count_OBJECTS = $(am_test_4node_count_OBJECTS)
+test_4node_count_DEPENDENCIES = ../src/libintheory-1.0.la
 am_test_acceptor_OBJECTS = test_acceptor.$(OBJEXT) \
 	test_common.$(OBJEXT)
 test_acceptor_OBJECTS = $(am_test_acceptor_OBJECTS)
@@ -130,12 +137,14 @@ am__v_CCLD_0 = @echo "  CCLD    " $@;
 AM_V_GEN = $(am__v_GEN_@AM_V@)
 am__v_GEN_ = $(am__v_GEN_@AM_DEFAULT_V@)
 am__v_GEN_0 = @echo "  GEN     " $@;
-SOURCES = $(test_4node_count_SOURCES) $(test_acceptor_SOURCES) \
+SOURCES = $(test_4node_contenious_count_SOURCES) \
+	$(test_4node_count_SOURCES) $(test_acceptor_SOURCES) \
 	$(test_integration_SOURCES) $(test_learner_SOURCES) \
 	$(test_network_SOURCES) $(test_network_nodes_SOURCES) \
 	$(test_network_server_SOURCES) $(test_proposer_SOURCES) \
 	$(test_store_SOURCES)
-DIST_SOURCES = $(test_4node_count_SOURCES) $(test_acceptor_SOURCES) \
+DIST_SOURCES = $(test_4node_contenious_count_SOURCES) \
+	$(test_4node_count_SOURCES) $(test_acceptor_SOURCES) \
 	$(test_integration_SOURCES) $(test_learner_SOURCES) \
 	$(test_network_SOURCES) $(test_network_nodes_SOURCES) \
 	$(test_network_server_SOURCES) $(test_proposer_SOURCES) \
@@ -279,8 +288,10 @@ test_network_server_SOURCES = test_network_server.c test_common.c
 test_network_server_LDADD = ../src/libintheory-1.0.la
 test_integration_SOURCES = test_integration.c test_common.c 
 test_integration_LDADD = ../src/libintheory-1.0.la
-test_4node_count_SOURCES = test_4node_count.c
+test_4node_count_SOURCES = test_4node_count.c test_4node_common.c
 test_4node_count_LDADD = ../src/libintheory-1.0.la
+test_4node_contenious_count_SOURCES = test_4node_contenious_count.c test_4node_common.c
+test_4node_contenious_count_LDADD = ../src/libintheory-1.0.la
 test_store_SOURCES = test_store.c
 test_store_LDADD = ../src/libintheory-1.0.la
 all: all-am
@@ -326,6 +337,9 @@ clean-checkPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
+test_4node_contenious_count$(EXEEXT): $(test_4node_contenious_count_OBJECTS) $(test_4node_contenious_count_DEPENDENCIES) $(EXTRA_test_4node_contenious_count_DEPENDENCIES) 
+	@rm -f test_4node_contenious_count$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(test_4node_contenious_count_OBJECTS) $(test_4node_contenious_count_LDADD) $(LIBS)
 test_4node_count$(EXEEXT): $(test_4node_count_OBJECTS) $(test_4node_count_DEPENDENCIES) $(EXTRA_test_4node_count_DEPENDENCIES) 
 	@rm -f test_4node_count$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(test_4node_count_OBJECTS) $(test_4node_count_LDADD) $(LIBS)
@@ -360,6 +374,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_4node_common.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_4node_contenious_count.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_4node_count.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_acceptor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_common.Po@am__quote@

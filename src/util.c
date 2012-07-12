@@ -12,7 +12,7 @@ bool deadline_passed(unsigned long deadline_ms) {
   struct timeval current;
   gettimeofday(&current, 0);
   unsigned long current_ms = timeval_to_ms(&current);
-  if (current_ms > (deadline_ms * 2)) assert(0);
+  //assert(current_ms < (deadline_ms * 2));
   if (current_ms > deadline_ms) {
     return 1;
   }

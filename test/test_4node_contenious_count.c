@@ -4,20 +4,21 @@
 #include <stdlib.h>
 
 void got_value(long slot, long value) {
-  running = 0;
+  if (!running) return;
   if (value >= 10) {
+    running = 0;
+    // wait a bit for the nodes to stop screaming
+    // and then shutdown
     sleep(2);
     stop_intheory();
     exit(0);
   }
-  if ((value % TOTAL_NODES) == my_id()) {
-    set_it_async(SLOT, value + 1);
-  }
+  set_it_async(SLOT, value + 1);
 }
 
 int main() {
   set_log_level(NONE);
-  char * all_nodes[] = {"127.0.0.1:1235", "127.0.0.1:1236", "127.0.0.1:1237", "127.0.0.1:1238"};
+  char * all_nodes[] = {"127.0.0.1:1239", "127.0.0.1:1240", "127.0.0.1:1241", "127.0.0.1:1242"};
   return spawn_nodes(all_nodes);
 }
 
