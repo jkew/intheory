@@ -69,9 +69,8 @@ int set_it(long slot, long value) {
   int ret = 0;
   if (msg->type == WRITE_SUCCESS) {
     ret = 1;
-  } else {
-    discard(msg);
-  }
+  } 
+  discard(msg);
   return ret;
 }
 

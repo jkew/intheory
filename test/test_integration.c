@@ -28,10 +28,7 @@ void test_integration() {
    start_intheory(0 , 4, all_nodes);
    msg = create_message(1, 2, 3, CLIENT_VALUE, 4, 999);   
    send_intheory(my_id(), msg);
-
    sleep(5);
-
-   free(msg);
    stop_intheory();
 }
 

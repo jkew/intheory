@@ -79,12 +79,15 @@ int crc_valid(message *msg) {
 message * create_message(int from, int to, long ticket, int type, long slot, long value) {
   message *msg; 
   msg = malloc(sizeof(message));
+  memset(msg, 0, sizeof(message));
   msg->from = from;
   msg->to = to;
   msg->type = type;
   msg->ticket = ticket;
   msg->slot = slot;
   msg->value = value;
+  //msg->deadline = 0;
+  //msg->crc = 0;
   crc_t c = message_crc(msg);
   msg->crc = c;
   return msg;

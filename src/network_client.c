@@ -54,6 +54,7 @@ int send_intheory(int node, message *msg) {
   }
   log_message("send_intheory", msg);
   close(sockfd);
+  discard(msg);
   return 1;
 }
 

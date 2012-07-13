@@ -21,6 +21,7 @@ state sm_proposer_available(state s) {
   s.value = mesg->value;
   s.state = S_PREPARE;
   s.deadline = get_deadline(deadline);
+  discard(mesg);
   return s;
 }
 

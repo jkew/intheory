@@ -36,26 +36,29 @@ int open_socket(int port) {
     assert(0);
   }
 
-  struct timeval timeout;      
+  struct timeval timeout;
+  memset(&timeout, 0, sizeof(struct timeval));
   timeout.tv_sec = 1;
   timeout.tv_usec = 0;
-  if (setsockopt (socketfd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout,
+  int optval = 1;
+  if (setsockopt(socketfd, SOL_SOCKET, SO_RCVTIMEO, &timeout,
 		  sizeof(timeout)) < 0) {
     error("setsockopt failed\n");
     assert(0);
   }
   
-  if (setsockopt (socketfd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout,
+  if (setsockopt(socketfd, SOL_SOCKET, SO_SNDTIMEO, &timeout,
 		  sizeof(timeout)) < 0) {
     error("setsockopt failed\n");
     assert(0);
   }
-
-  if (setsockopt (socketfd, SOL_SOCKET, SO_REUSEADDR, (char *)&timeout,
-		  sizeof(timeout)) < 0) {
+    
+  if (setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR, &optval,
+		  sizeof(optval)) < 0) {
     error("setsockopt failed\n");
     assert(0);
   }
+  
   return socketfd;
 }
 
