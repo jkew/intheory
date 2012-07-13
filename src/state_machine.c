@@ -14,14 +14,20 @@ void init_sm() {
 }
 
 void next_states() {
-  next_state(PROPOSER);
-  next_state(ACCEPTOR);
-  next_state(LEARNER);
-  if (saved_proposer.state == S_AVAILABLE
-      && saved_acceptor.state == S_AVAILABLE
-      && saved_learner.state == S_AVAILABLE) {
-    usleep(5000);
-  }
+  int p_state, a_state, l_state;
+  
+  do {
+    p_state = saved_proposer.state;
+    a_state = saved_acceptor.state;
+    l_state = saved_learner.state;
+  
+    next_state(PROPOSER);
+    next_state(ACCEPTOR);
+    next_state(LEARNER);
+  } while (saved_proposer.state != p_state
+	   || saved_acceptor.state != a_state
+	   || saved_learner.state != l_state);
+    
 }
 
 state init_state(enum role_t role, state *prev_state) {

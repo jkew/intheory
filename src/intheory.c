@@ -22,6 +22,7 @@ void worker(void *args) {
   notice("intheory worker thread started");
   while(running) {
     next_states();
+    usleep(5000);
   }
 }
 
