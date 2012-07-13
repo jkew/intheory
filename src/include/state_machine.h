@@ -46,7 +46,7 @@ typedef state (*sm_role_fn)(state);
 
 extern unsigned long deadline;
 
-void intheory_sm(enum role_t role);
 state init_state(enum role_t role, state *prev_state);
-
+void init_sm();
+void next_states();
 #endif

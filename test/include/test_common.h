@@ -2,6 +2,7 @@
 #define ITTESTCOMMONH
 #include "../../src/include/intheory.h"
 #include "../../src/include/network.h"
+#include "../../src/include/state_machine.h"
 
 #define SLOT 0
 #define COUNT_TO 10
@@ -18,4 +19,5 @@ message * recv_from_scenario(int, long, unsigned int);
 int send_to_scenario(int, long, unsigned int, long, long);
 void got_value(long, long);
 int spawn_nodes(char *all_nodes);
+void intheory_sm(enum role_t role);
 #endif

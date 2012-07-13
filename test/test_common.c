@@ -1,5 +1,8 @@
 #include "../src/include/intheory.h"
 #include "../src/include/state_machine.h"
+#include "../src/include/proposer.h"
+#include "../src/include/acceptor.h"
+#include "../src/include/learner.h"
 #include "../src/include/network.h"
 #include "../src/include/logger.h"
 #include "include/test_common.h"
@@ -11,6 +14,30 @@ long (*recv)[5];
 long (*send)[5];
 int sendidx = 0;
 int recvidx = 0;
+
+/*
+ * Run a role to completion
+ */
+void intheory_sm(enum role_t role) {
+  state s;
+  
+  s = init_state(role, 0);
+  do {
+    switch(role) {
+    case PROPOSER:
+      s = sm_proposer(s);
+      break;
+    case ACCEPTOR:
+      s = sm_acceptor(s);
+      break;
+    case LEARNER:
+      s = sm_learner(s);      
+      break;  
+    case CLIENT:
+      break;
+    }    
+  } while(s.state != S_DONE);
+}
 
 message * recv_from_scenario(int from_node, long slot, unsigned int mask) {
   // handle a failure to receive within a 'time limit'
