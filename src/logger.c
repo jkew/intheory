@@ -59,7 +59,7 @@ void set_log_level(enum loglevel_t level) {
 void error(const char *msg, ...) {
   if (log_level < ERROR) return;
   va_list args;
-  fprintf(stderr, "ERROR: ");
+  fprintf(stderr, "ERROR-%d: ", my_id());
   va_start( args, msg );
   vfprintf(stderr, msg, args );
   va_end( args );
@@ -69,7 +69,7 @@ void error(const char *msg, ...) {
 void info(const char *msg, ...) {
   if (log_level < INFO) return;
   va_list args;
-  fprintf(stdout, "INFO:");
+  fprintf(stdout, "INFO-%d:", my_id());
   va_start( args, msg );
   vfprintf(stdout, msg, args );
   va_end( args );
@@ -79,7 +79,7 @@ void info(const char *msg, ...) {
 void trace(const char *msg, ...) {
   if (log_level < TRACE) return;
   va_list args;
-  fprintf(stdout, "TRACE:");
+  fprintf(stdout, "TRACE-%d:", my_id());
   va_start( args, msg );
   vfprintf(stdout, msg, args );
   va_end( args );
@@ -89,7 +89,7 @@ void trace(const char *msg, ...) {
 void notice(const char *msg, ...) {
   if (log_level < NOTICE) return;
   va_list args;
-  fprintf(stdout, "NOTICE:");
+  fprintf(stdout, "NOTICE-%d:", my_id());
   va_start( args, msg );
   vfprintf(stdout, msg, args );
   va_end( args );

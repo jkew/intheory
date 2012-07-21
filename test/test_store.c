@@ -19,6 +19,16 @@ void test_getset_simple() {
  destroy_store();
 }
 
+void test_highslot() {
+ init_store();
+ assert(!exists(777));
+ assert(get(777) == 0);
+ set(777, 999, -1);
+ assert(exists(777));
+ assert(get(777) == 999);
+ destroy_store();
+}
+
 void test_getset_ephem() {
   init_store();
   set(0, 998, get_deadline(750));
@@ -35,7 +45,7 @@ void test_lots_of_stuff() {
   int count=1000;
   while(count-- > 0) {
     long t = get_deadline(0);
-    int slot = (int) (t % (count + 1));
+    int slot = (int) (t % (count + 1));    
     if ((t % 2) == 0) {
       // set perm
       set(slot, t, -1);
@@ -58,6 +68,7 @@ int main() {
   test_simple();
   test_getset_simple();
   test_getset_ephem();
+  test_highslot();
   test_lots_of_stuff();
   return 0;
 }

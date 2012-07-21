@@ -26,11 +26,15 @@ int advance_writer() {
     if (deadline_passed(input_ring[next_pos]->deadline)) {
       message *msg = input_ring[next_pos];
       pthread_mutex_lock(&write_lock);
-      input_ring[next_pos] = 0;
+      // verify it hasn't changed
+      if (input_ring[next_pos] == msg) {
+	input_ring[next_pos] = 0;
+	discard(msg);
+      }
       pthread_mutex_unlock(&write_lock);
-      discard(msg);
       break;
     }
+    next_pos = (next_pos + 1) % ring_size;
   }
 
   write_ipos = next_pos;
@@ -50,8 +54,12 @@ message * get_if_matches(int i, int from_node, long slot, unsigned int mask) {
   if (slot != -1 && mesg->slot != slot) return 0;
   if (! (mesg->type & mask)) return 0;
   pthread_mutex_lock(&write_lock);
-  if (input_ring[i] == mesg)
+  // verify things have not changed
+  if (input_ring[i] == mesg) {
     input_ring[i] = 0;
+  } else {
+    mesg = 0;
+  }
   pthread_mutex_unlock(&write_lock);
   return mesg;
 }
@@ -59,6 +67,7 @@ message * get_if_matches(int i, int from_node, long slot, unsigned int mask) {
 void add_message(message *msg) {
   msg->deadline = get_deadline(deadline);
   pthread_mutex_lock(&write_lock);
+  assert(input_ring[write_ipos] == 0);
   input_ring[write_ipos] = msg;
   pthread_mutex_unlock(&write_lock);
   advance_writer();

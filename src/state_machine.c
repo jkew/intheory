@@ -20,10 +20,10 @@ void next_states() {
     p_state = saved_proposer.state;
     a_state = saved_acceptor.state;
     l_state = saved_learner.state;
-  
     next_state(PROPOSER);
     next_state(ACCEPTOR);
     next_state(LEARNER);
+    usleep(10000);
   } while (saved_proposer.state != p_state
 	   || saved_acceptor.state != a_state
 	   || saved_learner.state != l_state);

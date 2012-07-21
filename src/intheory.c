@@ -13,7 +13,7 @@
 #include "include/state_machine.h"
 
 int running = 0;
-unsigned long deadline = 10000;
+unsigned long deadline = 1000;
 pthread_t worker_thread;
 
 // TODO: May be able to eventually merge this with the server thread
@@ -59,6 +59,21 @@ void stop_intheory() {
   notice("INTHEORY STOPPED");
 }
 
+typedef struct {
+  int *locks;
+  long *lock_deadlines;
+} lock_node;
+
+lock_node *locks;
+int num_locks;
+
+int lock(long slot) {
+  return TRUE;
+}
+
+int unlock(long slot) {
+  return set_it(slot, -1);
+}
 
 int set_it(long slot, long value) {
   send_to(my_id(), -1, CLIENT_VALUE, slot, value);

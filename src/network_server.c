@@ -52,13 +52,13 @@ int open_socket(int port) {
     error("setsockopt failed\n");
     assert(0);
   }
-    
+  /*      
   if (setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR, &optval,
 		  sizeof(optval)) < 0) {
     error("setsockopt failed\n");
     assert(0);
   }
-  
+  */
   return socketfd;
 }
 
@@ -79,20 +79,20 @@ void server(void *args) {
   info("Server started");
   while(server_continue) {
     read_fds = master;
-    if (select(fdmax+1, &read_fds, NULL, NULL, NULL) == -1) { asser(0); return; }
+    if (select(fdmax+1, &read_fds, NULL, NULL, NULL) == -1) { assert(0); return; }
     // run through all fds
     for(i = 0; i <= fdmax; i++) {
       if(FD_ISSET(i, &read_fds)) {
 	if (i == sockfd) {
 	  // new connections
 	  int len = sizeof(clientaddr);
+	  trace("Waiting on accept");
 	  int newfd = accept(sockfd, (struct sockaddr *)&clientaddr, &len);
 	  if (newfd >= 0) {
 	    FD_SET(newfd, &master); 
 	    if(newfd > fdmax) { fdmax = newfd; }
-	    trace("Connection from %s on socket %d", inet_ntoa(clientaddr.sin_addr), newfd);	  
+	    info("Connection from %s on socket %d", inet_ntoa(clientaddr.sin_addr), newfd);	  
 	  } else {
-	    printf("conitinue;.... \n");
 	  }
 	} else {
           message msg;
@@ -103,9 +103,11 @@ void server(void *args) {
 	  if (bytes_read == sizeof(message)) {
 	    if (!crc_valid(&msg)) {
 	      error("CRC not valid on message");
+	      close(i);
+	      FD_CLR(i, &master);
 	      break;
 	    } else {
-	      trace("Valid message received");
+	      info("Valid message received");
 	    }
 	    if (msg.type == EXIT) {
 	      info("Received exit message");
@@ -113,20 +115,24 @@ void server(void *args) {
 	      break;
 	    }
 	    add_message(create_message(msg.from, msg.to, msg.ticket, msg.type, msg.slot, msg.value));
+	    close(i);
+	    FD_CLR(i, &master);
 	  }
 
           if (bytes_read > 0 && bytes_read != sizeof(message)) {
 	    error("Invalid read");
+
 	  }
 	  if (bytes_read <= 0) {
 	    if (bytes_read == 0) {
-	      trace("socket hung up");
+	      info("socket hung up");
+	      close(i);
+	      FD_CLR(i, &master);
 	    } else {
 	      error("socket read error");
-	      assert(0);
+	      close(i);
+	      FD_CLR(i, &master);
 	    }
-	    close(i);
-	    FD_CLR(i, &master);
 	  }
 	}
       }

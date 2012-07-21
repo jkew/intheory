@@ -5,115 +5,101 @@
 #include <pthread.h>
 #include "include/util.h"
 #include "include/store.h"
+#include "include/list.h"
 #include "include/logger.h"
 #include "include/callbacks.h"
+
 
 typedef struct {
   int slot;
   long value;
   long deadline;
-  struct slot *prev;
-  struct slot *next;
-} slot_node;
+} slot_val;
 
-
-slot_node *slots;
+list_ref *slots;
+pthread_mutex_t store_lock;
 
 void init_store() {
+  slots = new_list();
 }
 
 void destroy_store() {
-  while(slots != NULL) {
-    remove_slot(slots);
-  }
+  pthread_mutex_lock(&store_lock);
+  slot_val *delete = NULL;
+  while(delete = popv(slots)) { free(delete); }
+  free(slots);
+  pthread_mutex_unlock(&store_lock);
 }
 
-void remove_slot(slot_node *s) {
-  slot_node *next, *prev;
-  next = s->next;
-  prev = s->prev;
-
-  if (prev == NULL) {
-    slots = next;
-    if (next != NULL) {
-      next->prev = NULL;
-    }
-  } else {
-    prev->next = next;
-  }
-  discard(s);
-}
-
-void add_slot(slot_node *s, slot_node *prev) {
-  if (prev != NULL) { 
-    if (prev->next != NULL) {
-      s->next = prev->next;
-      ((slot_node *)prev->next)->prev = s;
-    }
-    s->prev = prev; 
-    prev->next = s; 
-  } else {
-    s->next = NULL;
-    slots = s;
-  }
-}
-
-bool verify(slot_node *s) {
+bool verify(slot_val *s) {
   assert(s != NULL);
-  slot_node *ret = s;
   if (s->deadline > 0 && deadline_passed(s->deadline)) {
     return FALSE;
   }
   return TRUE;
 }
 
-slot_node *find(int slot) {
-  slot_node *curr = slots;
-  slot_node *ret = NULL;
-  while(curr != NULL) {
+listi find(int slot) {
+  listi itr = list_itr(slots);
+  while(there(itr)) {
+    slot_val *curr = (slot_val *)value_itr(itr);
     if (!verify(curr)) {
-      slot_node *old = curr;
-      curr = curr->next;
-      remove_slot(old);
+      slot_val *delete;
+      itr = remove_itr(slots, itr, &delete);
+      assert(curr == delete);
+      discard(curr);
+      curr = NULL;
       continue;
     }
+    if (curr->slot > slot) {      
+      return prev_itr(itr);
+    }
     if (curr->slot == slot) {
-      ret = curr;
-      return ret;
+      return itr;
     }
-    if (curr->slot > slot) {
-      curr = curr->prev;
-      break;
-    }
-    curr = curr->next;
+    itr = next_itr(itr);
   }
-  return ret;
+  return itr;
 }
 
 void set(int slot, long value, long deadline) {
-  
-  slot_node *s = find(slot);
+  pthread_mutex_lock(&store_lock);
+  listi itr = find(slot);
+  slot_val *s = value_itr(itr);
   if (s == NULL || s->slot != slot) {
-    slot_node *curr = malloc(sizeof(slot_node));
-    curr->slot = slot;
-    curr->prev = NULL;
-    curr->next = NULL;
-    add_slot(curr, s);
-    s = curr;
+    s = malloc(sizeof(slot_val));
+    s->slot = slot;
+    if (there(itr)) {
+    } else {
+    }
+
+    add_itr(slots, itr, s);
   }
   s->value = value;
   s->deadline = deadline;
+  pthread_mutex_unlock(&store_lock);
   slot_changed(slot, value);
 }
 
 bool exists(int slot) {
-  slot_node *s = find(slot);
-  if (s != NULL && s->slot == slot) return TRUE;
-  return FALSE;
+  pthread_mutex_lock(&store_lock);
+  listi itr = find(slot);
+  bool ret = FALSE;
+  if (there(itr) && ((slot_val *)value_itr(itr))->slot == slot) {
+    ret = TRUE;
+  }
+  pthread_mutex_unlock(&store_lock);
+  return ret;
 }
 
 long get(int slot) {
-  slot_node *s = find(slot);
-  if (s != NULL && s->slot == slot) return s->value;
+  pthread_mutex_lock(&store_lock);
+  listi itr = find(slot);
+  slot_val *s = value_itr(itr);
+  if (s != NULL && s->slot == slot) { 
+    pthread_mutex_unlock(&store_lock);
+    return s->value;
+  }
+  pthread_mutex_unlock(&store_lock);
   return 0;
 }
