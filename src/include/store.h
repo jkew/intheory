@@ -11,6 +11,8 @@ void destroy_store();
 long get(int slot);
 // Returns TRUE if the slot exists, FALSE otherwise
 bool exists(int slot);
+// Remove any slots for which the deadline has expired
+void expire_slots();
 // Sets a value to a slot, with the given deadline in ms
 // if the deadline is negative the value will be set indefinitely
 void set(int slot, long value, long deadline_ms);

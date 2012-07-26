@@ -15,7 +15,6 @@ state sm_learner_available(state s) {
   assert(s.nodes_left == -1 && s.type == -1);
   message *mesg = recv_from(LEARNER, -1, -1, SET | GET);
   if (mesg == 0) { return s; }
-  s.depth++;
   s.slot = mesg->slot;
   s.client = mesg->from;
   if (mesg->type == GET) {
@@ -28,6 +27,7 @@ state sm_learner_available(state s) {
     }
     s.ticket = mesg->ticket;
     s.value = mesg->value;
+    s.flags = mesg->flags;
     set(mesg->slot, mesg->value, mesg->slot >= 0 ? -1 : get_deadline(deadline));
     s.state = S_DONE;
   }
@@ -36,11 +36,11 @@ state sm_learner_available(state s) {
 }
 
 state sm_learner_get(state s) {
-  assert(s.type == GET && s.slot >= 0 && s.client >= 0);
-  if (!exists(s.slot)) {
-    send_to(s.client, -1, READ_SUCCESS, s.slot, get(s.slot));     
+  assert(s.type == GET && s.slot >= 0);
+  if (exists(s.slot) == TRUE) {
+    send_to(s.client, -1, READ_SUCCESS, s.slot, get(s.slot), s.flags);
   } else {
-    send_to(s.client, -1, READ_FAILED, s.slot, -1);     
+    send_to(s.client, -1, READ_FAILED, s.slot, -1, s.flags);
   }
   s.state = S_DONE;
   s.type = s.client = s.nodes_left = s.slot = s.ticket = s.value = -1;

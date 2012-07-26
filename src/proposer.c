@@ -19,6 +19,7 @@ state sm_proposer_available(state s) {
   s.client = mesg->from;
   s.slot = mesg->slot;
   s.value = mesg->value;
+  s.flags = mesg->flags;
   s.state = S_PREPARE;
   s.deadline = get_deadline(deadline);
   discard(mesg);
@@ -26,8 +27,7 @@ state sm_proposer_available(state s) {
 }
 
 state sm_proposer_prepare(state s) {
-  assert(s.nodes_left = -1 && s.ticket >= 0 
-	 && s.type == CLIENT_VALUE && s.slot >= 0);
+  assert(s.nodes_left = -1 && s.ticket >= 0 && s.type == CLIENT_VALUE);
   // send to a quorom of acceptors
   int quorom_size = ((int) num_nodes() / 2) + 1;
   // send a few more proposals up-to the number required for acceptor faults
@@ -52,9 +52,7 @@ state sm_proposer_prepare(state s) {
 }
 
 state sm_proposer_send_proposal(state s) {
-  assert(s.nodes_left >= 0 && s.ticket >= 0 
-	 && s.type == PROPOSAL && s.slot >= 0);
-
+  assert(s.nodes_left >= 0 && s.ticket >= 0 && s.type == PROPOSAL);
 
   if (s.nodes_left <= 0) {
     // sent all proposals, move onto collection
@@ -65,7 +63,7 @@ state sm_proposer_send_proposal(state s) {
  
   int to_node = s.nodes_quorom[s.nodes_left - 1];
   trace("Sending proposal to node %d", to_node);
-  if (send_to(to_node, s.ticket, s.type, s.slot, s.value)) {
+  if (send_to(to_node, s.ticket, s.type, s.slot, s.value, s.flags)) {
     // send succeeded, same state, but move on to a different acceptor node
     trace("Proposal was sent successfully to node %d", to_node);
     s.nodes_left--;
@@ -89,8 +87,7 @@ state sm_proposer_send_proposal(state s) {
 }
 
 state sm_proposer_collect(state s) {
-   assert(s.nodes_left > 0 && s.ticket >= 0 
-	  && s.type == PROPOSAL && s.slot >= 0);
+   assert(s.nodes_left > 0 && s.ticket >= 0 && s.type == PROPOSAL);
    int node = s.nodes_quorom[s.nodes_left - 1];
    message* response = recv_from(PROPOSER,node, s.slot, ACCEPTED_PROPOSAL | REJECTED_PROPOSAL); 
    if (response == NULL) { 
@@ -179,7 +176,7 @@ state sm_proposer_accepted(state s) {
 
   // send value to node
   int node = s.nodes_quorom[s.nodes_left - 1];
-  if (send_to(node, s.ticket, ACCEPTOR_SET, s.slot, s.value)) {
+  if (send_to(node, s.ticket, ACCEPTOR_SET, s.slot, s.value, s.flags)) {
     // send succeeded
     s.nodes_left--;
     return s;
@@ -196,7 +193,8 @@ state sm_proposer_accepted(state s) {
 
 state sm_proposer_respond_to_client(state s) {
   assert(s.type == WRITE_SUCCESS || s.type == WRITE_FAILED);
-  send_to(s.client, s.ticket, s.type, s.slot, s.value);
+  if ((s.flags & ASYNC_SEND) != ASYNC_SEND)
+    send_to(s.client, s.ticket, s.type, s.slot, s.value, s.flags);
   s.state = S_DONE;
   return s;
 }

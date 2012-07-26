@@ -13,7 +13,7 @@ void got_value(long slot, long value) {
     stop_intheory();
     exit(0);
   }
-  set_it_async(SLOT, value + 1);
+  set_it(SLOT, value + 1, ASYNC_SEND);
 }
 
 int main() {

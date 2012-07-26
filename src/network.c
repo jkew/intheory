@@ -16,7 +16,7 @@ int role_read_ipos[4];
 pthread_mutex_t write_lock;
 
 message * (*recv_from)(int, int, long, unsigned int) = 0;
-int (*send_to)(int, long, int, long, long) = 0;
+int (*send_to)(int, long, int, long, long, unsigned short) = 0;
 
 int advance_writer() {
   int next_pos = (write_ipos + 1) % ring_size;
@@ -38,6 +38,7 @@ int advance_writer() {
   }
 
   write_ipos = next_pos;
+  assert(input_ring[write_ipos] == 0);
   return next_pos;
 }
 
@@ -55,6 +56,9 @@ message * get_if_matches(int i, int from_node, long slot, unsigned int mask) {
   if (! (mesg->type & mask)) return 0;
   pthread_mutex_lock(&write_lock);
   // verify things have not changed
+  // single threaded reader; and besides, 
+  // only one recv per slot at a time, in-theory
+  assert(input_ring[i] == mesg); 
   if (input_ring[i] == mesg) {
     input_ring[i] = 0;
   } else {
@@ -85,7 +89,13 @@ int crc_valid(message *msg) {
   return c == msg->crc;
 }
 
-message * create_message(int from, int to, long ticket, int type, long slot, long value) {
+message * create_message(unsigned short from, 
+			 unsigned short to, 
+			 long ticket, 
+			 short type, 
+			 int slot, 
+			 long value, 
+			 unsigned short flags) {
   message *msg; 
   msg = malloc(sizeof(message));
   memset(msg, 0, sizeof(message));
@@ -95,8 +105,7 @@ message * create_message(int from, int to, long ticket, int type, long slot, lon
   msg->ticket = ticket;
   msg->slot = slot;
   msg->value = value;
-  //msg->deadline = 0;
-  //msg->crc = 0;
+  msg->flags = flags;
   crc_t c = message_crc(msg);
   msg->crc = c;
   return msg;
@@ -121,20 +130,20 @@ message * __recv_from(int r, int from_node, long slot, unsigned int mask) {
   return msg;
 }
 
-int __send_local(long ticket, int type, long slot, long value) {
-  message *msg = create_message(my_id(), my_id(), ticket, type, slot, value);
+int __send_local(long ticket, unsigned short type, long slot, long value, unsigned short flags) {
+  message *msg = create_message(my_id(), my_id(), ticket, type, slot, value, flags);
   log_message("send_local", msg);
   add_message(msg);
   return 1;
 }
 
-int __send_to(int node, long ticket, int type, long slot, long value) {
+int __send_to(unsigned short node, long ticket, unsigned short type, long slot, long value, unsigned short flags) {
   int n = node % (num_nodes());
   log_graph(my_id(), node, type, 0); 
   if (n == my_id()) {
-    return __send_local(ticket, type, slot, value);
+    return __send_local(ticket, type, slot, value, flags);
   }
-  return send_intheory(node, create_message(my_id(), node, ticket, type, slot, value));
+  return send_intheory(node, create_message(my_id(), node, ticket, type, slot, value, flags));
 }
 
 

@@ -39,7 +39,8 @@ bool verify(slot_val *s) {
   return TRUE;
 }
 
-listi find(int slot) {
+void expire_slots() {
+  pthread_mutex_lock(&store_lock);
   listi itr = list_itr(slots);
   while(there(itr)) {
     slot_val *curr = (slot_val *)value_itr(itr);
@@ -51,6 +52,15 @@ listi find(int slot) {
       curr = NULL;
       continue;
     }
+    itr = next_itr(itr);
+  }
+  pthread_mutex_unlock(&store_lock);
+}
+
+listi find(int slot) {
+  listi itr = list_itr(slots);
+  while(there(itr)) {
+    slot_val *curr = (slot_val *)value_itr(itr);
     if (curr->slot > slot) {      
       return prev_itr(itr);
     }

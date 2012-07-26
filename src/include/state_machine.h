@@ -26,19 +26,24 @@ enum state_t {
   S_DONE,
 };
 
+// Value Flags
+#define EPHEMERAL 1
+#define EXPIRES 2
+#define ASYNC_SEND 4
+
 typedef struct {
-  int state; 
-  int type;
-  int depth; 
-  int nodes_left;
-  int nodes_quorom[MAX_QUOROM_SIZE];
-  int num_quorom;
-  int max_fails;
+  unsigned short state; 
+  short type;
+  unsigned short nodes_quorom[MAX_QUOROM_SIZE];
+  unsigned short num_quorom;
+  unsigned short max_fails;
+  unsigned short fails;
+  short nodes_left;
+  unsigned short flags;
   long ticket;
   long slot;
   long value;
-  long client;
-  long fails;
+  unsigned short client;
   unsigned long deadline;
 } state;
 

@@ -18,12 +18,13 @@ pthread_t worker_thread;
 
 // TODO: May be able to eventually merge this with the server thread
 // and register callbacks when specific messages are received
-void worker(void *args) {
+void * worker(void *args) {
   notice("intheory worker thread started");
   while(running) {
     next_states();
     usleep(5000);
   }
+  return NULL;
 }
 
 void start_intheory(int my_index, int node_count, char* nodes[]) {
@@ -47,7 +48,7 @@ void start_intheory(int my_index, int node_count, char* nodes[]) {
 void stop_intheory() {
   running = 0;
   trace("Stopping worker");
-  pthread_join(&worker_thread, 0);
+  pthread_join(worker_thread, 0);
   trace("Stopping network server");
   stop_server();
   trace("Destroying network datastructures");
@@ -59,27 +60,12 @@ void stop_intheory() {
   notice("INTHEORY STOPPED");
 }
 
-typedef struct {
-  int *locks;
-  long *lock_deadlines;
-} lock_node;
-
-lock_node *locks;
-int num_locks;
-
-int lock(long slot) {
-  return TRUE;
-}
-
-int unlock(long slot) {
-  return set_it(slot, -1);
-}
-
-int set_it(long slot, long value) {
-  send_to(my_id(), -1, CLIENT_VALUE, slot, value);
+int set_it(long slot, long value, unsigned short flags) {
+  send_to(my_id(), -1, CLIENT_VALUE, slot, value, flags);
+  if (flags & ASYNC_SEND) return 1;
   message *msg = 0; 
   while ((msg = recv_from(CLIENT, -1, slot, WRITE_SUCCESS | WRITE_FAILED)) == 0) {
-    sleep(1);
+    usleep(10000);
   }
   int ret = 0;
   if (msg->type == WRITE_SUCCESS) {
@@ -89,20 +75,16 @@ int set_it(long slot, long value) {
   return ret;
 }
 
-void set_it_async(long slot, long value) {
-  send_to(my_id(), -1, CLIENT_VALUE, slot, value);
-}
-
 int get_it(long slot, long *value) {
-  send_to(my_id(), -1, GET, slot, -1);
+  send_to(my_id(), -1, GET, slot, -1, 0);
   message *msg = 0;
   int tries = 10;
   while ((msg = recv_from(CLIENT, -1, slot, READ_SUCCESS | READ_FAILED)) == 0 && tries--) {
-    sleep(1);
+    usleep(10000);
   }
-  int ret = 0;
+  int ret = FALSE;
   if (msg != 0 && msg->type == READ_SUCCESS) {
-    ret = 1;
+    ret = TRUE;
     *value = msg->value;
   } 
   discard(msg);

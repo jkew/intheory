@@ -24,9 +24,9 @@ void test_server() {
    message *msg, *result;
    init_network(0, 4, test_nodes, 10);
    start_server();
-   msg = create_message(1, 2, 3, CLIENT_VALUE, 4, 999);   
+   msg = create_message(1, 2, 3, CLIENT_VALUE, 4, 999, 0);
    send_intheory(my_id(), msg);
-   msg = create_message(1, 2, 3, CLIENT_VALUE, 4, 999);   
+   msg = create_message(1, 2, 3, CLIENT_VALUE, 4, 999, 0);   
    send_intheory(my_id(), msg);
    sleep(1);
    result = get_if_matches(0, 1, 4, CLIENT_VALUE);

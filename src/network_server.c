@@ -114,7 +114,8 @@ void server(void *args) {
 	      server_continue = 0;
 	      break;
 	    }
-	    add_message(create_message(msg.from, msg.to, msg.ticket, msg.type, msg.slot, msg.value));
+	    if (server_continue)
+	      add_message(create_message(msg.from, msg.to, msg.ticket, msg.type, msg.slot, msg.value, msg.flags));
 	    close(i);
 	    FD_CLR(i, &master);
 	  }
@@ -156,9 +157,8 @@ void start_server() {
 }
 
 void stop_server() {
-  //server_continue = 0;
-  send_intheory(my_id(), create_message(my_id(), my_id(), -1, EXIT, -1, -1));
-  usleep(100000);
+  server_continue = 0;
+  send_intheory(my_id(), create_message(my_id(), my_id(), -1, EXIT, -1, -1, 0));
   info("Waiting for network server to stop");
   pthread_join(&recv_thread, 0);
   info("Server stopped");

@@ -11,7 +11,7 @@ void got_value(long slot, long value) {
     exit(0);
   }
   if ((value % TOTAL_NODES) == my_id()) {
-    set_it_async(SLOT, value + 1);
+    set_it(SLOT, value + 1, ASYNC_SEND);
   }
 }
 

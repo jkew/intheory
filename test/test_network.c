@@ -18,7 +18,7 @@ int main(int argc, char **args) {
 void writer( void *arg) {
   int rounds = 100;
   while(rounds--) {
-     message *msg = create_message(1, 2, 3, CLIENT_VALUE, 4, 999);
+    message *msg = create_message(1, 2, 3, CLIENT_VALUE, 4, 999, 0);
      add_message(msg);
   }
 }
@@ -39,7 +39,7 @@ void test_ring() {
      assert(get_if_matches(i, -1, -1, 0xFFFFFFFFF) == 0);
 
    // add messages, verify some pattern matching
-   message *msg = create_message(1, 2, 3, CLIENT_VALUE, 4, 999);
+   message *msg = create_message(1, 2, 3, CLIENT_VALUE, 4, 999, 0);
    add_message(msg);
    message *result = get_if_matches(0, 1, 4, SET);
    assert(result == 0);
@@ -52,7 +52,7 @@ void test_ring() {
    assert(result->value == 999);
    free(result);
 
-   msg = create_message(1, 2, 3, CLIENT_VALUE, 4, 999);
+   msg = create_message(1, 2, 3, CLIENT_VALUE, 4, 999, 0);
    add_message(msg);
    result = get_if_matches(1, 1, 4, CLIENT_VALUE | SET);
    assert(result != 0);
@@ -79,7 +79,7 @@ void test_ring() {
 }
 
 void test_crc() {
-  message *msg = create_message(1, 2, 3, CLIENT_VALUE, 4, 999);
+  message *msg = create_message(1, 2, 3, CLIENT_VALUE, 4, 999, 65);
   assert(crc_valid(msg));
   free(msg);
 }

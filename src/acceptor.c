@@ -14,12 +14,12 @@ state sm_acceptor_available(state s) {
 	 && s.type == -1 && s.slot == -1);
   message *mesg = recv_from(ACCEPTOR,-1, -1, PROPOSAL);
   if (mesg == 0) { return s; }
-  s.depth++;
   s.slot = mesg->slot;
   s.value = mesg->value;
   s.state = S_ACCEPT_PROPOSAL; // We have not accepted any proposal yet
   s.ticket = mesg->ticket;
   s.type = PROPOSAL;
+  s.flags = mesg->flags;
   s.client = mesg->from;
   s.deadline = get_deadline(deadline);
   discard(mesg);
@@ -27,18 +27,16 @@ state sm_acceptor_available(state s) {
 }
 
 state sm_acceptor_accept(state s) {
-  assert(s.nodes_left == -1 && s.client >= 0 && s.ticket >= 0 
-	 && s.type == PROPOSAL && s.slot >= 0);
+  assert(s.nodes_left == -1 && s.ticket >= 0 && s.type == PROPOSAL);
   // send acceptance
   s.type = ACCEPTED_PROPOSAL;
   s.state = S_ACCEPTED_WAIT;
-  send_to(s.client, s.ticket, s.type, s.slot, s.value);
+  send_to(s.client, s.ticket, s.type, s.slot, s.value, s.flags);
   return s;
 }
 
 state sm_acceptor_accepted(state s) {
-  assert(s.nodes_left == -1 && s.client >= 0 && s.ticket >= 0 
-	 && s.type == ACCEPTED_PROPOSAL && s.slot >= 0);
+  assert(s.nodes_left == -1 && s.ticket >= 0 && s.type == ACCEPTED_PROPOSAL);
   message *mesg = recv_from(ACCEPTOR,-1, s.slot, PROPOSAL | ACCEPTOR_SET);
   if (mesg == 0) {
     if (!deadline_passed(s.deadline)) {
@@ -66,7 +64,7 @@ state sm_acceptor_accepted(state s) {
       return s;
     } else {
       // proposal not worth considering
-      send_to(mesg->from, s.ticket, REJECTED_PROPOSAL, s.slot, s.value);
+      send_to(mesg->from, s.ticket, REJECTED_PROPOSAL, s.slot, s.value, s.flags);
       // no state change
       discard(mesg);
       return s;
@@ -74,7 +72,7 @@ state sm_acceptor_accepted(state s) {
   }
 
   if (mesg->type == ACCEPTOR_SET) {
-    if (mesg->ticket != s.ticket || s.client != mesg->from) {
+    if (mesg->ticket != s.ticket || s.client != mesg->from) { // was !=
       // this is an old ticket, ignore
       // or this is from a proposer we have relinquished our promise to
       // should we send a reject message here?
@@ -91,9 +89,8 @@ state sm_acceptor_accepted(state s) {
 }
 
 state sm_acceptor_set(state s) {
-  assert(s.nodes_left > 0 && s.client >= 0 && s.ticket >= 0 
-	 && s.type == SET && s.slot >= 0);
-  send_to((s.nodes_left - 1) % (num_nodes()), s.ticket, SET, s.slot, s.value);
+  assert(s.nodes_left > 0 && s.ticket >= 0 && s.type == SET);
+  send_to((s.nodes_left - 1) % (num_nodes()), s.ticket, SET, s.slot, s.value, s.slot);
   s.nodes_left--;
   if (s.nodes_left <= 0) {
     s.state = S_DONE;

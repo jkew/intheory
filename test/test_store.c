@@ -35,6 +35,7 @@ void test_getset_ephem() {
   assert(exists(0));
   assert(get(0) == 998);
   sleep(1);
+  expire_slots();
   assert(!exists(0));
   assert(get(0) == 0);
   destroy_store();
@@ -57,6 +58,7 @@ void test_lots_of_stuff() {
       assert(exists(slot));
       assert(get(slot) == t);
       usleep(1000*(slot + 1));
+      expire_slots();
       assert(!exists(slot));
       assert(get(slot) == 0);
     }

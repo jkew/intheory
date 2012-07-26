@@ -33,7 +33,7 @@ void next_states() {
 state init_state(enum role_t role, state *prev_state) {
   state s;
   s.type = s.num_quorom = s.max_fails = s.client = s.nodes_left = s.slot = s.value = s.ticket =-1;
-  s.depth = s.fails = 0; 
+  s.fails = 0; 
   s.state = S_AVAILABLE;
   switch(role) {
   case LEARNER:

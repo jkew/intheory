@@ -4,11 +4,12 @@
 #include "crc.h"
 
 typedef struct {
-  int type;
-  int from;
-  int to;
+  unsigned short type;
+  unsigned short from;
+  unsigned short to;
   long ticket;
-  long slot;
+  unsigned short flags;
+  int slot;
   long value;
   unsigned long deadline;
   crc_t crc; // must be last, see message_crc fn
@@ -28,13 +29,18 @@ typedef struct {
 #define EXIT 2048
 
 extern message * (*recv_from)(int, int, long, unsigned int);
-extern int (*send_to)(int, long, int, long, long);
+extern int (*send_to)(int, long, int, long, long, unsigned short);
 
-char * get_address(int);
-int get_port(int);
-message * create_message(int, int, long, int, long, long);
-int crc_valid(message *);
-int send_local(long, int, long, long);
+char * get_address(int node);
+int get_port(int node);
+message * create_message(unsigned short from, 
+			 unsigned short to, 
+			 long ticket, 
+			 short type, 
+			 int slot, 
+			 long value, 
+			 unsigned short flags);
+int crc_valid(message *msg);
 void start_server();
 void stop_server();
 int send_intheory(int, message *);
