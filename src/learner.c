@@ -21,14 +21,32 @@ state sm_learner_available(state s) {
     s.type = GET;
     s.state = S_GET;
   } else {
+    // duplicate set from other nodes
     if (mesg->ticket == s.ticket && mesg->slot == s.slot && mesg->value == s.value) {
       discard(mesg);
       return s;
     }
+
+    // If we are locking; and FAIL_EARLY is
+    // set, do not proceed if the value is
+    // already set.
+    unsigned short f = LOCK | FAIL_EARLY;
+    if ((mesg->flags & f) == f) {
+      if (exists(mesg->slot) == TRUE) {
+	s.state = S_DONE;
+	discard(mesg);
+	return s;
+      }
+    }
+
     s.ticket = mesg->ticket;
     s.value = mesg->value;
     s.flags = mesg->flags;
-    set(mesg->slot, mesg->value, mesg->slot >= 0 ? -1 : get_deadline(deadline));
+    // dude; seriously, replace "deadline" variable name with something else
+    long dl = -1; 
+    if ((s.flags & TIMEOUT) == TIMEOUT)
+      dl = get_deadline(deadline);
+    set(mesg->slot, mesg->value, dl, s.flags);
     s.state = S_DONE;
   }
   discard(mesg);

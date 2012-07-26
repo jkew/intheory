@@ -8,7 +8,7 @@
 #include "include/callbacks.h"
 
 typedef struct {
-  long slot;
+  int slot;
   long value;
   int runstate;
   slot_changed_cb cb;
@@ -18,17 +18,18 @@ typedef struct {
 callback *cbs = 0;
 int maxcbs = 0;
 
-void cb_worker(void *callback_struct) {
+void * cb_worker(void *callback_struct) {
   callback *cbs = callback_struct; 
   cbs->cb(cbs->slot, cbs->value);
   cbs->runstate = 1; 
+  return NULL;
 }
 
-void slot_changed(long slot, long value) {
+void slot_changed(int slot, long value) {
   int i;
   for(i = 0; i < maxcbs; i++) {
     if (cbs[i].runstate == 1) {
-      pthread_join(&cbs[i].thread, 0);
+      pthread_join(cbs[i].thread, 0);
       cbs[i].thread = 0;
       cbs[i].runstate = 0;
     }
@@ -40,7 +41,7 @@ void slot_changed(long slot, long value) {
   }
 }
 
-void register_changed_cb(long slot, slot_changed_cb cb) {
+void register_changed_cb(int slot, slot_changed_cb cb) {
   int newsize = maxcbs + 1;
   callback *tmp = malloc(sizeof(callback)*newsize);
   memcpy(tmp, cbs, maxcbs);
@@ -54,7 +55,7 @@ void register_changed_cb(long slot, slot_changed_cb cb) {
   maxcbs = newsize;
 }
 
-void unregister_cb(long slot, slot_changed_cb cb) {
+void unregister_cb(int slot, slot_changed_cb cb) {
   int i;
   for(i = 0; i < maxcbs; i++) {
     if (cbs[i].slot == slot && cbs[i].cb == cb) {

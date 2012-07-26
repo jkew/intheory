@@ -12,8 +12,9 @@
 
 typedef struct {
   int slot;
-  long value;
+  long value;  
   long deadline;
+  unsigned short flags;
 } slot_val;
 
 list_ref *slots;
@@ -33,6 +34,7 @@ void destroy_store() {
 
 bool verify(slot_val *s) {
   assert(s != NULL);
+  if ((s->flags & TIMEOUT) == 0) return TRUE;
   if (s->deadline > 0 && deadline_passed(s->deadline)) {
     return FALSE;
   }
@@ -46,7 +48,7 @@ void expire_slots() {
     slot_val *curr = (slot_val *)value_itr(itr);
     if (!verify(curr)) {
       slot_val *delete;
-      itr = remove_itr(slots, itr, &delete);
+      itr = remove_itr(slots, itr, (void **) &delete);
       assert(curr == delete);
       discard(curr);
       curr = NULL;
@@ -72,20 +74,21 @@ listi find(int slot) {
   return itr;
 }
 
-void set(int slot, long value, long deadline) {
+void set(int slot, long value, long deadline, unsigned short flags) {
   pthread_mutex_lock(&store_lock);
   listi itr = find(slot);
   slot_val *s = value_itr(itr);
   if (s == NULL || s->slot != slot) {
     s = malloc(sizeof(slot_val));
     s->slot = slot;
-    if (there(itr)) {
-    } else {
-    }
-
+    s->value = value;
     add_itr(slots, itr, s);
   }
-  s->value = value;
+  // Locked updates can only update the deadline
+  if ((flags & LOCK) == 0) {
+    s->value = value;
+    s->flags = flags;
+  }
   s->deadline = deadline;
   pthread_mutex_unlock(&store_lock);
   slot_changed(slot, value);

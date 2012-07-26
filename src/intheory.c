@@ -60,7 +60,7 @@ void stop_intheory() {
   notice("INTHEORY STOPPED");
 }
 
-int set_it(long slot, long value, unsigned short flags) {
+int set_it(int slot, long value, unsigned short flags) {
   send_to(my_id(), -1, CLIENT_VALUE, slot, value, flags);
   if (flags & ASYNC_SEND) return 1;
   message *msg = 0; 
@@ -75,7 +75,7 @@ int set_it(long slot, long value, unsigned short flags) {
   return ret;
 }
 
-int get_it(long slot, long *value) {
+int get_it(int slot, long *value) {
   send_to(my_id(), -1, GET, slot, -1, 0);
   message *msg = 0;
   int tries = 10;

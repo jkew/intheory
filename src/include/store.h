@@ -15,7 +15,7 @@ bool exists(int slot);
 void expire_slots();
 // Sets a value to a slot, with the given deadline in ms
 // if the deadline is negative the value will be set indefinitely
-void set(int slot, long value, long deadline_ms);
+void set(int slot, long value, long deadline_ms, unsigned short flags);
 // Gets the maximum slot value
 int get_max_slot();
 

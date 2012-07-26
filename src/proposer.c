@@ -15,6 +15,7 @@ state sm_proposer_available(state s) {
 	 && s.type == -1 && s.slot == -1);
   message* mesg = recv_from(PROPOSER,-1, -1, CLIENT_VALUE);
   if (mesg == 0) { return s; }
+
   s.type = CLIENT_VALUE;
   s.client = mesg->from;
   s.slot = mesg->slot;
@@ -22,6 +23,19 @@ state sm_proposer_available(state s) {
   s.flags = mesg->flags;
   s.state = S_PREPARE;
   s.deadline = get_deadline(deadline);
+
+  // If we are locking; and FAIL_EARLY is
+  // set, do not proceed if the value is
+  // already set.
+  unsigned short f = LOCK | FAIL_EARLY;
+  if ((mesg->flags & f) == f) {
+    if (exists(mesg->slot) == TRUE) {
+      s.state = S_CLIENT_RESPOND;
+      s.type = WRITE_FAILED;
+    }
+  }
+
+
   discard(mesg);
   return s;
 }

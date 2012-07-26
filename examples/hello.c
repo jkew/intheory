@@ -8,16 +8,16 @@ int hellos_received = 0;
 
 
 void say_hello() {
-  if (!set_it(SLOT, my_id())) {
+  if (!set_it(SLOT, my_id(), 0)) {
     printf("ERROR: Can't get a word in!");
     exit(1);
   }
 }
 
-void got_hello(long slot, long value) {
+void got_hello(int slot, long value) {
   if (value >= 0) {
     hellos_received++;
-    printf("Received my %d th Hello! from node %d\n", hellos_received, value);
+    printf("Received my %d th Hello! from node %ld\n", hellos_received, value);
   }
 }
 

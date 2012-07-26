@@ -48,7 +48,7 @@ int advance_role(int r) {
   return next_pos;
 }
 
-message * get_if_matches(int i, int from_node, long slot, unsigned int mask) {
+message * get_if_matches(int i, int from_node, int slot, unsigned int mask) {
   message *mesg = input_ring[i];
   if (mesg == 0) return 0;
   if (from_node != -1 && (mesg->from) != from_node) return 0;
@@ -111,7 +111,7 @@ message * create_message(unsigned short from,
   return msg;
 }
 
-message * __recv_from(int r, int from_node, long slot, unsigned int mask) {
+message * __recv_from(int r, int from_node, int slot, unsigned int mask) {
   int pos = role_read_ipos[r];
   if (pos < 0) {
     pos = role_read_ipos[r] = 0;
@@ -130,14 +130,14 @@ message * __recv_from(int r, int from_node, long slot, unsigned int mask) {
   return msg;
 }
 
-int __send_local(long ticket, unsigned short type, long slot, long value, unsigned short flags) {
+int __send_local(long ticket, unsigned short type, int slot, long value, unsigned short flags) {
   message *msg = create_message(my_id(), my_id(), ticket, type, slot, value, flags);
   log_message("send_local", msg);
   add_message(msg);
   return 1;
 }
 
-int __send_to(unsigned short node, long ticket, unsigned short type, long slot, long value, unsigned short flags) {
+int __send_to(unsigned short node, long ticket, unsigned short type, int slot, long value, unsigned short flags) {
   int n = node % (num_nodes());
   log_graph(my_id(), node, type, 0); 
   if (n == my_id()) {

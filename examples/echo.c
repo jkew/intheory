@@ -10,7 +10,7 @@ int hellos_received = 0;
 
 void say_hello() {
   printf("Sending my hello! Hellos Left %d\n", hellos_left);
-  while (!set_it(SLOT, my_id())) {
+  while (!set_it(SLOT, my_id(), 0)) {
     printf("ERROR: Can't get a word in!");
   }
   hellos_left--;
@@ -25,7 +25,7 @@ void got_hello(long slot, long value) {
     if (value < 0) {
       hellos_left = -1;
     }
-    printf("Received hello from node %d\n", value);
+    printf("Received hello from node %ld\n", value);
     hellos_received++;
   } else {
     printf("Received my own hello!\n");
@@ -70,7 +70,7 @@ int main(int argc, char **args) {
   }
 
   printf("This is a stupid conversation. I'm ending it.");
-  set_it(SLOT, -1);
+  set_it(SLOT, -1, 0);
 
   // wait to recieve our -1 before quiting
   while (hellos_left >= 0) {
