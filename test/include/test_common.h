@@ -8,8 +8,8 @@
 #define COUNT_TO 10
 #define TOTAL_NODES 4
 
-extern long (*recv)[5];
-extern long (*send)[5];
+extern long (*recv)[6];
+extern long (*send)[6];
 extern int sendidx;
 extern int recvidx;
 

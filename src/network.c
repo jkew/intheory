@@ -73,8 +73,8 @@ void add_message(message *msg) {
   pthread_mutex_lock(&write_lock);
   assert(input_ring[write_ipos] == 0);
   input_ring[write_ipos] = msg;
-  pthread_mutex_unlock(&write_lock);
   advance_writer();
+  pthread_mutex_unlock(&write_lock);
 }
 
 crc_t message_crc(message *msg) {
@@ -171,6 +171,6 @@ void destroy_network() {
   free(input_ring);
   input_ring = 0;
   ring_size = 0;
-  pthread_mutex_lock(&write_lock);
+  pthread_mutex_destroy(&write_lock);
 }
 

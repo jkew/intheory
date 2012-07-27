@@ -10,8 +10,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-long (*recv)[5];
-long (*send)[5];
+long (*recv)[6];
+long (*send)[6];
 int sendidx = 0;
 int recvidx = 0;
 

@@ -17,103 +17,103 @@ int main(int argc, char **args) {
 /**
  * PROPOSER SCENARIO: Basic
  **/
-long proposer_basic_recv[][5] = { 
-  { 3, CLIENT_VALUE, -1, 0, 999},
-  { -1, ACCEPTED_PROPOSAL, 1, 0, -1},
-  { -1, ACCEPTED_PROPOSAL, 1, 0, -1},
-  { -1, ACCEPTED_PROPOSAL, 1, 0, -1},
-  { -1, ACCEPTED_PROPOSAL, 1, 0, -1},
+long proposer_basic_recv[][6] = { 
+  { 3, CLIENT_VALUE, -1, 0, 999, 0},
+  { -1, ACCEPTED_PROPOSAL, 1, 0, -1, 0},
+  { -1, ACCEPTED_PROPOSAL, 1, 0, -1, 0},
+  { -1, ACCEPTED_PROPOSAL, 1, 0, -1, 0},
+  { -1, ACCEPTED_PROPOSAL, 1, 0, -1, 0},
 };
 
-long proposer_basic_send[][5] = {
-  { -1, PROPOSAL, 1, 0, 999},
-  { -1, PROPOSAL, 1, 0, 999},
-  { -1, PROPOSAL, 1, 0, 999},
-  { -1, PROPOSAL, 1, 0, 999},
-  { -1, ACCEPTOR_SET, 1, 0, 999},
-  { -1, ACCEPTOR_SET, 1, 0, 999},
-  { -1, ACCEPTOR_SET, 1, 0, 999},
-  { -1, ACCEPTOR_SET, 1, 0, 999},
-  { 3, WRITE_SUCCESS, 1, 0, 999},
+long proposer_basic_send[][6] = {
+  { -1, PROPOSAL, 1, 0, 999, 0},
+  { -1, PROPOSAL, 1, 0, 999, 0},
+  { -1, PROPOSAL, 1, 0, 999, 0},
+  { -1, PROPOSAL, 1, 0, 999, 0},
+  { -1, ACCEPTOR_SET, 1, 0, 999, 0},
+  { -1, ACCEPTOR_SET, 1, 0, 999, 0},
+  { -1, ACCEPTOR_SET, 1, 0, 999, 0},
+  { -1, ACCEPTOR_SET, 1, 0, 999, 0},
+  { 3, WRITE_SUCCESS, 1, 0, 999, 0},
 };
 
 /**
  * PROPOSER SCENARIO: FAILURE OF ACCEPTOR
  **/
-long proposer_acceptor_fails_recv[][5] = { 
-  { 3, CLIENT_VALUE, -1, 0, 999},
-  { -1, ACCEPTED_PROPOSAL, 1, 0, -1},
-  { -1, ACCEPTED_PROPOSAL, 1, 0, -1},
-  { -1, ACCEPTED_PROPOSAL, 1, 0, -1},
-  { -1, -1, -1, -1, -1},
-  { -1, ACCEPTED_PROPOSAL, 1, 0, -1},
-  { -1, ACCEPTED_PROPOSAL, 1, 0, -1},
-  { -1, ACCEPTED_PROPOSAL, 1, 0, -1},
-  { -1, ACCEPTED_PROPOSAL, 1, 0, -1},
+long proposer_acceptor_fails_recv[][6] = { 
+  { 3, CLIENT_VALUE, -1, 0, 999, 0},
+  { -1, ACCEPTED_PROPOSAL, 1, 0, -1, 0},
+  { -1, ACCEPTED_PROPOSAL, 1, 0, -1, 0},
+  { -1, ACCEPTED_PROPOSAL, 1, 0, -1, 0},
+  { -1, -1, -1, -1, -1, 0},
+  { -1, ACCEPTED_PROPOSAL, 1, 0, -1, 0},
+  { -1, ACCEPTED_PROPOSAL, 1, 0, -1, 0},
+  { -1, ACCEPTED_PROPOSAL, 1, 0, -1, 0},
+  { -1, ACCEPTED_PROPOSAL, 1, 0, -1, 0},
 };
 
-long proposer_acceptor_fails_send[][5] = {
-  { -1, PROPOSAL, 1, 0, 999},
-  { -1, PROPOSAL, 1, 0, 999},
-  { -1, PROPOSAL, 1, 0, 999},
-  { -1, PROPOSAL, 1, 0, 999},
-  { -1, ACCEPTOR_SET, 1, 0, 999},
-  { -1, ACCEPTOR_SET, 1, 0, 999},
-  { -1, ACCEPTOR_SET, 1, 0, 999},
-  { 3, WRITE_SUCCESS, 1, 0, 999},
+long proposer_acceptor_fails_send[][6] = {
+  { -1, PROPOSAL, 1, 0, 999, 0},
+  { -1, PROPOSAL, 1, 0, 999, 0},
+  { -1, PROPOSAL, 1, 0, 999, 0},
+  { -1, PROPOSAL, 1, 0, 999, 0},
+  { -1, ACCEPTOR_SET, 1, 0, 999, 0},
+  { -1, ACCEPTOR_SET, 1, 0, 999, 0},
+  { -1, ACCEPTOR_SET, 1, 0, 999, 0},
+  { 3, WRITE_SUCCESS, 1, 0, 999, 0},
 };
 
 /**
  * PROPOSER SCENARIO: Acceptor returns value with newer ticket
  */
-long proposer_acceptor_has_new_ticket_recv[][5] = { 
-  { 3, CLIENT_VALUE, -1, 0, 999},
-  { -1, ACCEPTED_PROPOSAL, 1, 0, -1},
-  { -1, ACCEPTED_PROPOSAL, 1, 0, -1},
-  { -1, ACCEPTED_PROPOSAL, 1, 0, -1},
-  { -1, ACCEPTED_PROPOSAL, 2, 0, 888},
-  { -1, ACCEPTED_PROPOSAL, 3, 0, 888},
-  { -1, ACCEPTED_PROPOSAL, 3, 0, 888},
-  { -1, ACCEPTED_PROPOSAL, 3, 0, 888},
-  { -1, ACCEPTED_PROPOSAL, 3, 0, 888},
+long proposer_acceptor_has_new_ticket_recv[][6] = { 
+  { 3, CLIENT_VALUE, -1, 0, 999, 0},
+  { -1, ACCEPTED_PROPOSAL, 1, 0, -1, 0},
+  { -1, ACCEPTED_PROPOSAL, 1, 0, -1, 0},
+  { -1, ACCEPTED_PROPOSAL, 1, 0, -1, 0},
+  { -1, ACCEPTED_PROPOSAL, 2, 0, 888, 0},
+  { -1, ACCEPTED_PROPOSAL, 3, 0, 888, 0},
+  { -1, ACCEPTED_PROPOSAL, 3, 0, 888, 0},
+  { -1, ACCEPTED_PROPOSAL, 3, 0, 888, 0},
+  { -1, ACCEPTED_PROPOSAL, 3, 0, 888, 0},
 };
 
-long proposer_acceptor_has_new_ticket_send[][5] = {
-  { -1, PROPOSAL, 1, 0, 999},
-  { -1, PROPOSAL, 1, 0, 999},
-  { -1, PROPOSAL, 1, 0, 999},
-  { -1, PROPOSAL, 1, 0, 999},
-  { -1, PROPOSAL, 3, 0, 888},
-  { -1, PROPOSAL, 3, 0, 888},
-  { -1, PROPOSAL, 3, 0, 888},
-  { -1, PROPOSAL, 3, 0, 888},
-  { -1, ACCEPTOR_SET, 3, 0, 888},
-  { -1, ACCEPTOR_SET, 3, 0, 888},
-  { -1, ACCEPTOR_SET, 3, 0, 888},
-  { -1, ACCEPTOR_SET, 3, 0, 888},
-  { 3, WRITE_SUCCESS, 3, 0, 888},
+long proposer_acceptor_has_new_ticket_send[][6] = {
+  { -1, PROPOSAL, 1, 0, 999, 0},
+  { -1, PROPOSAL, 1, 0, 999, 0},
+  { -1, PROPOSAL, 1, 0, 999, 0},
+  { -1, PROPOSAL, 1, 0, 999, 0},
+  { -1, PROPOSAL, 3, 0, 888, 0},
+  { -1, PROPOSAL, 3, 0, 888, 0},
+  { -1, PROPOSAL, 3, 0, 888, 0},
+  { -1, PROPOSAL, 3, 0, 888, 0},
+  { -1, ACCEPTOR_SET, 3, 0, 888, 0},
+  { -1, ACCEPTOR_SET, 3, 0, 888, 0},
+  { -1, ACCEPTOR_SET, 3, 0, 888, 0},
+  { -1, ACCEPTOR_SET, 3, 0, 888, 0},
+  { 3, WRITE_SUCCESS, 3, 0, 888, 0},
 };
 
 /**
  * PROPOSER SCENARIO: Nothing responds
  */
-long proposer_dead_inside_recv[][5] = { 
-  { 3, CLIENT_VALUE, -1, 0, 999},
-  { -1, -1, -1, -1, -1},  { -1, -1, -1, -1, -1},
-  { -1, -1, -1, -1, -1},  { -1, -1, -1, -1, -1},
-  { -1, -1, -1, -1, -1},  { -1, -1, -1, -1, -1},
-  { -1, -1, -1, -1, -1},  { -1, -1, -1, -1, -1},
-  { -1, -1, -1, -1, -1},  { -1, -1, -1, -1, -1},
-  { -1, -1, -1, -1, -1},  { -1, -1, -1, -1, -1},
-  { -1, -1, -1, -1, -1},  { -1, -1, -1, -1, -1},
+long proposer_dead_inside_recv[][6] = { 
+  { 3, CLIENT_VALUE, -1, 0, 999, 0},
+  { -1, -1, -1, -1, -1, 0},  { -1, -1, -1, -1, -1, 0},
+  { -1, -1, -1, -1, -1, 0},  { -1, -1, -1, -1, -1, 0},
+  { -1, -1, -1, -1, -1, 0},  { -1, -1, -1, -1, -1, 0},
+  { -1, -1, -1, -1, -1, 0},  { -1, -1, -1, -1, -1, 0},
+  { -1, -1, -1, -1, -1, 0},  { -1, -1, -1, -1, -1, 0},
+  { -1, -1, -1, -1, -1, 0},  { -1, -1, -1, -1, -1, 0},
+  { -1, -1, -1, -1, -1, 0},  { -1, -1, -1, -1, -1, 0},
 };
 
-long proposer_dead_inside_send[][5] = {
-  { -1, PROPOSAL, 1, 0, 999},
-  { -1, PROPOSAL, 1, 0, 999},
-  { -1, PROPOSAL, 1, 0, 999},
-  { -1, PROPOSAL, 1, 0, 999},
-  { 3, WRITE_FAILED, 1, 0, 999},
+long proposer_dead_inside_send[][6] = {
+  { -1, PROPOSAL, 1, 0, 999, 0},
+  { -1, PROPOSAL, 1, 0, 999, 0},
+  { -1, PROPOSAL, 1, 0, 999, 0},
+  { -1, PROPOSAL, 1, 0, 999, 0},
+  { 3, WRITE_FAILED, 1, 0, 999, 0},
 };
 
 void test_proposer() {

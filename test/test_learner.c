@@ -18,62 +18,62 @@ int main(int argc, char **args) {
 /**
  * LEARNER SCENARIO: Basic set/get
  **/
-long learner_basic_recv[][5] = { 
-  { 1, SET, 1, 0, 999},
-  { 2, SET, 1, 0, 999},
-  { 3, SET, 1, 0, 999},
-  { 0, SET, 1, 0, 999},
-  { -1, -1, -1, -1, -1},
-  { 0, GET, -1, 0, -1},
+long learner_basic_recv[][6] = { 
+  { 1, SET, 1, 0, 999, 0},
+  { 2, SET, 1, 0, 999, 0},
+  { 3, SET, 1, 0, 999, 0},
+  { 0, SET, 1, 0, 999, 0},
+  { -1, -1, -1, -1, -1, 0},
+  { 0, GET, -1, 0, -1, 0},
 };
 
-long learner_basic_send[][5] = {
-  { 0, READ_SUCCESS, -1, 0, 999}
+long learner_basic_send[][6] = {
+  { 0, READ_SUCCESS, -1, 0, 999, 0}
 };
 
 /**
  * LEARNER SCENARIO: get fails
  **/
-long learner_getfail_recv[][5] = { 
-  { 1, GET, -1, 700, -1},
+long learner_getfail_recv[][6] = { 
+  { 1, GET, -1, 700, -1, 0},
 };
 
-long learner_getfail_send[][5] = {
-  { 1, READ_FAILED, -1, 700, -1}
+long learner_getfail_send[][6] = {
+  { 1, READ_FAILED, -1, 700, -1, 0}
 };
 
 /**
  * LEARNER SCENARIO: expand slots
  **/
-long learner_expand_recv[][5] = { 
-  { 1, SET, 1, 777, 777},
-  { 2, SET, 1, 777, 777},
-  { 3, SET, 1, 777, 777},
-  { 0, SET, 1, 777, 777},
-  { -1, -1, -1, -1, -1},
-  { 0, GET, -1, 777, -1},
+long learner_expand_recv[][6] = { 
+  { 1, SET, 1, 777, 777, 0},
+  { 2, SET, 1, 777, 777, 0},
+  { 3, SET, 1, 777, 777, 0},
+  { 0, SET, 1, 777, 777, 0},
+  { -1, -1, -1, -1, -1, 0},
+  { 0, GET, -1, 777, -1, 0},
 };
 
-long learner_expand_send[][5] = {
-  { 0, READ_SUCCESS, -1, 777, 777}
+long learner_expand_send[][6] = {
+  { 0, READ_SUCCESS, -1, 777, 777, 0}
 };
 
-long learner_mixed_recv[][5] = { 
-  { 1, SET, 2, 0, 999},
-  { 2, SET, 1, 0, 777},
-  { 1, SET, 2, 0, 999},
-  { 2, SET, 1, 0, 777},
-  { 1, SET, 2, 0, 999},
-  { 2, SET, 1, 0, 777},
-  { 1, SET, 1, 0, 999},
-  { 2, SET, 1, 0, 777},
-  { -1, -1, -1, -1, -1},
-  { 0, GET, -1, 0, -1},
+long learner_mixed_recv[][6] = { 
+  { 1, SET, 2, 0, 999, 0},
+  { 2, SET, 1, 0, 777, 0},
+  { 1, SET, 2, 0, 999, 0},
+  { 2, SET, 1, 0, 777, 0},
+  { 1, SET, 2, 0, 999, 0},
+  { 2, SET, 1, 0, 777, 0},
+  { 1, SET, 1, 0, 999, 0},
+  { 2, SET, 1, 0, 777, 0},
+  { -1, -1, -1, -1, -1, 0},
+  { 0, GET, -1, 0, -1, 0},
 };
 
 
-long learner_mixed_send[][5] = {
-  { 0, READ_SUCCESS, -1, 0, 777}
+long learner_mixed_send[][6] = {
+  { 0, READ_SUCCESS, -1, 0, 777, 0}
 };
 
 void test_learner() {

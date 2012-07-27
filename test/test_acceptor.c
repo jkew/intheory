@@ -17,74 +17,74 @@ int main(int argc, char **args) {
 /**
  * ACCEPTOR SCENARIO: Basic accept and set
  **/
-long acceptor_basic_recv[][5] = { 
-  { 1, PROPOSAL, 1, 0, 999},
-  { 1, ACCEPTOR_SET, 1, 0, 999}
+long acceptor_basic_recv[][6] = { 
+  { 1, PROPOSAL, 1, 0, 999, 0},
+  { 1, ACCEPTOR_SET, 1, 0, 999, 0}
 };
 
-long acceptor_basic_send[][5] = {
-  { 1, ACCEPTED_PROPOSAL, 1, 0, 999},
-  { -1, SET, 1, 0, 999},
-  { -1, SET, 1, 0, 999},
-  { -1, SET, 1, 0, 999},
-  { -1, SET, 1, 0, 999},
+long acceptor_basic_send[][6] = {
+  { 1, ACCEPTED_PROPOSAL, 1, 0, 999, 0},
+  { -1, SET, 1, 0, 999, 0},
+  { -1, SET, 1, 0, 999, 0},
+  { -1, SET, 1, 0, 999, 0},
+  { -1, SET, 1, 0, 999, 0},
 };
 
 /**
  * ACCEPTOR SCENARIO: Basic received higher value from another proposer
  **/
-long acceptor_high_recv[][5] = { 
-  { 1, PROPOSAL, 1, 0, 999},
-  { 2, PROPOSAL, 5, 0, 888},
-  { 1, ACCEPTOR_SET, 1, 0, 999},
-  { 2, ACCEPTOR_SET, 5, 0, 999}
+long acceptor_high_recv[][6] = { 
+  { 1, PROPOSAL, 1, 0, 999, 0},
+  { 2, PROPOSAL, 5, 0, 888, 0},
+  { 1, ACCEPTOR_SET, 1, 0, 999, 0},
+  { 2, ACCEPTOR_SET, 5, 0, 999, 0}
 };
 
-long acceptor_high_send[][5] = {
-  { 1, ACCEPTED_PROPOSAL, 1, 0, 999},
-  { 2, ACCEPTED_PROPOSAL, 5, 0, 888},
-  { -1, SET, 5, 0, 888},
-  { -1, SET, 5, 0, 888},
-  { -1, SET, 5, 0, 888},
-  { -1, SET, 5, 0, 888},
+long acceptor_high_send[][6] = {
+  { 1, ACCEPTED_PROPOSAL, 1, 0, 999, 0},
+  { 2, ACCEPTED_PROPOSAL, 5, 0, 888, 0},
+  { -1, SET, 5, 0, 888, 0},
+  { -1, SET, 5, 0, 888, 0},
+  { -1, SET, 5, 0, 888, 0},
+  { -1, SET, 5, 0, 888, 0},
 };
 
 
 /**
  * ACCEPTOR SCENARIO: Proposer fails
  **/
-long acceptor_pfail_recv[][5] = { 
-  { 1, PROPOSAL, 1, 0, 999},
-  { -1, -1, -1, -1, -1},
-  { 2, PROPOSAL, 2, 0, 777},
-  { 2, ACCEPTOR_SET, 2, 0, 777}
+long acceptor_pfail_recv[][6] = { 
+  { 1, PROPOSAL, 1, 0, 999, 0},
+  { -1, -1, -1, -1, -1, 0},
+  { 2, PROPOSAL, 2, 0, 777, 0},
+  { 2, ACCEPTOR_SET, 2, 0, 777, 0}
 };
 
-long acceptor_pfail_send[][5] = {
-  { 1, ACCEPTED_PROPOSAL, 1, 0, 999},
-  { 2, ACCEPTED_PROPOSAL, 2, 0,777},
-  { -1, SET, 2, 0, 777},
-  { -1, SET, 2, 0, 777},
-  { -1, SET, 2, 0, 777},
-  { -1, SET, 2, 0, 777},
+long acceptor_pfail_send[][6] = {
+  { 1, ACCEPTED_PROPOSAL, 1, 0, 999, 0},
+  { 2, ACCEPTED_PROPOSAL, 2, 0,777, 0},
+  { -1, SET, 2, 0, 777, 0},
+  { -1, SET, 2, 0, 777, 0},
+  { -1, SET, 2, 0, 777, 0},
+  { -1, SET, 2, 0, 777, 0},
 };
 
 /**
  * ACCEPTOR SCENARIO: Basic received lower value from another proposer
  **/
-long acceptor_lower_recv[][5] = { 
-  { 1, PROPOSAL, 5, 0, 999},
-  { 2, PROPOSAL, 3, 0, 666},
-  { 1, ACCEPTOR_SET, 5, 0, 999}
+long acceptor_lower_recv[][6] = { 
+  { 1, PROPOSAL, 5, 0, 999, 0},
+  { 2, PROPOSAL, 3, 0, 666, 0},
+  { 1, ACCEPTOR_SET, 5, 0, 999, 0}
 };
 
-long acceptor_lower_send[][5] = {
-  { 1, ACCEPTED_PROPOSAL, 5, 0, 999},
-  { 2, REJECTED_PROPOSAL, 5, 0, 999},
-  { -1, SET, 5, 0, 999},
-  { -1, SET, 5, 0, 999},
-  { -1, SET, 5, 0, 999},
-  { -1, SET, 5, 0, 999},
+long acceptor_lower_send[][6] = {
+  { 1, ACCEPTED_PROPOSAL, 5, 0, 999, 0},
+  { 2, REJECTED_PROPOSAL, 5, 0, 999, 0},
+  { -1, SET, 5, 0, 999, 0},
+  { -1, SET, 5, 0, 999, 0},
+  { -1, SET, 5, 0, 999, 0},
+  { -1, SET, 5, 0, 999, 0},
 };
 
 void test_acceptor() {
