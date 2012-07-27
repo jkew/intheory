@@ -2676,9 +2676,8 @@ fi
 
 
 # Define the identity of the package.
-
- PACKAGE=intheory
- VERSION=0.1
+ PACKAGE='intheory'
+ VERSION='0.1'
 
 
 cat >>confdefs.h <<_ACEOF
