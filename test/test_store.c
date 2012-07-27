@@ -20,6 +20,15 @@ void test_getset_simple() {
  destroy_store();
 }
 
+void test_lock() {
+  init_store();
+  set(0, 555, -1, LOCK);
+  assert(get(0) == 555);
+  set(0, 222, -1, LOCK);
+  assert(get(0) == 555);
+  destroy_store();
+}
+
 void test_highslot() {
  init_store();
  assert(!exists(777));
