@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void got_value(long slot, long value) {
+void got_value(int slot, long value, unsigned short op) {
   running = 0;
   if (value >= 10) {
     sleep(2);

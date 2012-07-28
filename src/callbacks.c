@@ -11,6 +11,7 @@ typedef struct {
   int slot;
   long value;
   int runstate;
+  unsigned short cud;
   slot_changed_cb cb;
   pthread_t thread;
 } callback;
@@ -20,12 +21,12 @@ int maxcbs = 0;
 
 void * cb_worker(void *callback_struct) {
   callback *cbs = callback_struct; 
-  cbs->cb(cbs->slot, cbs->value);
+  cbs->cb(cbs->slot, cbs->value, cbs->cud);
   cbs->runstate = 1; 
   return NULL;
 }
 
-void slot_changed(int slot, long value) {
+void slot_changed(int slot, long value, unsigned short cud) {
   int i;
   for(i = 0; i < maxcbs; i++) {
     if (cbs[i].runstate == 1) {
@@ -35,6 +36,7 @@ void slot_changed(int slot, long value) {
     }
     if (cbs[i].slot == slot && cbs[i].runstate == 0) {      
       cbs[i].value = value;
+      cbs[i].cud = cud;
       pthread_create(&(cbs[i].thread), 0, cb_worker, &cbs[i]);
       cbs[i].runstate = 2;
     }
@@ -70,7 +72,7 @@ void destroy_cb() {
   for(i = 0; i < maxcbs; i++) {
     if (cbs[i].runstate == 1) {
       cbs[i].runstate = 0;
-      pthread_join(&cbs[i].thread, 0);
+      pthread_join(cbs[i].thread, 0);
     }
   }
   discard(cbs);

@@ -50,6 +50,7 @@ void expire_slots() {
       slot_val *delete;
       itr = remove_itr(slots, itr, (void **) &delete);
       assert(curr == delete);
+      slot_changed(curr->slot, curr->value, SLOT_DELETE);
       discard(curr);
       curr = NULL;
       continue;
@@ -78,11 +79,13 @@ void set(int slot, long value, long deadline, unsigned short flags) {
   pthread_mutex_lock(&store_lock);
   listi itr = find(slot);
   slot_val *s = value_itr(itr);
+  unsigned short cud = SLOT_UPDATE;
   if (s == NULL || s->slot != slot) {
     s = malloc(sizeof(slot_val));
     s->slot = slot;
     s->value = value;
     add_itr(slots, itr, s);
+    cud = SLOT_CREATE;
   }
   // Locked updates can only update the deadline
   if ((flags & LOCK) == 0) {
@@ -91,7 +94,7 @@ void set(int slot, long value, long deadline, unsigned short flags) {
   }
   s->deadline = deadline;
   pthread_mutex_unlock(&store_lock);
-  slot_changed(slot, value);
+  slot_changed(slot, value, cud);
 }
 
 bool exists(int slot) {

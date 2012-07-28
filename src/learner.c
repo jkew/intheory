@@ -27,18 +27,6 @@ state sm_learner_available(state s) {
       return s;
     }
 
-    // If we are locking; and FAIL_EARLY is
-    // set, do not proceed if the value is
-    // already set.
-    unsigned short f = LOCK | FAIL_EARLY;
-    if ((mesg->flags & f) == f) {
-      if (exists(mesg->slot) == TRUE) {
-	s.state = S_DONE;
-	discard(mesg);
-	return s;
-      }
-    }
-
     s.ticket = mesg->ticket;
     s.value = mesg->value;
     s.flags = mesg->flags;

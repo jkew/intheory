@@ -3,7 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void got_value(long slot, long value) {
+long last = 0;
+
+void got_value(int slot, long value, unsigned short op) {
   if (!running) return;
   if (value >= 10) {
     running = 0;
@@ -13,6 +15,8 @@ void got_value(long slot, long value) {
     stop_intheory();
     exit(0);
   }
+  if (value <= last) return;
+  last = value;
   set_it(SLOT, value + 1, ASYNC_SEND);
 }
 

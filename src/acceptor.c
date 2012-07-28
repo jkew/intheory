@@ -14,19 +14,6 @@ state sm_acceptor_available(state s) {
 	 && s.type == -1 && s.slot == -1);
   message *mesg = recv_from(ACCEPTOR,-1, -1, PROPOSAL);
   if (mesg == 0) { return s; }
-
-  // If we are locking; and FAIL_EARLY is
-  // set, do not proceed if the value is
-  // already set.
-  unsigned short f = LOCK | FAIL_EARLY;
-  if ((mesg->flags & f) == f) {
-    if (exists(mesg->slot) == TRUE) {
-      send_to(mesg->from, mesg->ticket, REJECTED_PROPOSAL, mesg->slot, mesg->value, mesg->flags);
-      discard(mesg);
-      return s;
-    }
-  }
-
   s.slot = mesg->slot;
   s.value = mesg->value;
   s.state = S_ACCEPT_PROPOSAL; // We have not accepted any proposal yet
