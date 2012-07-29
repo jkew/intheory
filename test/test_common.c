@@ -55,18 +55,18 @@ message * recv_from_scenario(int from_node, long slot, unsigned int mask) {
   msg->ticket = recv[recvidx][2];
   msg->slot = recv[recvidx][3];
   msg->value = recv[recvidx][4];
-
+  msg->flags = recv[recvidx][5];
   //log_message("<<<< RECIEVE ", msg);
   log_graph(from_node, 0, msg->type, 1);
   recvidx++;  
   return msg;
 }
 
-int send_to_scenario(int node, long ticket, unsigned int type, long slot, long value) {
-  trace("GOT      Send - %d - node %d ticket %ld type %s slot %ld value %ld", 
-  	sendidx, node, ticket, getMessageName(type), slot, value);
-  trace("EXPECTED Send - %d - node %d ticket %ld type %s slot %ld value %ld", 
-  	sendidx, send[sendidx][0], send[sendidx][2], getMessageName(send[sendidx][1]), send[sendidx][3], send[sendidx][04]);
+int send_to_scenario(int node, long ticket, unsigned int type, long slot, long value, unsigned short flags) {
+  trace("GOT      Send - %d - node %d ticket %ld type %s slot %ld value %ld flags %ud", 
+  	sendidx, node, ticket, getMessageName(type), slot, value, flags);
+  trace("EXPECTED Send - %d - node %d ticket %ld type %s slot %ld value %ld flags %ud", 
+  	sendidx, send[sendidx][0], send[sendidx][2], getMessageName(send[sendidx][1]), send[sendidx][3], send[sendidx][4], send[sendidx][5]);
   log_graph(0, node, type, 0);
   if (send[sendidx][0] != -1)
     assert(node == send[sendidx][0]);
@@ -74,6 +74,7 @@ int send_to_scenario(int node, long ticket, unsigned int type, long slot, long v
   assert(ticket == send[sendidx][2]);
   assert(slot == send[sendidx][3]);
   assert(value == send[sendidx][4]);
+  assert(flags == send[sendidx][5]);
   sendidx++;
   return 1;
 }

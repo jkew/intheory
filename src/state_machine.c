@@ -23,6 +23,8 @@ void next_states() {
     next_state(PROPOSER);
     next_state(ACCEPTOR);
     next_state(LEARNER);
+    expire_slots(); 
+    maintain_locks();
     usleep(10000);
   } while (saved_proposer.state != p_state
 	   || saved_acceptor.state != a_state

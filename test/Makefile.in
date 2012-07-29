@@ -49,18 +49,18 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-check_PROGRAMS = test_proposer$(EXEEXT) test_acceptor$(EXEEXT) \
-	test_learner$(EXEEXT) test_network_nodes$(EXEEXT) \
-	test_network$(EXEEXT) test_network_server$(EXEEXT) \
-	test_integration$(EXEEXT) test_4node_count$(EXEEXT) \
-	test_store$(EXEEXT) test_4node_contenious_count$(EXEEXT) \
-	test_list$(EXEEXT)
-TESTS = test_proposer$(EXEEXT) test_acceptor$(EXEEXT) \
-	test_learner$(EXEEXT) test_network_nodes$(EXEEXT) \
-	test_network$(EXEEXT) test_store$(EXEEXT) \
+check_PROGRAMS = test_lock$(EXEEXT) test_proposer$(EXEEXT) \
+	test_acceptor$(EXEEXT) test_learner$(EXEEXT) \
+	test_network_nodes$(EXEEXT) test_network$(EXEEXT) \
 	test_network_server$(EXEEXT) test_integration$(EXEEXT) \
-	test_4node_count$(EXEEXT) test_4node_contenious_count$(EXEEXT) \
-	test_list$(EXEEXT)
+	test_4node_count$(EXEEXT) test_store$(EXEEXT) \
+	test_4node_contenious_count$(EXEEXT) test_list$(EXEEXT)
+TESTS = test_lock$(EXEEXT) test_proposer$(EXEEXT) \
+	test_acceptor$(EXEEXT) test_learner$(EXEEXT) \
+	test_network_nodes$(EXEEXT) test_network$(EXEEXT) \
+	test_store$(EXEEXT) test_network_server$(EXEEXT) \
+	test_integration$(EXEEXT) test_4node_count$(EXEEXT) \
+	test_4node_contenious_count$(EXEEXT) test_list$(EXEEXT)
 subdir = test
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(top_srcdir)/config/depcomp
@@ -98,6 +98,9 @@ test_learner_DEPENDENCIES = ../src/libintheory-1.0.la
 am_test_list_OBJECTS = test_list.$(OBJEXT)
 test_list_OBJECTS = $(am_test_list_OBJECTS)
 test_list_DEPENDENCIES = ../src/libintheory-1.0.la
+am_test_lock_OBJECTS = test_lock.$(OBJEXT) test_common.$(OBJEXT)
+test_lock_OBJECTS = $(am_test_lock_OBJECTS)
+test_lock_DEPENDENCIES = ../src/libintheory-1.0.la
 am_test_network_OBJECTS = test_network.$(OBJEXT) test_common.$(OBJEXT)
 test_network_OBJECTS = $(am_test_network_OBJECTS)
 test_network_DEPENDENCIES = ../src/libintheory-1.0.la
@@ -145,15 +148,17 @@ am__v_GEN_0 = @echo "  GEN     " $@;
 SOURCES = $(test_4node_contenious_count_SOURCES) \
 	$(test_4node_count_SOURCES) $(test_acceptor_SOURCES) \
 	$(test_integration_SOURCES) $(test_learner_SOURCES) \
-	$(test_list_SOURCES) $(test_network_SOURCES) \
-	$(test_network_nodes_SOURCES) $(test_network_server_SOURCES) \
-	$(test_proposer_SOURCES) $(test_store_SOURCES)
+	$(test_list_SOURCES) $(test_lock_SOURCES) \
+	$(test_network_SOURCES) $(test_network_nodes_SOURCES) \
+	$(test_network_server_SOURCES) $(test_proposer_SOURCES) \
+	$(test_store_SOURCES)
 DIST_SOURCES = $(test_4node_contenious_count_SOURCES) \
 	$(test_4node_count_SOURCES) $(test_acceptor_SOURCES) \
 	$(test_integration_SOURCES) $(test_learner_SOURCES) \
-	$(test_list_SOURCES) $(test_network_SOURCES) \
-	$(test_network_nodes_SOURCES) $(test_network_server_SOURCES) \
-	$(test_proposer_SOURCES) $(test_store_SOURCES)
+	$(test_list_SOURCES) $(test_lock_SOURCES) \
+	$(test_network_SOURCES) $(test_network_nodes_SOURCES) \
+	$(test_network_server_SOURCES) $(test_proposer_SOURCES) \
+	$(test_store_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -279,6 +284,8 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+test_lock_SOURCES = test_lock.c test_common.c
+test_lock_LDADD = ../src/libintheory-1.0.la
 test_proposer_SOURCES = test_proposer.c test_common.c
 test_proposer_LDADD = ../src/libintheory-1.0.la
 test_acceptor_SOURCES = test_acceptor.c test_common.c 
@@ -362,6 +369,9 @@ test_learner$(EXEEXT): $(test_learner_OBJECTS) $(test_learner_DEPENDENCIES) $(EX
 test_list$(EXEEXT): $(test_list_OBJECTS) $(test_list_DEPENDENCIES) $(EXTRA_test_list_DEPENDENCIES) 
 	@rm -f test_list$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(test_list_OBJECTS) $(test_list_LDADD) $(LIBS)
+test_lock$(EXEEXT): $(test_lock_OBJECTS) $(test_lock_DEPENDENCIES) $(EXTRA_test_lock_DEPENDENCIES) 
+	@rm -f test_lock$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(test_lock_OBJECTS) $(test_lock_LDADD) $(LIBS)
 test_network$(EXEEXT): $(test_network_OBJECTS) $(test_network_DEPENDENCIES) $(EXTRA_test_network_DEPENDENCIES) 
 	@rm -f test_network$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(test_network_OBJECTS) $(test_network_LDADD) $(LIBS)
@@ -392,6 +402,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_integration.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_learner.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_list.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_lock.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_network.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_network_nodes.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_network_server.Po@am__quote@

@@ -38,7 +38,7 @@ void start_intheory(int my_index, int node_count, char* nodes[]) {
   notice("INTIALIZED NETWORK");
   // start the server
   start_server();
-  
+  init_locks();
   // start the worker
   pthread_create(&worker_thread, 0, worker, 0);
 
@@ -49,6 +49,8 @@ void stop_intheory() {
   running = 0;
   trace("Stopping worker");
   pthread_join(worker_thread, 0);
+  trace("Releasing locks");
+  destroy_locks();
   trace("Stopping network server");
   stop_server();
   trace("Destroying network datastructures");

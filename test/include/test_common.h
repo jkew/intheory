@@ -16,7 +16,7 @@ extern int recvidx;
 extern int _node_count;
 extern int running;
 message * recv_from_scenario(int, long, unsigned int);
-int send_to_scenario(int, long, unsigned int, long, long);
+int send_to_scenario(int, long, unsigned int, long, long, unsigned short flags);
 void got_value(int slot, long value, unsigned short op);
 int spawn_nodes(char *all_nodes);
 void intheory_sm(enum role_t role);

@@ -88,7 +88,7 @@ void test_learner() {
   recv = learner_basic_recv;
   send = learner_basic_send;
   intheory_sm(LEARNER);
-  exit(0);  
+
   sendidx = recvidx = 0;
   recv = learner_getfail_recv;
   send = learner_getfail_send;
