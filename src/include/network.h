@@ -30,6 +30,7 @@ typedef struct {
 
 extern message * (*recv_from)(int, int, long, unsigned int);
 extern int (*send_to)(int, long, int, long, long, unsigned short);
+extern int intheory_remote;
 
 char * get_address(int node);
 int get_port(int node);
@@ -48,4 +49,9 @@ void init_network(int, int, char**, int);
 void init_network_nodes(int, int, char**);
 void destroy_network_nodes();
 void destroy_network();
+
+struct sockaddr_un it_domain_sockaddr(int id, int delete);
+int it_domain_socket();
+int it_remote_socket();
+void set_it_socket_opts(int socketfd);
 #endif

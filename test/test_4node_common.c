@@ -24,6 +24,7 @@ int spawn_nodes(char *all_nodes) {
   } 
 
   if (pid == 0) {
+    intheory_remote = 0;
     start_intheory(node, TOTAL_NODES, all_nodes);
     register_changed_cb(SLOT, got_value);
     if (node == 0) {

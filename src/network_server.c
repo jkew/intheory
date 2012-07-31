@@ -5,37 +5,19 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <sys/socket.h>
+#include<sys/un.h>
 #include <sys/types.h>
 #include <arpa/inet.h>
 #include "include/intheory.h"
 #include "include/network.h"
+#include "include/util.h"
 
 int server_continue = 1;
 pthread_t recv_thread;
+int intheory_remote = 1;
 
 
-int open_socket(int port) {
-  int socketfd;
-  struct sockaddr_in servaddr;
-  if ((socketfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
-    { assert(0); return -1; }
- 
-  memset(&servaddr, 0, sizeof(struct sockaddr_in));
-  servaddr.sin_family      = AF_INET;
-  servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-  servaddr.sin_port        = htons(port);
-  memset(&(servaddr.sin_zero), '\0', 8);
-
-  if(bind(socketfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
-    perror("ERROR");
-    error("Bind error\n");
-    assert(0);
-  }
-  if (listen(socketfd, 10) < 0){
-    error("Listen ERROR\n");
-    assert(0);
-  }
-
+void set_it_socket_opts(int socketfd) {
   struct timeval timeout;
   memset(&timeout, 0, sizeof(struct timeval));
   timeout.tv_sec = 1;
@@ -52,13 +34,84 @@ int open_socket(int port) {
     error("setsockopt failed\n");
     assert(0);
   }
-  /*      
+        
   if (setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR, &optval,
 		  sizeof(optval)) < 0) {
     error("setsockopt failed\n");
     assert(0);
   }
-  */
+}
+
+int it_remote_socket() {
+  int sockfd;
+
+  trace("opening socket");
+  sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  if (sockfd < 0)  {
+    error("ERROR opening socket");
+    assert(0);
+  }
+  set_it_socket_opts(sockfd);
+  return sockfd;
+}
+
+int it_domain_socket() {
+  int socketfd;
+  if ((socketfd = socket(AF_LOCAL, SOCK_STREAM, 0)) == -1) 
+    { assert(0); return -1; }
+  return socketfd;
+}
+
+struct sockaddr_un it_domain_sockaddr(int id, int delete) {
+  char file[256];
+  snprintf(file, 256, "/tmp/intheory.server.%d", id);
+  struct sockaddr_un servaddr;
+  size_t size;
+  memset(&servaddr, 0, sizeof(struct sockaddr_un));
+  servaddr.sun_family      = AF_LOCAL;
+  strcpy(servaddr.sun_path, file);
+  if (delete) unlink(file);
+  return servaddr;
+}
+
+
+int open_port(int port) {
+  int socketfd = it_remote_socket();
+  struct sockaddr_in servaddr;
+ 
+  memset(&servaddr, 0, sizeof(struct sockaddr_in));
+  servaddr.sin_family      = AF_INET;
+  servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+  servaddr.sin_port        = htons(port);
+  memset(&(servaddr.sin_zero), '\0', 8);
+
+  if(bind(socketfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
+    error("Bind error\n");
+    assert(0);
+  }
+
+  if (listen(socketfd, 10) < 0){
+    error("Listen ERROR\n");
+    assert(0);
+  }
+
+  return socketfd;
+}
+
+int open_domain(int id) {
+  int socketfd = it_domain_socket();
+  struct sockaddr_un servaddr = it_domain_sockaddr(id, TRUE);
+
+  if(bind(socketfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
+    error("Bind error\n");
+    assert(0);
+  }  
+     
+  if (listen(socketfd, 10) < 0){
+    error("Listen ERROR\n");
+    assert(0);
+  }
+
   return socketfd;
 }
 
@@ -73,7 +126,11 @@ void server(void *args) {
   FD_ZERO(&master);
   FD_ZERO(&read_fds);
 
-  if ((sockfd = open_socket(get_port(my_id()))) < 0) { assert(0); return; }
+  if (intheory_remote) {
+    if ((sockfd = open_port(get_port(my_id()))) < 0) { assert(0); return; }
+  } else {
+    if ((sockfd = open_domain(my_id())) < 0) { assert(0); return; }
+  }
   FD_SET(sockfd, &master);
   fdmax = sockfd;
   info("Server started");
