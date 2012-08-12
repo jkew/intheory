@@ -70,7 +70,8 @@ void remove_node(list_ref *list, node *n) {
       next->prev = NULL;
     }
   } else {
-    next->prev = prev;
+    if (next != NULL)
+      next->prev = prev;
     prev->next = next;
   }
   discard(n);
@@ -151,7 +152,7 @@ void * value_itr(listi itr) {
 }
 
 void pushv(list_ref *list, void *value) {
-  add_node_after(list, new_node(value), list->head);
+   add_node_after(list, new_node(value), list->head);
 }
 
 void * popv(list_ref *list) {

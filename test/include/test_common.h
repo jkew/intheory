@@ -5,6 +5,7 @@
 #include "../../src/include/state_machine.h"
 
 #define SLOT 0
+#define LOCK_SLOT 1
 #define COUNT_TO 10
 #define TOTAL_NODES 4
 
@@ -18,6 +19,7 @@ extern int running;
 message * recv_from_scenario(int, long, unsigned int);
 int send_to_scenario(int, long, unsigned int, long, long, unsigned short flags);
 void got_value(int slot, long value, unsigned short op);
+void loop();
 int spawn_nodes(char *all_nodes);
 void intheory_sm(enum role_t role);
 #endif

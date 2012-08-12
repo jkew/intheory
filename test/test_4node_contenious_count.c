@@ -7,7 +7,7 @@ long last = 0;
 
 void got_value(int slot, long value, unsigned short op) {
   if (!running) return;
-  if (value >= 10) {
+  if (value >= COUNT_TO) {
     running = 0;
     // wait a bit for the nodes to stop screaming
     // and then shutdown
@@ -20,9 +20,13 @@ void got_value(int slot, long value, unsigned short op) {
   set_it(SLOT, value + 1, ASYNC_SEND);
 }
 
+void loop() {
+  while (running) { sleep(1); }
+}
+
 int main() {
   set_log_level(NONE);
-  char * all_nodes[] = {"127.0.0.1:1239", "127.0.0.1:1240", "127.0.0.1:1241", "127.0.0.1:1242"};
+  char * all_nodes[] = {"A", "B", "C", "D"};
   return spawn_nodes(all_nodes);
 }
 

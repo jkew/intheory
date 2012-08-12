@@ -48,5 +48,6 @@ extern unsigned long deadline;
 
 state init_state(enum role_t role, state *prev_state);
 void init_sm();
+void destroy_sm();
 void next_states();
 #endif

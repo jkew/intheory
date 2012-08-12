@@ -89,38 +89,58 @@ void maintain_locks() {
 
 void lock(int slot) {
   int val;
+  error("PREPARING TO LOCK %d", slot);
   register_changed_cb(slot, lock_changed_cb);
   lock_t *l = malloc(sizeof(lock_t));
   l->slot = slot;
   l->heldby = -1;
   l->deadline = -1;
   
+  error("GETTING INITIAL VALUE %d", slot);
   if (!get_it(slot, (long *)&(l->heldby))) {
     l->heldby = -1;
   }
 
   if (l->heldby == -1) {
+    error("IMMEDIATE ACQUIRE %d", slot);
     acquire_lock(l);
   }
 
   pushv(locks, l);
   // wait for the lock to be aquired
+  error("WAITING FOR LOCK %d", slot);
+  int last_held = -999;
   while(l->heldby != my_id()) {
     usleep(10000);
+    if (l->heldby != last_held) {
+      error("HELD BY %d", l->heldby);
+      last_held = l->heldby;
+    }
   }
   l->deadline = get_deadline(deadline);
+  error("ACQUIRED LOCK %d", slot);
 }
 
 void unlock(int slot) {
+  error("UNLOCK %d", slot);
   listi itr = find_lock(slot);
   lock_t *delete = (lock_t *)value_itr(itr);
+  error("UNLOCK %d-0", slot);
   assert(delete != NULL);
+  error("UNLOCK %d-1", slot);
   assert(delete->slot == slot);
+  error("UNLOCK %d-2", slot);
   assert(delete->heldby == my_id());
+  error("UNLOCK %d-3", slot);
   if (delete != NULL && delete->slot == slot) {
+    error("UNLOCK %d-4", slot);
     remove_itr(locks, itr, &delete);
+    error("UNLOCK %d-5", slot);
     free(delete);
+    error("UNLOCK %d-6", slot);
     set_it(slot, -1, UNLOCK);
-  }
-  unregister_cb(slot, lock_changed_cb);
+    error("UNLOCK %d-7", slot);
+    unregister_cb(slot, lock_changed_cb);
+  } 
+  error("RELEASED LOCK %d", slot);
 }

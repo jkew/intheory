@@ -54,12 +54,14 @@ check_PROGRAMS = test_lock$(EXEEXT) test_proposer$(EXEEXT) \
 	test_network_nodes$(EXEEXT) test_network$(EXEEXT) \
 	test_network_server$(EXEEXT) test_integration$(EXEEXT) \
 	test_4node_count$(EXEEXT) test_store$(EXEEXT) \
-	test_4node_contenious_count$(EXEEXT) test_list$(EXEEXT)
+	test_4node_contenious_count$(EXEEXT) test_list$(EXEEXT) \
+	test_4node_lock_count$(EXEEXT)
 TESTS = test_lock$(EXEEXT) test_proposer$(EXEEXT) \
 	test_acceptor$(EXEEXT) test_learner$(EXEEXT) \
 	test_network_nodes$(EXEEXT) test_network$(EXEEXT) \
 	test_store$(EXEEXT) test_network_server$(EXEEXT) \
 	test_integration$(EXEEXT) test_4node_count$(EXEEXT) \
+	test_4node_lock_count$(EXEEXT) \
 	test_4node_contenious_count$(EXEEXT) test_list$(EXEEXT)
 subdir = test
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
@@ -84,6 +86,10 @@ am_test_4node_count_OBJECTS = test_4node_count.$(OBJEXT) \
 	test_4node_common.$(OBJEXT)
 test_4node_count_OBJECTS = $(am_test_4node_count_OBJECTS)
 test_4node_count_DEPENDENCIES = ../src/libintheory-1.0.la
+am_test_4node_lock_count_OBJECTS = test_4node_lock_count.$(OBJEXT) \
+	test_4node_common.$(OBJEXT)
+test_4node_lock_count_OBJECTS = $(am_test_4node_lock_count_OBJECTS)
+test_4node_lock_count_DEPENDENCIES = ../src/libintheory-1.0.la
 am_test_acceptor_OBJECTS = test_acceptor.$(OBJEXT) \
 	test_common.$(OBJEXT)
 test_acceptor_OBJECTS = $(am_test_acceptor_OBJECTS)
@@ -146,19 +152,19 @@ AM_V_GEN = $(am__v_GEN_@AM_V@)
 am__v_GEN_ = $(am__v_GEN_@AM_DEFAULT_V@)
 am__v_GEN_0 = @echo "  GEN     " $@;
 SOURCES = $(test_4node_contenious_count_SOURCES) \
-	$(test_4node_count_SOURCES) $(test_acceptor_SOURCES) \
-	$(test_integration_SOURCES) $(test_learner_SOURCES) \
-	$(test_list_SOURCES) $(test_lock_SOURCES) \
-	$(test_network_SOURCES) $(test_network_nodes_SOURCES) \
-	$(test_network_server_SOURCES) $(test_proposer_SOURCES) \
-	$(test_store_SOURCES)
+	$(test_4node_count_SOURCES) $(test_4node_lock_count_SOURCES) \
+	$(test_acceptor_SOURCES) $(test_integration_SOURCES) \
+	$(test_learner_SOURCES) $(test_list_SOURCES) \
+	$(test_lock_SOURCES) $(test_network_SOURCES) \
+	$(test_network_nodes_SOURCES) $(test_network_server_SOURCES) \
+	$(test_proposer_SOURCES) $(test_store_SOURCES)
 DIST_SOURCES = $(test_4node_contenious_count_SOURCES) \
-	$(test_4node_count_SOURCES) $(test_acceptor_SOURCES) \
-	$(test_integration_SOURCES) $(test_learner_SOURCES) \
-	$(test_list_SOURCES) $(test_lock_SOURCES) \
-	$(test_network_SOURCES) $(test_network_nodes_SOURCES) \
-	$(test_network_server_SOURCES) $(test_proposer_SOURCES) \
-	$(test_store_SOURCES)
+	$(test_4node_count_SOURCES) $(test_4node_lock_count_SOURCES) \
+	$(test_acceptor_SOURCES) $(test_integration_SOURCES) \
+	$(test_learner_SOURCES) $(test_list_SOURCES) \
+	$(test_lock_SOURCES) $(test_network_SOURCES) \
+	$(test_network_nodes_SOURCES) $(test_network_server_SOURCES) \
+	$(test_proposer_SOURCES) $(test_store_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -304,6 +310,8 @@ test_4node_count_SOURCES = test_4node_count.c test_4node_common.c
 test_4node_count_LDADD = ../src/libintheory-1.0.la
 test_4node_contenious_count_SOURCES = test_4node_contenious_count.c test_4node_common.c
 test_4node_contenious_count_LDADD = ../src/libintheory-1.0.la
+test_4node_lock_count_SOURCES = test_4node_lock_count.c test_4node_common.c
+test_4node_lock_count_LDADD = ../src/libintheory-1.0.la
 test_store_SOURCES = test_store.c
 test_store_LDADD = ../src/libintheory-1.0.la
 test_list_SOURCES = test_list.c
@@ -357,6 +365,9 @@ test_4node_contenious_count$(EXEEXT): $(test_4node_contenious_count_OBJECTS) $(t
 test_4node_count$(EXEEXT): $(test_4node_count_OBJECTS) $(test_4node_count_DEPENDENCIES) $(EXTRA_test_4node_count_DEPENDENCIES) 
 	@rm -f test_4node_count$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(test_4node_count_OBJECTS) $(test_4node_count_LDADD) $(LIBS)
+test_4node_lock_count$(EXEEXT): $(test_4node_lock_count_OBJECTS) $(test_4node_lock_count_DEPENDENCIES) $(EXTRA_test_4node_lock_count_DEPENDENCIES) 
+	@rm -f test_4node_lock_count$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(test_4node_lock_count_OBJECTS) $(test_4node_lock_count_LDADD) $(LIBS)
 test_acceptor$(EXEEXT): $(test_acceptor_OBJECTS) $(test_acceptor_DEPENDENCIES) $(EXTRA_test_acceptor_DEPENDENCIES) 
 	@rm -f test_acceptor$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(test_acceptor_OBJECTS) $(test_acceptor_LDADD) $(LIBS)
@@ -397,6 +408,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_4node_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_4node_contenious_count.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_4node_count.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_4node_lock_count.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_acceptor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_integration.Po@am__quote@

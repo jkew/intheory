@@ -97,7 +97,7 @@ void notice(const char *msg, ...) {
 }
 
 void log_message(char *msg, message *m) {
-  trace("(%s) Message %s from %d to %d ticket %ld slot %ld value %ld crc 0x%lx", msg, getMessageName(m->type), m->from, m->to, m->ticket, m->slot, m->value, m->crc);
+  trace("(%s) Message %s from %d to %d ticket %ld slot %d value %ld crc 0x%lx", msg, getMessageName(m->type), m->from, m->to, m->ticket, m->slot, m->value, m->crc);
 }
 
 int message_to_role(int m) {

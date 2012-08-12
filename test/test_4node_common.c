@@ -29,9 +29,10 @@ int spawn_nodes(char *all_nodes) {
     register_changed_cb(SLOT, got_value);
     if (node == 0) {
       sleep(2);
+      set_it(LOCK_SLOT, -1, 0);
       set_it(SLOT, 1, 0);
     }
-    while (running) { sleep(1); }
+    loop();
   } else {
 
     int allswellthat = 0;

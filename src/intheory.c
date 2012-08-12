@@ -22,7 +22,9 @@ void * worker(void *args) {
   notice("intheory worker thread started");
   while(running) {
     next_states();
-    usleep(5000);
+    expire_slots(); 
+    maintain_locks();
+    usleep(10000);
   }
   return NULL;
 }
@@ -38,6 +40,7 @@ void start_intheory(int my_index, int node_count, char* nodes[]) {
   notice("INTIALIZED NETWORK");
   // start the server
   start_server();
+  notice("INTIALIZED LOCKS");
   init_locks();
   // start the worker
   pthread_create(&worker_thread, 0, worker, 0);
@@ -59,6 +62,8 @@ void stop_intheory() {
   destroy_store();
   trace("Destroying callback datastructures");
   destroy_cb();
+  trace("Destroying state machines");
+  destroy_sm();
   notice("INTHEORY STOPPED");
 }
 

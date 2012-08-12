@@ -5,7 +5,7 @@
 
 void got_value(int slot, long value, unsigned short op) {
   running = 0;
-  if (value >= 10) {
+  if (value >= COUNT_TO) {
     sleep(2);
     stop_intheory();
     exit(0);
@@ -15,9 +15,13 @@ void got_value(int slot, long value, unsigned short op) {
   }
 }
 
+void loop() {
+  while (running) { sleep(1); }
+}
+
 int main() {
   set_log_level(NONE);
-  char * all_nodes[] = {"127.0.0.1:1235", "127.0.0.1:1236", "127.0.0.1:1237", "127.0.0.1:1238"};
+  char * all_nodes[] = {"A", "B", "C", "D"};
   return spawn_nodes(all_nodes);
 }
 
