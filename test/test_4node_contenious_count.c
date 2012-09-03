@@ -6,8 +6,7 @@
 long last = 0;
 
 void got_value(int slot, long value, unsigned short op) {
-  if (!running) return;
-  if (value >= COUNT_TO) {
+  if (!running || value >= COUNT_TO) {
     running = 0;
     // wait a bit for the nodes to stop screaming
     // and then shutdown
@@ -25,7 +24,7 @@ void loop() {
 }
 
 int main() {
-  set_log_level(NONE);
+  set_log_level(TRACE);
   char * all_nodes[] = {"A", "B", "C", "D"};
   return spawn_nodes(all_nodes);
 }

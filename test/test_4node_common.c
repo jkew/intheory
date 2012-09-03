@@ -5,6 +5,8 @@
 
 int running = 1;
 
+//need to check the sigchld of each child process to verify it ended properly.
+
 int spawn_nodes(char *all_nodes) {
   int node = TOTAL_NODES - 1;
   int pids[TOTAL_NODES] = { 0, 0, 0, 0 };
@@ -41,6 +43,7 @@ int spawn_nodes(char *all_nodes) {
       int status;
       pid = wait(&status);
       if ( ! WIFEXITED(status) ) allswellthat = 1;
+      printf("pid %d status %d\n", pid, status);
       node--;
     }
     exit(allswellthat);

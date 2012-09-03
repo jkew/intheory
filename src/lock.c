@@ -90,23 +90,23 @@ void maintain_locks() {
 void lock(int slot) {
   int val;
   error("PREPARING TO LOCK %d", slot);
-  register_changed_cb(slot, lock_changed_cb);
   lock_t *l = malloc(sizeof(lock_t));
   l->slot = slot;
   l->heldby = -1;
   l->deadline = -1;
-  
+  pushv(locks, l);
+  register_changed_cb(slot, lock_changed_cb);
   error("GETTING INITIAL VALUE %d", slot);
   if (!get_it(slot, (long *)&(l->heldby))) {
+    error("NOT GOT YO!");
     l->heldby = -1;
   }
-
+  error("INITIAL LOCK HELD BY %d", l->heldby);
   if (l->heldby == -1) {
     error("IMMEDIATE ACQUIRE %d", slot);
     acquire_lock(l);
   }
 
-  pushv(locks, l);
   // wait for the lock to be aquired
   error("WAITING FOR LOCK %d", slot);
   int last_held = -999;

@@ -12,7 +12,7 @@
 #include "include/store.h"
 #include "include/state_machine.h"
 
-int running = 0;
+int it_running = 0;
 unsigned long deadline = 1000;
 pthread_t worker_thread;
 
@@ -20,7 +20,7 @@ pthread_t worker_thread;
 // and register callbacks when specific messages are received
 void * worker(void *args) {
   notice("intheory worker thread started");
-  while(running) {
+  while(it_running) {
     next_states();
     expire_slots(); 
     maintain_locks();
@@ -31,7 +31,7 @@ void * worker(void *args) {
 
 void start_intheory(int my_index, int node_count, char* nodes[]) {
   assert(my_index < node_count);
-  running = 1;  
+  it_running = 1;  
   init_sm();
   // initialize the network
   init_store();
@@ -49,7 +49,7 @@ void start_intheory(int my_index, int node_count, char* nodes[]) {
 }
 
 void stop_intheory() {
-  running = 0;
+  it_running = 0;
   trace("Stopping worker");
   pthread_join(worker_thread, 0);
   trace("Releasing locks");

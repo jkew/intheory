@@ -56,14 +56,11 @@ int send_intheory(int node, message *msg) {
     serveraddr = (struct sockaddr *) &sun;
   }
   
-
-  trace("connecting");
   if (connect(sockfd, serveraddr, size) < 0) {
-    error("ERROR connecting");
+    error("ERROR connecting to node %d", node);
     discard(msg);
     return 0;
   }
-  trace("writing...");
   int n = write(sockfd, msg, sizeof(message));
   if (n < 0) { 
     error("ERROR writing to socket");

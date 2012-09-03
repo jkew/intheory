@@ -42,29 +42,50 @@ state next_state(enum role_t role, state current);
 
 void next_states() {
   int avail[3] = { 0, 0, 0 };
+  list_ref *active_list = new_list();
   listi itr = list_itr(states);
+  assert(sizel(states) >= 3);
   while(there(itr)) {
     slot_state_t *curr = (slot_state_t *)value_itr(itr);
     assert(curr != NULL);
+    int delete_state = 0;
     if (curr->state == S_AVAILABLE) {
-      // Only one available state per role
-      if (avail[curr->role]) {
-	assert(avail[curr->role] == 1);
-	slot_state_t *delete = NULL;
-	itr = remove_itr(states, itr, (void **) &delete);
-	discard(delete);
-	continue;
+      // Only ten available state per role
+      if (avail[curr->role] > 10) {
+	delete_state = 1;
       } else {
 	avail[curr->role]++;
-	assert(avail[curr->role] == 1);
+	curr->slot = -1;
+	curr->pstate = -1;
       }
-    } else {
+    } else {      
       // sm operating on some state
       // if the slot/role has been seen previously, skip
       // TODO: Really this should iterate over a hashmap
       //       and only run the first state to completion
       //       of each list, but I'm going to do the slow
       //       and correct thing first.
+      listi aitr = list_itr(active_list);
+
+      while(there(aitr)) {
+	slot_state_t *active_state = (slot_state_t *)value_itr(aitr);
+	assert(active_state != NULL);	
+	if (active_state != curr && active_state->role == curr->role && active_state->slot == curr->slot) {
+	  error("role %d has the same state %d as another, killing\n", curr->role, curr->state);
+	  delete_state = 1;
+	}
+	aitr = next_itr(aitr);
+      }
+      if (!delete_state) pushv(active_list, curr);
+    }
+
+    if (delete_state) {
+      slot_state_t *delete = NULL;
+      itr = remove_itr(states, itr, (void **) &delete);	
+      assert(delete == curr);
+      fsck(states);
+      discard(delete);
+      continue;
     }
     curr->pstate = curr->state;
     curr->slot = curr->s.slot;
@@ -76,9 +97,13 @@ void next_states() {
   int i = 0;
   for (i = 0; i < 3; i++) {
     if (avail[i] == 0) {
+      error("CREATING EXTRA STATE FOR ROLE %d", i);
       pushv(states, new_slot_state(i));
     }
   }
+  slot_state_t *delete = NULL;
+  while(delete = popv(active_list));
+  free(active_list);
 }
 
 state init_state(enum role_t role, state *prev_state) {
